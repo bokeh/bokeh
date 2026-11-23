@@ -189,15 +189,17 @@ API changes
   callback to track click order should record that order separately
   (:bokeh-pull:`15575`).
 * Singular plot convenience properties such as ``xaxis``, ``grid``, ``legend``,
-  and ``hover`` now return the first matching object. They raise ``LookupError``
-  when there is no match. The new plural properties ``axes``, ``xaxes``,
-  ``yaxes``, ``grids``, ``xgrids``, ``ygrids``, ``legends``, and ``hovers``
-  return a documented, typed :class:`~bokeh.core.collections.Many`. Use the plural
+  and ``hover`` now return the first matching object in Python and BokehJS.
+  They raise ``LookupError`` in Python or throw an ``Error`` in BokehJS when
+  there is no match. The new plural properties ``axes``, ``xaxes``, ``yaxes``,
+  ``grids``, ``xgrids``, ``ygrids``, ``legends``, and ``hovers`` return a
+  documented, typed :class:`~bokeh.core.collections.Many`. Use the plural
   properties for attribute broadcasting and collection operations, or convert
-  them to an ordinary list with ``list(plot.xaxes)``. Use ``plot.xaxes.first``
-  when the absence of an x-axis is expected. For example, replace the
-  broadcast ``plot.axis.visible = False`` with ``plot.axes.visible = False``,
-  and replace ``plot.xaxis[0]`` with ``plot.xaxis``.
+  them to an ordinary list with ``list(plot.xaxes)`` in Python or an array with
+  ``[...figure.xaxes]`` in BokehJS. Use ``plot.xaxes.first`` when the absence of
+  an x-axis is expected. For example, replace the broadcast
+  ``plot.axis.visible = False`` with ``plot.axes.visible = False``, and replace
+  ``plot.xaxis[0]`` with ``plot.xaxis``.
 
 * Generic property base classes and ``Value`` now default their type parameter
   to ``Any`` when it is omitted. Explicit type arguments and constructor

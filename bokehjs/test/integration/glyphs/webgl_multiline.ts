@@ -41,8 +41,8 @@ describe("WebGL multiline stability", () => {
       x_range: [0, 4],
       y_range: [0, 9],
     })
-    p.xgrid.visible = false
-    p.ygrid.visible = false
+    p.xgrids.visible = false
+    p.ygrids.visible = false
 
     const common = {
       xs: {field: "xs"} as const,
@@ -86,8 +86,8 @@ describe("WebGL multiline stability", () => {
         x_range: [0, 4],
         y_range: [0, 5],
       })
-      p.xgrid.visible = false
-      p.ygrid.visible = false
+      p.xgrids.visible = false
+      p.ygrids.visible = false
       const renderer = p.multi_line({
         xs: {field: "xs"},
         ys: {field: "ys"},

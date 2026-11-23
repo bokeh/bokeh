@@ -84,15 +84,15 @@ describe("Examples", () => {
     plot.title.text = "Usain Bolt vs. 116 years of Olympic sprinters"
     plot.title.text_font_size = "19px"
 
-    plot.xaxis.ticker = SingleIntervalTicker.create({interval: 5, num_minor_ticks: 0})
-    plot.xaxis.axis_line_color = null
-    plot.xaxis.major_tick_line_color = null
-    plot.xgrid.grid_line_dash = "dashed"
+    plot.xaxes.ticker = SingleIntervalTicker.create({interval: 5, num_minor_ticks: 0})
+    plot.xaxes.axis_line_color = null
+    plot.xaxes.major_tick_line_color = null
+    plot.xgrids.grid_line_dash = "dashed"
 
-    plot.yaxis.ticker = FixedTicker.create({ticks: [1900, 1912, 1924, 1936, 1952, 1964, 1976, 1988, 2000, 2012]})
-    plot.yaxis.major_tick_in = -5
-    plot.yaxis.major_tick_out = 10
-    plot.ygrid.grid_line_color = null
+    plot.yaxes.ticker = FixedTicker.create({ticks: [1900, 1912, 1924, 1936, 1952, 1964, 1976, 1988, 2000, 2012]})
+    plot.yaxes.major_tick_in = -5
+    plot.yaxes.major_tick_out = 10
+    plot.ygrids.grid_line_color = null
 
     const medal = plot.scatter({
       x: {field: "MetersBack"}, y: {field: "Year"},

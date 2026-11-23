@@ -99,17 +99,17 @@ describe("Examples", () => {
     p.spline([2, 3, 4], [4, 5, 4], {color: "red", legend_label: "red", line_width: 4})
     p.spline([4, 3, 2], [4, 3, 2], {color: "blue", legend_label: "blue", line_width: 4})
 
-    p.xaxis.axis_label = "X-Axis"
-    p.xaxis.axis_label_text_font = "XKCD"
-    p.xaxis.axis_label_text_font_size = "22px"
-    p.xaxis.major_label_text_font = "XKCD"
-    p.xaxis.major_label_text_font_size = "12px"
+    p.xaxes.axis_label = "X-Axis"
+    p.xaxes.axis_label_text_font = "XKCD"
+    p.xaxes.axis_label_text_font_size = "22px"
+    p.xaxes.major_label_text_font = "XKCD"
+    p.xaxes.major_label_text_font_size = "12px"
 
-    p.yaxis.axis_label = "Y-Axis"
-    p.yaxis.axis_label_text_font = "XKCD"
-    p.yaxis.axis_label_text_font_size = "26px"
-    p.yaxis.major_label_text_font = "XKCD"
-    p.yaxis.major_label_text_font_size = "12px"
+    p.yaxes.axis_label = "Y-Axis"
+    p.yaxes.axis_label_text_font = "XKCD"
+    p.yaxes.axis_label_text_font_size = "26px"
+    p.yaxes.major_label_text_font = "XKCD"
+    p.yaxes.major_label_text_font_size = "12px"
 
     p.legend.label_text_font = "XKCD"
     p.legend.stylesheets = [legend_style]

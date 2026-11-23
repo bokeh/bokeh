@@ -182,8 +182,8 @@ describe("Patches glyph", () => {
   it("should show edge seaming artifact with adjacent semi-transparent fill-only polygons", async () => {
     function make_plot(output_backend: OutputBackend) {
       const p = fig([300, 300], {output_backend, title: output_backend})
-      p.xgrid.visible = false
-      p.ygrid.visible = false
+      p.xgrids.visible = false
+      p.ygrids.visible = false
 
       // Two adjacent rectangles sharing an edge, semi-transparent, no outline
       // WebGL shows thin seam at shared edge due to independent AA skirt compositing

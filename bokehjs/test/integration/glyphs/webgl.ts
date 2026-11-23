@@ -50,8 +50,8 @@ describe("webgl", () => {
         x_range: [0, 10],
         y_range: [0, 10],
       })
-      p.xgrid.visible = false
-      p.ygrid.visible = false
+      p.xgrids.visible = false
+      p.ygrids.visible = false
 
       p.patch(
         [-2, 4, 4, -2, NaN, 12, 14, 14, 12],

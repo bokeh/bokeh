@@ -7,7 +7,7 @@ import {DEFAULT_TOOLS} from "@bokehjs/api/figure"
 import {construct} from "@bokehjs/core/has_props"
 import type {HasProps, HasPropsClass, ModelAttrs} from "@bokehjs/core/has_props"
 import {
-  Circle, ColumnDataSource, LinearAxis,
+  Circle, ColumnDataSource, HoverTool, LinearAxis,
   NormalHead, Segment, Toolbar,
 } from "@bokehjs/models"
 
@@ -235,12 +235,24 @@ describe("in api/plotting module", () => {
       })
     })
 
-    it("should support axis property proxying", () => {
+    it("should support singular and plural accessors", () => {
+      const hover = HoverTool.create()
       const p = figure({x_axis_label: "X0", y_axis_label: "Y0"})
+      p.add_tools(hover)
+      p.scatter(0, 0, {legend_label: "circle"})
 
       expect(p.xaxes.length).to.be.equal(1)
       expect(p.yaxes.length).to.be.equal(1)
       expect(p.axes.length).to.be.equal(2)
+      expect(p.xaxis).to.be.identical(p.xaxes[0])
+      expect(p.yaxis).to.be.identical(p.yaxes[0])
+      expect(p.axis).to.be.identical(p.axes[0])
+      expect(p.xgrid).to.be.identical(p.xgrids[0])
+      expect(p.ygrid).to.be.identical(p.ygrids[0])
+      expect(p.grid).to.be.identical(p.grids[0])
+      expect(p.legend).to.be.identical(p.legends[0])
+      expect(p.hover).to.be.identical(hover)
+      expect([...p.hovers]).to.be.equal([hover])
 
       expect(p.xaxes.map((axis) => axis.axis_label)).to.be.equal(["X0"])
       expect(p.yaxes.map((axis) => axis.axis_label)).to.be.equal(["Y0"])
@@ -255,39 +267,35 @@ describe("in api/plotting module", () => {
       expect(p.yaxes.length).to.be.equal(3)
       expect(p.axes.length).to.be.equal(6)
 
-      p.xaxes.forEach((axis) => axis.axis_label = "X1")
-      p.yaxes.forEach((axis) => axis.axis_label = "Y1")
+      p.xaxes.axis_label = "X1"
+      p.yaxes.axis_label = "Y1"
 
       expect(p.xaxes.map((axis) => axis.axis_label)).to.be.equal(["X1", "X1", "X1"])
       expect(p.yaxes.map((axis) => axis.axis_label)).to.be.equal(["Y1", "Y1", "Y1"])
 
-      p.xaxis.each((axis) => axis.axis_label = "X2")
-      p.yaxis.each((axis) => axis.axis_label = "Y2")
+      p.xaxes.forEach((axis) => axis.axis_label = "X2")
+      p.yaxes.forEach((axis) => axis.axis_label = "Y2")
 
       expect(p.xaxes.map((axis) => axis.axis_label)).to.be.equal(["X2", "X2", "X2"])
       expect(p.yaxes.map((axis) => axis.axis_label)).to.be.equal(["Y2", "Y2", "Y2"])
 
-      p.xaxis.axis_label = "X3"
-      p.yaxis.axis_label = "Y3"
+      expect(p.select(LinearAxis).first).to.be.instanceof(LinearAxis)
+      p.select(LinearAxis).axis_label = "X3"
 
-      expect(p.xaxes.map((axis) => axis.axis_label)).to.be.equal(["X3", "X3", "X3"])
-      expect(p.yaxes.map((axis) => axis.axis_label)).to.be.equal(["Y3", "Y3", "Y3"])
+      expect(p.axes.map((axis) => axis.axis_label)).to.be.equal(["X3", "X3", "X3", "X3", "X3", "X3"])
 
-      p.add_layout(LinearAxis.create(), "left")
-      p.add_layout(LinearAxis.create(), "right")
+      const empty = figure({x_axis_type: null, y_axis_type: null, tools: []})
 
-      p.add_layout(LinearAxis.create(), "above")
-      p.add_layout(LinearAxis.create(), "below")
-
-      p.xaxis.axis_label = "X4"
-      p.yaxis.axis_label = "Y4"
-
-      expect(p.xaxes.map((axis) => axis.axis_label)).to.be.equal(["X4", "X4", "X4", "X4", "X4"])
-      expect(p.yaxes.map((axis) => axis.axis_label)).to.be.equal(["Y4", "Y4", "Y4", "Y4", "Y4"])
-
-      // TODO: this should be disallowed on the type level
-      expect(() => p.xaxis.axis_label).to.throw()
-      expect(() => p.yaxis.axis_label).to.throw()
+      expect(empty.xaxes.first).to.be.undefined
+      expect(empty.yaxes.first).to.be.undefined
+      expect(empty.grids.first).to.be.undefined
+      expect(empty.legends.first).to.be.undefined
+      expect(empty.hovers.first).to.be.undefined
+      expect(() => empty.xaxis).to.throw(Error, /Use figure\.xaxes/)
+      expect(() => empty.yaxis).to.throw(Error, /Use figure\.yaxes/)
+      expect(() => empty.grid).to.throw(Error, /Use figure\.grids/)
+      expect(() => empty.legend).to.throw(Error, /Use figure\.legends/)
+      expect(() => empty.hover).to.throw(Error, /Use figure\.hovers/)
     })
 
     it("should order legend_group items like Python", () => {

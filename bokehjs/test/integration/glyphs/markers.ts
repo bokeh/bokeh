@@ -136,7 +136,7 @@ describe("Marker glyph", () => {
       const p = fig([175, 420], {
         output_backend, title: output_backend, x_range: [-0.05, 0.25], y_range: [-0.05, 0.76],
       })
-      p.grid.visible = false
+      p.grids.visible = false
       for (let i = 0; i < markers.length; i++) {
         p.scatter({
           x: [0, 0.1, 0.2], y: 0.1*(7-i), marker: markers[i], size: 35, line_width: 7,

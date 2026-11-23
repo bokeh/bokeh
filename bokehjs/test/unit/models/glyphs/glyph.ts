@@ -33,8 +33,8 @@ describe("glyph module", () => {
           const model = kind == "MultiLine" ? MultiLine.create(attrs) : Patches.create(attrs)
           const renderer = GlyphRenderer.create({glyph: model, data_source: source})
           const plot = fig([200, 200], {output_backend, x_range: [0, 6], y_range: [0, 6], renderers: [renderer]})
-          plot.xgrid.visible = false
-          plot.ygrid.visible = false
+          plot.xgrids.visible = false
+          plot.ygrids.visible = false
           const {view} = await display(plot)
           const glyph = view.owner.get_one(renderer).glyph
           if (kind == "MultiLine") {

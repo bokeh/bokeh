@@ -3,8 +3,9 @@ import type {HasProps, HasPropsClass, HasPropsFactory, ModelAttrs} from "../core
 import type {Attrs} from "../core/types"
 import type {Value, Field, Vector} from "../core/vectorization"
 import {isVectorized} from "../core/vectorization"
-import type {Property} from "../core/properties"
 import {VectorSpec, UnitsSpec} from "../core/properties"
+import type {Many} from "../core/collections"
+import {many} from "../core/collections"
 import {extend} from "../core/class"
 import type {Location} from "../core/enums"
 import {is_equal, Comparator} from "../core/util/eq"
@@ -29,6 +30,7 @@ import {
   FactorRange,
   GlyphRenderer,
   Grid,
+  HoverTool,
   LinearAxis,
   LinearScale,
   LogAxis,
@@ -49,6 +51,7 @@ import {GestureTool} from "../models/tools/gestures/gesture_tool"
 
 import type {NamesOf, AuxGlyph} from "./glyph_api"
 import {GlyphAPI} from "./glyph_api"
+import type {ModelSelector} from "../model"
 
 export type ToolName = keyof ToolAliases
 
@@ -83,59 +86,6 @@ export namespace Figure {
     active_multi: Toolbar.Attrs["active_multi"] | string
   }
 }
-
-type IModelProxy<T extends HasProps> = {
-  each(fn: (model: T, i: number) => void): void
-  [Symbol.iterator](): Generator<T, void, undefined>
-}
-
-class ModelProxy<T extends HasProps> implements IModelProxy<T> {
-  constructor(readonly models: T[]) {
-    const mapping: Map<string, Property<unknown>[]> = new Map()
-
-    for (const model of models) {
-      for (const prop of model) {
-        const {attr} = prop
-        if (!mapping.has(attr)) {
-          mapping.set(attr, [])
-        }
-        mapping.get(attr)!.push(prop)
-      }
-    }
-
-    for (const [name, props] of mapping) {
-      Object.defineProperty(this, name, {
-        get(this: Axis): never {
-          throw new Error("only setting values is supported")
-        },
-        set(this: Axis, value: unknown): Axis {
-          for (const prop of props) {
-            prop.obj.setv({[name]: value})
-          }
-          return this
-        },
-      })
-    }
-  }
-
-  each(fn: (model: T, i: number) => void): void {
-    let i = 0
-    for (const model of this.models) {
-      fn(model, i++)
-    }
-  }
-
-  *[Symbol.iterator](): Generator<T, void, undefined> {
-    yield* this.models
-  }
-}
-
-type PropsOf<T extends HasProps> = {
-  // TODO: writeonly/setter
-  [K in keyof T["properties"]]: T["properties"][K] extends Property<infer P> ? P : never
-}
-
-type Proxied<T extends HasProps> = PropsOf<T> & IModelProxy<T>
 
 // TODO: derive this from CoordinateMapping
 export type ICoordinateMapping = {
@@ -179,56 +129,88 @@ export class Figure extends BaseFigure {
     active_multi: Toolbar.Attrs["active_multi"] | string | undefined
   } | null
 
-  get xaxes(): Axis[] {
-    return [...this.below, ...this.above].filter((r) => r instanceof Axis)
-  }
-  get yaxes(): Axis[] {
-    return [...this.left, ...this.right].filter((r) => r instanceof Axis)
-  }
-  get axes(): Axis[] {
-    return [...this.below, ...this.above, ...this.left, ...this.right].filter((r) => r instanceof Axis)
+  override select<T extends HasProps>(selector: ModelSelector<T>): Many<T> {
+    return many(super.select(selector))
   }
 
-  get xaxis(): Proxied<Axis> {
-    return new ModelProxy(this.xaxes) as any as Proxied<Axis>
-  }
-  get yaxis(): Proxied<Axis> {
-    return new ModelProxy(this.yaxes) as any as Proxied<Axis>
-  }
-  get axis(): Proxied<Axis> {
-    return new ModelProxy(this.axes) as any as Proxied<Axis>
+  protected _first<T extends HasProps>(items: Many<T>, description: string, plural_accessor: string): T {
+    const {first} = items
+    if (first == null) {
+      throw new Error(`This figure has no ${description}. Use figure.${plural_accessor} to access the collection, including when it is empty.`)
+    }
+    return first
   }
 
-  get xgrids(): Grid[] {
-    return this.center.filter((r) => r instanceof Grid).filter((grid) => grid.dimension == 0)
-  }
-  get ygrids(): Grid[] {
-    return this.center.filter((r) => r instanceof Grid).filter((grid) => grid.dimension == 1)
-  }
-  get grids(): Grid[] {
-    return this.center.filter((r) => r instanceof Grid)
+  protected _axes(...sides: ("above" | "below" | "left" | "right")[]): Many<Axis> {
+    return many(sides.flatMap((side) => this[side]).filter((renderer) => renderer instanceof Axis))
   }
 
-  get xgrid(): Proxied<Grid> {
-    return new ModelProxy(this.xgrids) as any as Proxied<Grid>
+  get xaxis(): Axis {
+    return this._first(this.xaxes, "x-axis", "xaxes")
   }
-  get ygrid(): Proxied<Grid> {
-    return new ModelProxy(this.ygrids) as any as Proxied<Grid>
+  get xaxes(): Many<Axis> {
+    return this._axes("above", "below")
   }
-  get grid(): Proxied<Grid> {
-    return new ModelProxy(this.grids) as any as Proxied<Grid>
+  get yaxis(): Axis {
+    return this._first(this.yaxes, "y-axis", "yaxes")
+  }
+  get yaxes(): Many<Axis> {
+    return this._axes("left", "right")
+  }
+  get axis(): Axis {
+    return this._first(this.axes, "axis", "axes")
+  }
+  get axes(): Many<Axis> {
+    return this._axes("above", "below", "left", "right")
+  }
+
+  protected _grids(...dimensions: (0 | 1)[]): Many<Grid> {
+    return many(dimensions.flatMap((dimension) => {
+      return this.center.filter((renderer): renderer is Grid => renderer instanceof Grid && renderer.dimension == dimension)
+    }))
+  }
+
+  get xgrid(): Grid {
+    return this._first(this.xgrids, "x-grid", "xgrids")
+  }
+  get xgrids(): Many<Grid> {
+    return this._grids(0)
+  }
+  get ygrid(): Grid {
+    return this._first(this.ygrids, "y-grid", "ygrids")
+  }
+  get ygrids(): Many<Grid> {
+    return this._grids(1)
+  }
+  get grid(): Grid {
+    return this._first(this.grids, "grid", "grids")
+  }
+  get grids(): Many<Grid> {
+    return this._grids(0, 1)
   }
 
   get legend(): Legend {
-    const legends = this.panels.filter((r) => r instanceof Legend)
+    return this._first(this.legends, "legend", "legends")
+  }
+  get legends(): Many<Legend> {
+    return many(this.panels.filter((r) => r instanceof Legend))
+  }
 
-    if (legends.length == 0) {
+  get hover(): HoverTool {
+    return this._first(this.hovers, "hover tool", "hovers")
+  }
+  get hovers(): Many<HoverTool> {
+    return many(this.toolbar.tools.filter((tool) => tool instanceof HoverTool))
+  }
+
+  protected _get_or_create_legend(): Legend {
+    const {first} = this.legends
+    if (first == null) {
       const legend = Legend.create()
       this.add_layout(legend)
       return legend
     } else {
-      const [legend] = legends
-      return legend
+      return first
     }
   }
 
@@ -708,13 +690,13 @@ export class Figure extends BaseFigure {
     })
 
     if (legend_label != null) {
-      this._handle_legend_label(legend_label, this.legend, glyph_renderer)
+      this._handle_legend_label(legend_label, this._get_or_create_legend(), glyph_renderer)
     }
     if (legend_field != null) {
-      this._handle_legend_field(legend_field, this.legend, glyph_renderer)
+      this._handle_legend_field(legend_field, this._get_or_create_legend(), glyph_renderer)
     }
     if (legend_group != null) {
-      this._handle_legend_group(legend_group, this.legend, glyph_renderer)
+      this._handle_legend_group(legend_group, this._get_or_create_legend(), glyph_renderer)
     }
 
     this.add_renderers(glyph_renderer)
@@ -834,7 +816,7 @@ export class Figure extends BaseFigure {
   }
 
   _update_legend(legend_item_label: Vector<string>, glyph_renderer: GlyphRenderer): void {
-    const {legend} = this
+    const legend = this._get_or_create_legend()
     let added = false
     for (const item of legend.items) {
       if (item.label != null && is_equal(item.label, legend_item_label)) {

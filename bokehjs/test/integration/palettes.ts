@@ -35,7 +35,7 @@ function plot(name: string, palettes: Color[][]) {
   }
 
   const p = fig([200, 200], {title: name, x_range: xf, y_range: reversed(yf), x_axis_type: null})
-  p.ygrid.grid_line_color = null
+  p.ygrids.grid_line_color = null
   p.rect({x, y, width: 1, height: 1, fill_color: colors, line_color: "transparent"})
   return p
 }
@@ -96,7 +96,7 @@ describe("Palettes", () => {
     }
 
     const p = fig([600, 300], {x_range: xf, y_range: reversed(yf), x_axis_type: null})
-    p.ygrid.grid_line_color = null
+    p.ygrids.grid_line_color = null
     p.rect({x, y, width: 1, height: 1, fill_color: colors, line_color: colors})
 
     await display(p)

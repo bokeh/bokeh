@@ -24,8 +24,6 @@ function polygon_plot(kind: PolygonKind, x: number[], y: number[], bounds: [numb
     background_fill_color: "white", outline_line_color: null,
     tools: "pan,wheel_zoom,reset", active_drag: "pan", active_scroll: "wheel_zoom",
   })
-  p.xgrid.visible = false
-  p.ygrid.visible = false
   const source = ColumnDataSource.create({data: kind == "patch" ? {x, y} : {xs: [x], ys: [y]}})
   const visuals = {source, fill_color: "black", fill_alpha: 0.5, line_color: null}
   const renderer = kind == "patch" ?
@@ -86,8 +84,8 @@ describe("WebGL self-intersecting polygons", () => {
             x_range: [left, right], y_range: [bottom, top],
             background_fill_color: "white", outline_line_color: null,
           })
-          p.xgrid.visible = false
-          p.ygrid.visible = false
+          p.xgrids.visible = false
+          p.ygrids.visible = false
           const visuals = {
             fill_color: "steelblue", fill_alpha: 0.6,
             line_color: name == "sine lobes" ? null : "navy", line_width: 2,
@@ -258,8 +256,6 @@ describe("WebGL self-intersecting polygons", () => {
       x_axis_type: null, y_axis_type: null,
       background_fill_color: "white", outline_line_color: null,
     })
-    p.xgrid.visible = false
-    p.ygrid.visible = false
     const renderer = p.patches({
       source, xs: {field: "xs"}, ys: {field: "ys"},
       fill_color: {field: "color"}, fill_alpha: {field: "alpha"}, line_color: null,
