@@ -12,6 +12,43 @@ import {HTML} from "@bokehjs/models/dom"
 import type {Data} from "@bokehjs/core/types"
 
 describe("Plot", () => {
+  it("updates a shared DataRange1d when a plot is removed and re-added", async () => {
+    const x_range = DataRange1d.create({range_padding: 0})
+    const left = fig([200, 200], {x_range})
+    const right = fig([200, 200], {x_range})
+    left.scatter([1, 2], [1, 2])
+    right.scatter([10, 20], [1, 2])
+
+    const layout = row([left, right])
+    const {view} = await display(layout)
+    expect(x_range.start).to.be.equal(1)
+    expect(x_range.end).to.be.equal(20)
+
+    layout.children = [left]
+    await view.ready
+    // The removed plot contributed 20, so only the surviving plot's [1, 2] may remain.
+    expect(x_range.start).to.be.equal(1)
+    expect(x_range.end).to.be.equal(2)
+
+    x_range.start = -5
+    await view.ready
+    expect(x_range.start).to.be.equal(-5)
+    layout.children = [left, right]
+    await view.ready
+    await view.owner.get_one(right).ready
+    expect(x_range.start).to.be.equal(-5)
+
+    view.owner.get_one(left).reset()
+    await view.ready
+    expect(x_range.start).to.be.equal(1)
+    expect(x_range.end).to.be.equal(20)
+
+    layout.children = [left]
+    await view.ready
+    expect(x_range.start).to.be.equal(1)
+    expect(x_range.end).to.be.equal(2)
+  })
+
   const f = (location: Location | null, options: {title?: string, inner?: boolean} = {}) => {
     const {title, inner} = options
     const p = fig([200, 200], {
