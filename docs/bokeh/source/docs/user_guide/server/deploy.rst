@@ -126,8 +126,8 @@ a Jupyter notebook running on the local machine.
 .. note::
     We intend to expand this section with more guidance for other tools and
     configurations. If you have experience with other web deployment scenarios
-    and wish to contribute your knowledge here, please contact us on
-    https://discourse.bokeh.org
+    and wish to contribute your knowledge here, please reach out in
+    `GitHub Community Support <https://github.com/bokeh/bokeh/discussions/categories/community-support>`_.
 
 SSL termination
 ---------------

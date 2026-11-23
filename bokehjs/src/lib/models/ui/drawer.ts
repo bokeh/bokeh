@@ -5,10 +5,10 @@ import {div, px, InlineStyleSheet} from "core/dom"
 import {Location} from "core/enums"
 import type {PanEvent} from "core/ui_gestures"
 import {UIGestures} from "core/ui_gestures"
+import {DragSession} from "core/drag_session"
 import type * as p from "core/properties"
 import {Or, Float, CSSLength} from "core/kinds"
 import type {Infer} from "core/kinds"
-import {assert} from "core/util/assert"
 import {isNumber} from "core/util/types"
 import * as drawers_css from "styles/drawers.css"
 import * as icons_css from "styles/icons.css"
@@ -26,6 +26,7 @@ export class DrawerView extends PaneView {
     this.on_pan_start = this.on_pan_start.bind(this)
     this.on_pan = this.on_pan.bind(this)
     this.on_pan_end = this.on_pan_end.bind(this)
+    this.on_pan_cancel = this.on_pan_cancel.bind(this)
   }
 
   protected readonly sizing = new InlineStyleSheet("", "sizing")
@@ -38,7 +39,7 @@ export class DrawerView extends PaneView {
   protected readonly contents_el = div({class: drawers_css.contents})
   protected toggle_el: HTMLElement
 
-  protected ui_gestures = new UIGestures(this.handle_el, this)
+  protected readonly ui_gestures = new UIGestures(this.handle_el, this)
 
   override connect_signals(): void {
     super.connect_signals()
@@ -55,6 +56,11 @@ export class DrawerView extends PaneView {
     this.on_change(resizable, () => {
       this.el.classList.toggle(drawers_css.resizable, this.model.resizable)
     })
+  }
+
+  override disconnect_signals(): void {
+    this.ui_gestures.disconnect_signals()
+    super.disconnect_signals()
   }
 
   override get self_target(): HTMLElement | ShadowRoot {
@@ -81,11 +87,7 @@ export class DrawerView extends PaneView {
 
     this.shadow_el.append(this.contents_el, this.toggle_el, this.handle_el)
 
-    this.sizing.replace(`
-      ${this.host_selector} {
-        --drawer-size: ${isNumber(size) ? px(size) : size};
-      }
-    `)
+    this._resize(size)
   }
 
   toggle(open?: boolean): void {
@@ -94,24 +96,30 @@ export class DrawerView extends PaneView {
     this.model.open = open
   }
 
-  protected state: {width: number, height: number} | null = null
+  protected _resize(size: CSSSize): void {
+    this.sizing.replace(`
+      ${this.host_selector} {
+        --drawer-size: ${isNumber(size) ? px(size) : size};
+      }
+    `)
+  }
+
+  protected readonly _drag = new DragSession<"handle", {width: number, height: number}>(() => {
+    this._resize(this.model.size)
+  })
 
   on_pan_start(_event: PanEvent): void {
-    assert(this.state == null)
-
     const styles = getComputedStyle(this.el)
-    this.state = {
+    this._drag.start("handle", {
       width: parseFloat(styles.width),
       height: parseFloat(styles.height),
-    }
+    })
     this.el.classList.add(drawers_css.resizing)
   }
 
   on_pan(event: PanEvent): void {
-    assert(this.state != null)
-
     const size = (() => {
-      const {width, height} = this.state
+      const {width, height} = this._drag.state.snapshot
       const {dx, dy} = event
       switch (this.model.location) {
         case "left":  return max(width  + dx, 0)
@@ -121,16 +129,16 @@ export class DrawerView extends PaneView {
       }
     })()
 
-    this.sizing.replace(`
-      ${this.host_selector} {
-        --drawer-size: ${size}px;
-      }
-    `)
+    this._resize(size)
   }
 
   on_pan_end(_event: PanEvent): void {
-    assert(this.state != null)
-    this.state = null
+    this._drag.end()
+    this.el.classList.remove(drawers_css.resizing)
+  }
+
+  on_pan_cancel(_event: PanEvent): void {
+    this._drag.cancel()
     this.el.classList.remove(drawers_css.resizing)
   }
 }

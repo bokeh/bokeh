@@ -96,7 +96,7 @@ if TYPE_CHECKING:
     # Mappings are covariant in values, unlike dicts, e.g. dict[str, list[int]] is a DataDictArg.
     type DataDictArg = Mapping[str, Sequence[Value] | npt.NDArray[Value] | pd.Series | pd.Index]
 
-    type Index = int | slice | tuple[int | slice, ...]
+    type Index = int | np.integer[Any] | slice | tuple[int | np.integer[Any] | slice, ...]
 
     type Patches = Mapping[str, Sequence[tuple[Index, Value]]]
 
@@ -853,7 +853,7 @@ class ColumnDataSource(ColumnarDataSource):
             for ind, value in patch:
 
                 # integer index, patch single value of 1d column
-                if isinstance(ind, int):
+                if isinstance(ind, (int, np.integer)):
                     if not (0 <= ind < col_len):
                         raise ValueError(f"Out-of bounds index ({ind}) in patch for column: {name}")
 
@@ -882,7 +882,7 @@ class ColumnDataSource(ColumnarDataSource):
                         raise ValueError("Patch multi-index must contain more than one subindex")
 
                     ind_0 = ind[0]
-                    if not isinstance(ind_0, int):
+                    if not isinstance(ind_0, (int, np.integer)):
                         raise ValueError(f"Initial patch sub-index may only be integer, got: {ind_0}")
 
                     if not (0 <= ind_0 < col_len):
@@ -901,7 +901,7 @@ class ColumnDataSource(ColumnarDataSource):
 
                     # Note: bounds of sub-indices after the first are not checked!
                     for subind in ind[1:]:
-                        if not isinstance(subind, (int, slice)):
+                        if not isinstance(subind, (int, np.integer, slice)):
                             raise ValueError(f"Invalid patch sub-index: {subind}")
                         if isinstance(subind, slice):
                             _check_slice(subind)

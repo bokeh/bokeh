@@ -3,9 +3,10 @@ import {compute_angle, invert_angle, atan2} from "core/util/math"
 import type {CoordinateMapper} from "core/util/bbox"
 import {CoordinateUnits, AngleUnits, Direction} from "core/enums"
 import type * as p from "core/properties"
-import {assert} from "core/util/assert"
 import type {Pannable, PanEvent, KeyModifiers} from "core/ui_events"
 import {Signal} from "core/signaling"
+import {DragSession} from "core/drag_session"
+import type {PanPhase} from "core/drag_session"
 import {rotate_around} from "core/util/affine"
 import type {XY, SXY} from "core/util/bbox"
 import {TextAnchor} from "../common/kinds"
@@ -13,6 +14,15 @@ import * as resolve from "../common/resolve"
 import {Coordinate} from "../coordinates/coordinate"
 
 type HitTarget = "area"
+
+type RotateSnapshot = {
+  /** Screen-space angle at the start of rotation. */
+  angle: number
+  /** Where rotation started. */
+  base: SXY
+  /** The model's angle (in its units and direction), to restore on cancel. */
+  model_angle: number
+}
 
 function xy<T>(x: T, y: T): XY<T> {
   return {x, y}
@@ -97,19 +107,16 @@ export class LabelView extends TextAnnotationView implements Pannable {
     return true
   }
 
-  private _pan_state: {angle: number, base: SXY, target: HitTarget, action: "rotate"} | null = null
+  private readonly _drag = new DragSession<HitTarget, RotateSnapshot>(({model_angle}) => {
+    this.model.angle = model_angle
+  })
 
   on_pan_start(ev: PanEvent): boolean {
     if (this.model.visible && this.model.editable) {
       const {sx, sy} = ev
       const target = this._hit_test(sx, sy)
       if (target != null && this._can_hit(target)) {
-        this._pan_state = {
-          angle: this.angle,
-          base: {sx, sy},
-          target,
-          action: "rotate",
-        }
+        this._drag.start(target, {angle: this.angle, base: {sx, sy}, model_angle: this.model.angle})
         this.model.pan.emit(["pan:start", ev.modifiers])
         return true
       }
@@ -118,10 +125,8 @@ export class LabelView extends TextAnnotationView implements Pannable {
   }
 
   on_pan(ev: PanEvent): void {
-    assert(this._pan_state != null)
-
     const {dx, dy} = ev
-    const {angle, base} = this._pan_state
+    const {angle, base} = this._drag.state.snapshot
     const {origin} = this
 
     const angle0 = atan2([origin.sx, origin.sy], [base.sx, base.sy])
@@ -139,12 +144,17 @@ export class LabelView extends TextAnnotationView implements Pannable {
   }
 
   on_pan_end(ev: PanEvent): void {
-    this._pan_state = null
+    this._drag.end()
     this.model.pan.emit(["pan:end", ev.modifiers])
   }
 
+  on_pan_cancel(ev: PanEvent): void {
+    this._drag.cancel()
+    this.model.pan.emit(["pan:cancel", ev.modifiers])
+  }
+
   override cursor(sx: number, sy: number): string | null {
-    const target = this._pan_state?.target ?? this._hit_test(sx, sy)
+    const target = this._drag.target ?? this._hit_test(sx, sy)
     if (target == null || !this._can_hit(target)) {
       return null
     }
@@ -196,5 +206,5 @@ export class Label extends TextAnnotation {
     }))
   }
 
-  readonly pan = new Signal<["pan:start" | "pan" | "pan:end", KeyModifiers], this>(this, "pan")
+  readonly pan = new Signal<[PanPhase, KeyModifiers], this>(this, "pan")
 }

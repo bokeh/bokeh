@@ -14,7 +14,8 @@ Before opening an issue
 
 As a first step, you should always check
 `Bokeh's GitHub issue tracker <issue tracker_>`_ and the
-`Bokeh Discourse`_ for similar or identical issues. There are lots of issues,
+read-only `Bokeh Discourse archive`_ for similar reports. You can also search
+`GitHub Community Support`_. There are lots of issues,
 and it's possible to miss duplicates even after searching. If a team member
 closes your issue as a duplicate, you can always add your input and thoughts to
 the linked issue.
@@ -56,8 +57,8 @@ all necessary information.
 
 .. note::
     The issue tracker is not the place for general support. For questions and
-    technical assistance, visit the `Bokeh Discourse`_. When you are unsure,
-    post a question to the Discourse first before opening an issue.
+    technical assistance, ask in `GitHub Community Support`_. When you are
+    unsure whether something is a bug, ask there before opening an issue.
 
 .. _contributor_guide_issues_kinds_bugs:
 
@@ -154,7 +155,8 @@ See the `section "Issues" in BEP 1: Issues and PRs management`_ for more
 information about labels and the issue management process.
 
 .. _issue tracker: https://github.com/bokeh/bokeh/issues
-.. _Bokeh Discourse: https://discourse.bokeh.org/
+.. _GitHub Community Support: https://github.com/bokeh/bokeh/discussions/categories/community-support
+.. _Bokeh Discourse archive: https://discourse.bokeh.org/
 .. _conda: https://anaconda.org/conda-forge/bokeh
 .. _pip: https://pypi.org/project/bokeh/
 .. _Writing on GitHub: https://docs.github.com/en/github/writing-on-github

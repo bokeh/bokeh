@@ -6,14 +6,22 @@ import {CoordinateUnits, Dimension} from "core/enums"
 import type {PanEvent, Pannable, MoveEvent, Moveable, KeyModifiers} from "core/ui_events"
 import {dist_to_segment} from "core/hittest"
 import {Signal} from "core/signaling"
+import {DragSession} from "core/drag_session"
+import type {PanPhase} from "core/drag_session"
 import type * as p from "core/properties"
 import type {CoordinateMapper} from "core/util/bbox"
-import {assert} from "core/util/assert"
 import type {Context2d} from "core/util/canvas"
 
 const EDGE_TOLERANCE = 2.5
 
 type HitTarget = "edge"
+
+type DragSnapshot = {
+  /** Screen-space line at the start of dragging. */
+  line: Line
+  /** The model's location, to restore on cancel. */
+  location: number | null
+}
 
 type Point = {x: number, y: number}
 
@@ -116,17 +124,16 @@ export class SpanView extends AnnotationView implements Pannable, Moveable /*, A
     return true
   }
 
-  private _pan_state: {line: Line, target: HitTarget} | null = null
+  private readonly _drag = new DragSession<HitTarget, DragSnapshot>(({location}) => {
+    this.model.location = location
+  })
 
   on_pan_start(ev: PanEvent): boolean {
     if (this.model.visible && this.model.editable) {
       const {sx, sy} = ev
       const target = this._hit_test(sx, sy)
       if (target != null && this._can_hit(target)) {
-        this._pan_state = {
-          line: this.line.clone(),
-          target,
-        }
+        this._drag.start(target, {line: this.line.clone(), location: this.model.location})
         this.model.pan.emit(["pan:start", ev.modifiers])
         return true
       }
@@ -135,8 +142,6 @@ export class SpanView extends AnnotationView implements Pannable, Moveable /*, A
   }
 
   on_pan(ev: PanEvent): void {
-    assert(this._pan_state != null)
-
     function invert(sv: number, units: CoordinateUnits, scale: Scale,
         view: CoordinateMapper, canvas: CoordinateMapper): number {
       switch (units) {
@@ -148,7 +153,7 @@ export class SpanView extends AnnotationView implements Pannable, Moveable /*, A
 
     const sloc = (() => {
       const {dx, dy} = ev
-      const {line} = this._pan_state
+      const {line} = this._drag.state.snapshot
 
       if (this.model.dimension == "width") {
         return line.translate(0, dy).p0.y
@@ -174,8 +179,13 @@ export class SpanView extends AnnotationView implements Pannable, Moveable /*, A
   }
 
   on_pan_end(ev: PanEvent): void {
-    this._pan_state = null
+    this._drag.end()
     this.model.pan.emit(["pan:end", ev.modifiers])
+  }
+
+  on_pan_cancel(ev: PanEvent): void {
+    this._drag.cancel()
+    this.model.pan.emit(["pan:cancel", ev.modifiers])
   }
 
   private get _has_hover(): boolean {
@@ -204,7 +214,7 @@ export class SpanView extends AnnotationView implements Pannable, Moveable /*, A
   }
 
   override cursor(sx: number, sy: number): string | null {
-    const target = this._pan_state?.target ?? this._hit_test(sx, sy)
+    const target = this._drag.target ?? this._hit_test(sx, sy)
     if (target == null || !this._can_hit(target)) {
       return null
     }
@@ -260,5 +270,5 @@ export class Span extends Annotation {
     })
   }
 
-  readonly pan = new Signal<["pan:start" | "pan" | "pan:end", KeyModifiers], this>(this, "pan")
+  readonly pan = new Signal<[PanPhase, KeyModifiers], this>(this, "pan")
 }

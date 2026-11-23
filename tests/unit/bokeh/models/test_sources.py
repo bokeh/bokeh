@@ -384,17 +384,19 @@ class TestColumnDataSource:
 
         assert old_values == [OldValueUnavailable]
 
-    def test_patch_bad_simple_indices(self) -> None:
+    @pytest.mark.parametrize("index", [int, np.int64, np.int32], ids=["int", "int64", "int32"])
+    def test_patch_bad_simple_indices(self, index: type) -> None:
         ds = bms.ColumnDataSource(data=dict(a=[10, 11], b=[20, 21]))
         with pytest.raises(ValueError, match=r"Out-of bounds index \(3\) in patch for column: a"):
-            ds.patch(dict(a=[(3, 100)]))
+            ds.patch(dict(a=[(index(3), 100)]))
         with pytest.raises(ValueError, match=r"Out-of bounds index \(-1\) in patch for column: a"):
-            ds.patch(dict(a=[(-1, 100)]))
+            ds.patch(dict(a=[(index(-1), 100)]))
         with pytest.raises(ValueError, match=r"Out-of bounds index \(2\) in patch for column: b"):
-            ds.patch(dict(a=[(0, 100)], b=[(2, 100)]))
+            ds.patch(dict(a=[(index(0), 100)], b=[(index(2), 100)]))
         assert ds.data == dict(a=[10, 11], b=[20, 21])
 
-    def test_patch_good_simple_indices(self) -> None:
+    @pytest.mark.parametrize("index", [int, np.int64, np.int32], ids=["int", "int64", "int32"])
+    def test_patch_good_simple_indices(self, index: type) -> None:
         ds = bms.ColumnDataSource(data=dict(a=[10, 11], b=[20, 21]))
         ds._document = "doc"
         stuff = {}
@@ -403,9 +405,16 @@ class TestColumnDataSource:
             stuff['args'] = args
             stuff['kw'] = kw
         ds.data._patch = mock
-        ds.patch(dict(a=[(0,100), (1,101)], b=[(0,200)]), mock_setter)
+        ds.patch(dict(a=[(index(0),100), (index(1),101)], b=[(index(0),200)]), mock_setter)
         assert stuff['args'] == ("doc", ds, dict(a=[(0,100), (1,101)], b=[(0,200)]), mock_setter)
         assert stuff['kw'] == {}
+
+    def test_patch_numpy_bool_index(self) -> None:
+        # NumPy booleans are not integers and are still rejected
+        ds = bms.ColumnDataSource(data=dict(a=[10, 11]))
+        with pytest.raises(ValueError, match=r"Invalid patch index: True"):
+            ds.patch(dict(a=[(np.bool_(True), 100)]))
+        assert ds.data == dict(a=[10, 11])
 
     @pytest.mark.parametrize("as_array", [False, True], ids=["list", "ndarray"])
     def test_patch_bad_slice_indices(self, as_array: bool) -> None:
@@ -529,6 +538,20 @@ class TestColumnDataSource:
             ds.patch(dict(foo=[[[0, 3], 5]]))
         with pytest.raises(ValueError, match=r"Invalid patch index: {}"):
             ds.patch(dict(foo=[[{}, 5]]))
+
+    def test_patch_good_numpy_integer_multi_index(self) -> None:
+        ds = ColumnDataSource(data=dict(a=[np.zeros((2, 2)), np.zeros((2, 2))]))
+        ds.patch(dict(a=[([np.int64(1), 0, slice(None)], [5, 6])]))
+        ds.patch(dict(a=[([0, np.int64(1), slice(None)], [7, 8])]))
+        assert (ds.data["a"][0] == np.array([[0, 0], [7, 8]])).all()
+        assert (ds.data["a"][1] == np.array([[5, 6], [0, 0]])).all()
+
+    def test_patch_bad_numpy_integer_multi_index(self) -> None:
+        ds = ColumnDataSource(data=dict(a=[np.zeros((2, 2)), np.zeros((2, 2))]))
+        with pytest.raises(ValueError, match=r"Out-of bounds initial sub-index \(2\) in patch for column: a"):
+            ds.patch(dict(a=[([np.int64(2), 0, slice(None)], [5, 6])]))
+        assert (ds.data["a"][0] == np.zeros((2, 2))).all()
+        assert (ds.data["a"][1] == np.zeros((2, 2))).all()
 
     def test_patch_good_slice_indices(self) -> None:
         ds = bms.ColumnDataSource(data=dict(a=[10, 11, 12, 13, 14, 15], b=[20, 21, 22, 23, 24, 25]))

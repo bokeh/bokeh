@@ -558,6 +558,8 @@ class PropertyValueColumnData(PropertyValueDict[Sequence[Any]]):
             # patch gets discarded.
 
             for ind, value in patch:
+                if isinstance(ind, np.integer):
+                    ind = int(ind)
                 if isinstance(ind, (int, slice)):
                     array[ind] = value
                 else:
