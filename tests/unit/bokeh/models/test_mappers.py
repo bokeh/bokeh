@@ -79,6 +79,10 @@ class Test_CategoricalColorMapper:
         assert list(m.factors) == list(years)
         assert isinstance(m.factors, pd.Index)
 
+    def test_nested_factors_given_as_lists_are_stored_as_tuples(self) -> None:
+        m = bmm.CategoricalColorMapper(factors=[["a", "x"], ["a", "y"]], palette=["red", "green"])
+        assert m.factors == [("a", "x"), ("a", "y")]
+
 
 class Test_CategoricalPatternMapper:
     def test_basic(self) -> None:

@@ -19,6 +19,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 from collections.abc import Sequence
+from typing import Any
 
 from ..types import FactorSeqType, FactorType
 from .bases import Init, SingleParameterizedProperty
@@ -61,6 +62,12 @@ class FactorSeq(SingleParameterizedProperty[FactorSeqType, _FactorSeqLike]):
     def __init__(self, default: Init[_FactorSeqLike] = _NotGiven, *, help: str | None = None) -> None:
         type_param: Either[FactorSeqType, _FactorSeqLike] = Either(Seq(L1Factor), Seq(L2Factor), Seq(L3Factor))
         super().__init__(type_param, default=default, help=help)
+
+    def transform(self, value: Any) -> FactorSeqType:
+        value = super().transform(value)
+        if isinstance(value, (list, tuple)) and any(isinstance(factor, list) for factor in value):
+            return [tuple(factor) if isinstance(factor, list) else factor for factor in value]
+        return value
 
 #-----------------------------------------------------------------------------
 # Dev API
