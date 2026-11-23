@@ -257,7 +257,7 @@ function plot(a: number, b: number, color: Color, plot_args?: Partial<Plot.Attrs
   p.add_layout(LinearAxis.create(), "right")
   p.xaxes.forEach((axis) => (axis.formatter as BasicTickFormatter).use_scientific = false)
   p.yaxes.forEach((axis) => (axis.formatter as BasicTickFormatter).use_scientific = false)
-  p.xaxis.major_label_orientation = "vertical"
+  p.xaxes.major_label_orientation = "vertical"
   p.yaxes.major_label_orientation = "horizontal"
   const xs = [1, 2, 3].map((c) => c*a)
   const ys = [1, 2, 3].map((c) => c*b)
