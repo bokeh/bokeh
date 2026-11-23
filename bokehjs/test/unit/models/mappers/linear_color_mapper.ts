@@ -2,6 +2,12 @@ import {expect} from "#framework/assertions"
 
 import {convert_to_uint32_palette} from "@bokehjs/models/mappers/color_mapper"
 import {LinearColorMapper} from "@bokehjs/models/mappers/linear_color_mapper"
+import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
+import {Scatter} from "@bokehjs/models/glyphs/scatter"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import {IndexedSubset} from "@bokehjs/models/sources/indexed_subset"
+import {IndexFilter} from "@bokehjs/models/filters/index_filter"
+import {Indices} from "@bokehjs/core/types"
 
 describe("LinearColorMapper module", () => {
 
@@ -90,6 +96,120 @@ describe("LinearColorMapper module", () => {
 
       const vals = color_mapper.v_compute([-1, 0, 1, 2, 3])
       expect(vals).to.be.equal(convert_to_uint32_palette(["pink", "red", "green", "blue", "orange"]))
+    })
+  })
+
+  describe("LinearColorMapper with a domain", () => {
+
+    it("Should not throw when a domain renderer's source is emptied (issue #15829)", () => {
+      const domain_source = ColumnDataSource.create({data: {x: [0, 1], y: [0, 1], value: [10, 20]}})
+      const domain_renderer = GlyphRenderer.create({
+        data_source: domain_source,
+        glyph: Scatter.create({x: 0, y: 0}),
+      })
+      domain_renderer.view.compute_indices(domain_source)
+
+      const palette = ["red", "green", "blue"]
+      const color_mapper = LinearColorMapper.create({palette, domain: [[domain_renderer, "value"]]})
+      expect(color_mapper.metrics.min).to.be.equal(10)
+      expect(color_mapper.metrics.max).to.be.equal(20)
+
+      // Emptying the source leaves stale indices on the renderer's view until
+      // the view recomputes them; _collect() must skip them instead of
+      // collecting undefined values and throwing (issue #15829).
+      domain_source.data = {x: [], y: [], value: []}
+      expect(() => color_mapper.update_data()).to.not.throw()
+
+      // Refilling with recomputed indices recovers the scan: the low/high
+      // range follows the new data and colors map from it again.
+      domain_source.data = {x: [0, 1], y: [0, 1], value: [5, 15]}
+      domain_renderer.view.compute_indices(domain_source)
+      color_mapper.update_data()
+      expect(color_mapper.metrics.min).to.be.equal(5)
+      expect(color_mapper.metrics.max).to.be.equal(15)
+      expect(color_mapper.v_compute([5, 15])).to.be.equal(convert_to_uint32_palette(["red", "blue"]))
+    })
+
+    it("Should not throw when stale indices are a filtered subset beyond the new data (issue #15829)", () => {
+      const domain_source = ColumnDataSource.create({data: {x: [0, 1, 2, 3, 4], y: [0, 1, 2, 3, 4], value: [10, 20, 30, 40, 50]}})
+      const domain_renderer = GlyphRenderer.create({
+        data_source: domain_source,
+        glyph: Scatter.create({x: 0, y: 0}),
+        view: IndexedSubset.create({filter: IndexFilter.create({indices: [0, 4]})}),
+      })
+      domain_renderer.view.compute_indices(domain_source)
+      expect([...domain_renderer.view.indices.ones()]).to.be.equal([0, 4])
+      expect(domain_renderer.view.indices.size).to.be.equal(5)
+
+      const palette = ["red", "green", "blue"]
+      const color_mapper = LinearColorMapper.create({palette, domain: [[domain_renderer, "value"]]})
+      expect(color_mapper.metrics.min).to.be.equal(10)
+      expect(color_mapper.metrics.max).to.be.equal(50)
+
+      // The 2-row replacement is shorter than the stale subset's size (5), so
+      // the set bit at index 4 points past the new column; _collect() must
+      // skip the stale indices instead of throwing (issue #15829).
+      domain_source.data = {x: [0, 1], y: [0, 1], value: [7, 8]}
+      expect(() => color_mapper.update_data()).to.not.throw()
+
+      // Recomputing on the shorter source drops the out-of-range filter index
+      // 4 (BitSet.set() ignores it with a warning); the scan then follows the
+      // surviving subset rows only.
+      domain_renderer.view.compute_indices(domain_source)
+      color_mapper.update_data()
+      expect([...domain_renderer.view.indices.ones()]).to.be.equal([0])
+      expect(color_mapper.metrics.min).to.be.equal(7)
+      expect(color_mapper.metrics.max).to.be.equal(7)
+    })
+
+    it("Should not throw when the view's mask is stale after the source is emptied (issue #15829)", () => {
+      const domain_source = ColumnDataSource.create({data: {x: [0, 1], y: [0, 1], value: [10, 20]}})
+      const domain_renderer = GlyphRenderer.create({
+        data_source: domain_source,
+        glyph: Scatter.create({x: 0, y: 0}),
+      })
+      domain_renderer.view.compute_indices(domain_source)
+
+      const palette = ["red", "green", "blue"]
+      const color_mapper = LinearColorMapper.create({palette, domain: [[domain_renderer, "value"]]})
+      expect(color_mapper.metrics.min).to.be.equal(10)
+      expect(color_mapper.metrics.max).to.be.equal(20)
+
+      // Right after the source is emptied, the view's indices may already be
+      // recomputed while the mask still describes the old rows (the real-world
+      // ordering in issue #15829); _collect() must ignore the out-of-range
+      // mask entries instead of collecting undefined values and throwing.
+      domain_renderer.view.masked = Indices.all_set(2)
+      domain_source.data = {x: [], y: [], value: []}
+      domain_renderer.view.compute_indices(domain_source)
+      expect(() => color_mapper.update_data()).to.not.throw()
+    })
+
+    it("Should not throw when the source's selection is stale after the source is emptied (issue #15829)", () => {
+      const domain_source = ColumnDataSource.create({data: {x: [0, 1], y: [0, 1], value: [10, 20]}})
+      const domain_renderer = GlyphRenderer.create({
+        data_source: domain_source,
+        glyph: Scatter.create({x: 0, y: 0}),
+      })
+      domain_renderer.view.compute_indices(domain_source)
+
+      const palette = ["red", "green", "blue"]
+      const color_mapper = LinearColorMapper.create({palette, domain: [[domain_renderer, "value"]]})
+      expect(color_mapper.metrics.min).to.be.equal(10)
+      expect(color_mapper.metrics.max).to.be.equal(20)
+
+      // A selection made on the old rows lives on the source and survives the
+      // data change, so it can still reference rows the emptied source no
+      // longer has; _collect() must ignore the out-of-range selection indices
+      // instead of collecting undefined values and throwing (issue #15829).
+      // The selection is set after the view recomputes so this test isolates
+      // the stale-selection path from the stale-indices one.
+      domain_source.data = {x: [], y: [], value: []}
+      domain_renderer.view.compute_indices(domain_source)
+      expect(() => {
+        domain_source.selected.indices = [0, 1]
+        color_mapper.update_data()
+      }).to.not.throw()
     })
   })
 })
