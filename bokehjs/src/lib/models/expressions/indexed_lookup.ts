@@ -78,7 +78,6 @@ export class IndexedLookup extends Expression {
       signals: () => this.source.data_change_signals,
       on_replace: clear,
     })
-    this.on_change([this.properties.field, this.properties.indices], clear)
   }
 
   protected _v_compute(source: IndexedDataSource): Arrayable {
