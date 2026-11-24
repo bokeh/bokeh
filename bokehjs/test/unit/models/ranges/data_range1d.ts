@@ -1,4 +1,5 @@
 import {expect} from "#framework/assertions"
+import {display, fig} from "#framework/layouts"
 
 import {Plot} from "@bokehjs/models/plots/plot"
 import type {RangeManager} from "@bokehjs/models/plots/range_manager"
@@ -6,6 +7,7 @@ import {DataRange1d} from "@bokehjs/models/ranges/data_range1d"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {Scatter} from "@bokehjs/models/glyphs/scatter"
+import {BoxAnnotation} from "@bokehjs/models/annotations/box_annotation"
 import type {PaddingUnits} from "@bokehjs/core/enums"
 import {build_view} from "@bokehjs/core/build_views"
 
@@ -225,6 +227,64 @@ describe("DataRange1d", () => {
 
       expect(y_range.start).to.be.equal(1)
       expect(y_range.end).to.be.equal(3)
+    })
+  })
+
+  describe("after renderers or annotations are removed from a plot", () => {
+
+    it("should recompute (start, end) without the removed renderers", async () => {
+      const x_range = DataRange1d.create({range_padding: 0})
+      const y_range = DataRange1d.create({range_padding: 0})
+      const p = fig([200, 200], {x_range, y_range})
+      const r0 = p.scatter([1, 2], [1, 3])
+      const r1 = p.scatter([10, 20], [10, 30])
+      const {view} = await display(p)
+
+      expect([x_range.start, x_range.end]).to.be.equal([1, 20])
+      expect([y_range.start, y_range.end]).to.be.equal([1, 30])
+
+      p.renderers = [r0]
+      await view.ready
+      expect([x_range.start, x_range.end]).to.be.equal([1, 2])
+      expect([y_range.start, y_range.end]).to.be.equal([1, 3])
+
+      p.renderers = [r0, r1]
+      await view.ready
+      expect([x_range.start, x_range.end]).to.be.equal([1, 20])
+      expect([y_range.start, y_range.end]).to.be.equal([1, 30])
+    })
+
+    it("should recompute (start, end) without the removed annotations", async () => {
+      const x_range = DataRange1d.create({range_padding: 0})
+      const p = fig([200, 200], {x_range})
+      p.scatter([1, 2], [1, 3])
+      const box = BoxAnnotation.create({left: 10, right: 20})
+      p.add_layout(box)
+      const {view} = await display(p)
+
+      expect([x_range.start, x_range.end]).to.be.equal([1, 20])
+
+      p.center = p.center.filter((r) => r != box)
+      await view.ready
+      expect([x_range.start, x_range.end]).to.be.equal([1, 2])
+
+      p.add_layout(box)
+      await view.ready
+      expect([x_range.start, x_range.end]).to.be.equal([1, 20])
+    })
+
+    it("should keep a range the user has changed", async () => {
+      const x_range = DataRange1d.create({range_padding: 0})
+      const p = fig([200, 200], {x_range})
+      const r0 = p.scatter([1, 2], [1, 3])
+      p.scatter([10, 20], [10, 30])
+      const {view} = await display(p)
+
+      x_range.setv({start: 5, end: 15})
+      x_range.have_updated_interactively = true
+      p.renderers = [r0]
+      await view.ready
+      expect([x_range.start, x_range.end]).to.be.equal([5, 15])
     })
   })
 

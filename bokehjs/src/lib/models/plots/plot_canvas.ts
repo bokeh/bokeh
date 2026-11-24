@@ -992,6 +992,10 @@ export class PlotView extends LayoutDOMView implements Paintable {
     const {above, below, left, right, center, renderers} = this.model.properties
     this.on_change([above, below, left, right, center, renderers], async () => {
       await this._update_renderers()
+      // Renderers and annotations (e.g. BoxAnnotation) may take part in auto-ranging,
+      // so recompute data ranges without the removed ones. This is done after the views
+      // were rebuilt, so that a paint in between doesn't use and reset the flag early.
+      this.invalidate_dataranges = true
       this.invalidate_layout()
     })
 
