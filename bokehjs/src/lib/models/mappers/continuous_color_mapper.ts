@@ -87,15 +87,11 @@ export abstract class ContinuousColorMapper extends ColorMapper {
         }
 
         const indices = renderer.view.indices
-        if (indices.size > column.length) {
-          // The view's indices can be stale with respect to the column during
-          // a data change, e.g. right after the source was emptied. Skip them
-          // until they are recomputed, instead of collecting undefined
-          // values and throwing (#15829).
-          continue
-        }
-
-        let array = indices.select(column)
+        // Keep valid rows while the view still describes the old, longer
+        // source. Convert to a plain array so mapping preserves column values.
+        let array = indices.size > column.length
+          ? [...indices.ones()].filter((i) => i < column.length).map((i) => column[i])
+          : indices.select(column)
 
         const masked = renderer.view.masked
         const selected = renderer.data_source.selected.indices
