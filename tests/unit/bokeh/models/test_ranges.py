@@ -20,6 +20,7 @@ from unittest import mock
 import pytest
 
 from bokeh.core.validation import check_integrity, process_validation_issues
+from bokeh.document import Document
 
 from _util_models import check_properties_existence
 
@@ -212,10 +213,10 @@ class Test_FactorRange:
         assert factor_range.factors == ["a", "b"]
 
         factor_range = FactorRange(["a", "x"], ["b", "y"])
-        assert factor_range.factors == [["a", "x"], ["b", "y"]]
+        assert factor_range.factors == [("a", "x"), ("b", "y")]
 
         factor_range = FactorRange(["a", "x", "1'"], ["b", "y", "2"])
-        assert factor_range.factors == [["a", "x", "1'"], ["b", "y", "2"]]
+        assert factor_range.factors == [("a", "x", "1'"), ("b", "y", "2")]
 
     def test_init_with_keyword_arguments(self) -> None:
         factor_range = FactorRange(factors=["a", "b", "c", "d", "e"])
@@ -243,6 +244,30 @@ class Test_FactorRange:
             issues = check_integrity([r])
             process_validation_issues(issues)
         assert mock_logger.error.call_count == 1
+
+        r = FactorRange(factors=[["foo", "a"], ["foo", "b"],  ["foo", "a"]])
+        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
+            issues = check_integrity([r])
+            process_validation_issues(issues)
+        assert mock_logger.error.call_count == 1
+
+    def test_nested_factors_given_as_lists_are_stored_as_tuples(self) -> None:
+        r = FactorRange(factors=[["foo", "a"], ["foo", "b"], ["bar", "a"]])
+        assert r.factors == [("foo", "a"), ("foo", "b"), ("bar", "a")]
+        assert check_integrity([r]).error == []
+
+        r.factors = [["foo", "a", "1"], ("foo", "a", "2")]
+        assert r.factors == [("foo", "a", "1"), ("foo", "a", "2")]
+        assert check_integrity([r]).error == []
+
+    def test_nested_factors_survive_json_round_trip(self) -> None:
+        doc = Document()
+        doc.add_root(FactorRange(factors=[("foo", "a"), ("foo", "b")]))
+
+        new_doc = Document.from_json(doc.to_json())
+        [r] = new_doc.roots
+        assert r.factors == [("foo", "a"), ("foo", "b")]
+        new_doc.validate()
 
 #-----------------------------------------------------------------------------
 # Dev API
