@@ -255,7 +255,7 @@ customize its appearance. Examples of this type of customization are available u
 ``examples/styling/xkcd-style``
 
 Also, for each of these there are variables defined without the ``bokeh`` prefix which should be
-the ones you use with ``var`` to access the underline value. As an example, for the variable
+the ones you use with ``var`` to access the underlying value. As an example, for the variable
 ``--bokeh-border-color`` there is a ``--border-color`` variable which even if ``--bokeh-border-color``
 is not defined will allow you to access a default value for the ``border-color`` property.
 
@@ -267,9 +267,9 @@ is not defined will allow you to access a default value for the ``border-color``
 
     .custom-class {
       /*
-        Its value will be `black` here due to the definition above but even
-        if `--bokeh-border-color` was not defined ``--border-color`` would
-        fallback to a predefined color (i.e `#BBBBBD`)
+        The value here is `black` due to the definition above but if
+        `--bokeh-border-color` was not defined, then ``--border-color`` would
+        fall back to a predefined color (i.e. `#BBBBBD`)
       */
       border-color: var(--border-color);
     }
