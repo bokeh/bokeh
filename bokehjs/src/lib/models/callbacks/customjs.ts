@@ -9,7 +9,7 @@ import {logger} from "core/logging"
 import type {Dict} from "core/types"
 import {isFunction} from "core/util/types"
 import type {ViewManager} from "core/view_manager"
-import {index} from "embed/standalone"
+import {index} from "embed/views_index"
 
 type KV = {[key: string]: unknown}
 type Context = {index: ViewManager}
