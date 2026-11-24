@@ -34,43 +34,6 @@ Bokeh also offers the opportunity to define custom markers. See
 .. bokeh-plot:: __REPO__/examples/basic/scatters/custom_markers.py
     :source-position: none
 
-All the supported makers are available as individual methods of |figure|, too.
-But it is recommended to use the |scatter| method as best practice.
-To see details and example plots for any of the available scatter markers, click
-on the corresponding glyph method in the following list:
-
-.. hlist::
-    :columns: 3
-
-    * :func:`~bokeh.plotting.figure.asterisk`
-    * :func:`~bokeh.plotting.figure.circle`
-    * :func:`~bokeh.plotting.figure.circle_cross`
-    * :func:`~bokeh.plotting.figure.circle_dot`
-    * :func:`~bokeh.plotting.figure.circle_x`
-    * :func:`~bokeh.plotting.figure.circle_y`
-    * :func:`~bokeh.plotting.figure.cross`
-    * :func:`~bokeh.plotting.figure.dash`
-    * :func:`~bokeh.plotting.figure.diamond`
-    * :func:`~bokeh.plotting.figure.diamond_cross`
-    * :func:`~bokeh.plotting.figure.diamond_dot`
-    * :func:`~bokeh.plotting.figure.dot`
-    * :func:`~bokeh.plotting.figure.hex`
-    * :func:`~bokeh.plotting.figure.hex_dot`
-    * :func:`~bokeh.plotting.figure.inverted_triangle`
-    * :func:`~bokeh.plotting.figure.plus`
-    * :func:`~bokeh.plotting.figure.square`
-    * :func:`~bokeh.plotting.figure.square_cross`
-    * :func:`~bokeh.plotting.figure.square_dot`
-    * :func:`~bokeh.plotting.figure.square_pin`
-    * :func:`~bokeh.plotting.figure.square_x`
-    * :func:`~bokeh.plotting.figure.star`
-    * :func:`~bokeh.plotting.figure.star_dot`
-    * :func:`~bokeh.plotting.figure.triangle`
-    * :func:`~bokeh.plotting.figure.triangle_dot`
-    * :func:`~bokeh.plotting.figure.triangle_pin`
-    * :func:`~bokeh.plotting.figure.x`
-    * :func:`~bokeh.plotting.figure.y`
-
 All the markers have the same set of properties: ``x``, ``y``, ``size`` (in
 |screen units|), and ``angle`` (in radians by default). The |circle| marker is
 an exception: this method accepts an additional ``radius`` property that you can
