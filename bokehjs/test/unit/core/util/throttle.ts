@@ -39,7 +39,10 @@ describe("core/util/throttle module", () => {
 // Advance wall time independently of the timer and animation frame queues.
 describe("throttle scheduling", () => {
   async function with_clock(test: (clock: SinonFakeTimers) => Promise<void>) {
-    const clock = useFakeTimers({now: 1000})
+    const clock = useFakeTimers({
+      now: 1000,
+      toFake: ["Date", "setTimeout", "clearTimeout", "requestAnimationFrame", "cancelAnimationFrame"],
+    })
     try {
       await test(clock)
     } finally {
@@ -57,6 +60,8 @@ describe("throttle scheduling", () => {
       clock.tick(1)
       let settled = false
       void fn().then(() => settled = true)
+      await fn()
+      expect(settled).to.be.false
       clock.setSystemTime(Date.now() + 20)
       const next = fn()
       clock.runToFrame()
@@ -85,12 +90,12 @@ describe("throttle scheduling", () => {
     })
   })
 
-  for (const delayed of [false, true]) {
-    it(`should stop ${delayed ? "delayed" : "frame"} work after coalesced calls and allow reuse`, async () => {
+  for (const phase of ["frame", "timer", "delayed frame"]) {
+    it(`should stop ${phase} work after coalesced calls and allow reuse`, async () => {
       await with_clock(async (clock) => {
         let runs = 0
         const fn = throttle(() => runs++, 20)
-        if (delayed) {
+        if (phase != "frame") {
           const first = fn()
           clock.runToFrame()
           await first
@@ -98,6 +103,9 @@ describe("throttle scheduling", () => {
         }
         let settled = false
         void fn().then(() => settled = true)
+        if (phase == "delayed frame") {
+          clock.tick(19)
+        }
         await fn()
         fn.stop()
         await Promise.resolve()
@@ -106,7 +114,7 @@ describe("throttle scheduling", () => {
         const next = fn()
         clock.runAll()
         await next
-        expect(runs).to.be.equal(delayed ? 2 : 1)
+        expect(runs).to.be.equal(phase == "frame" ? 1 : 2)
       })
     })
   }
