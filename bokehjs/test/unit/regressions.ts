@@ -1,8 +1,9 @@
 import sinon from "sinon"
 import pixelmatch from "pixelmatch"
 
-import {expect, expect_condition, expect_instanceof, expect_not_null} from "#framework/assertions"
+import {expect, expect_instanceof, expect_not_null} from "#framework/assertions"
 import {display, fig, row} from "#framework/layouts"
+import {expect_pixel} from "#framework/pixels"
 import {restorable} from "#framework/util"
 import {PlotActions, actions, xy, line, tap, mouse_click, scroll_up, scroll_down, show_context_menu} from "#framework/interactive"
 import {convert_to_uint32_palette} from "@bokehjs/models/mappers/color_mapper"
@@ -2746,19 +2747,6 @@ ${view.host_selector} {
       })
       const renderer = plot.image({image: {field: "image"}, x: 0, y: 0, dw: 2, dh: 2, source, color_mapper})
       return {plot, renderer, source, color_mapper}
-    }
-
-    function pixel(view: FigureView, [x, y]: Point): number[] {
-      const {ctx, pixel_ratio} = view.canvas_view.primary
-      const sx = Math.floor(view.frame.x_scale.compute(x)*pixel_ratio)
-      const sy = Math.floor(view.frame.y_scale.compute(y)*pixel_ratio)
-      return Array.from(ctx.getImageData(sx, sy, 1, 1).data)
-    }
-
-    function expect_pixel(view: FigureView, point: Point, expected: RGBA): void {
-      const actual = pixel(view, point)
-      expect_condition(actual.every((value, i) => Math.abs(value - expected[i]) <= 2),
-        `pixel at ${point}: expected ${expected}, got ${actual}`)
     }
 
     function expect_colors(view: FigureView, bottom_left_color: RGBA, top_right_color: RGBA): void {
