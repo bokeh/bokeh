@@ -3,6 +3,9 @@ import {expect} from "#framework/assertions"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {Maximum} from "@bokehjs/models/expressions/maximum"
 import {Minimum} from "@bokehjs/models/expressions/minimum"
+import {CumSum} from "@bokehjs/models/expressions/cumsum"
+import {Jitter} from "@bokehjs/models/transforms/jitter"
+import {VBar} from "@bokehjs/models/glyphs/vbar"
 
 describe("ScalarExpression", () => {
 
@@ -29,5 +32,41 @@ describe("ScalarExpression", () => {
 
     min.field = "foo"
     expect(min.compute(source)).to.be.equal(1)
+  })
+})
+
+describe("Expressions and transforms in specs", () => {
+
+  it("should be followed after the spec is replaced", () => {
+    const glyph = VBar.create({top: {field: "y"}})
+    let exprs = 0
+    let transforms = 0
+    glyph.exprchange.connect(() => exprs++)
+    glyph.transformchange.connect(() => transforms++)
+
+    const old_expr = CumSum.create({field: "y"})
+    const old_transform = Jitter.create()
+    glyph.top = {expr: old_expr, transform: old_transform}
+
+    const expr = CumSum.create({field: "y"})
+    const transform = Jitter.create()
+    glyph.top = {expr, transform}
+
+    expr.field = "z"
+    expr.field = "y"
+    transform.width = 2
+    expect(exprs).to.be.equal(2)
+    expect(transforms).to.be.equal(1)
+
+    old_expr.field = "z"
+    old_transform.width = 2
+    expect(exprs).to.be.equal(2)
+    expect(transforms).to.be.equal(1)
+
+    glyph.top = {field: "y"}
+    expr.field = "z"
+    transform.width = 3
+    expect(exprs).to.be.equal(2)
+    expect(transforms).to.be.equal(1)
   })
 })
