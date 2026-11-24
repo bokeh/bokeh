@@ -67,6 +67,10 @@ PALETTE_LENGTH_FACTORS_MISMATCH = Warning(
     1008,
     "PALETTE_LENGTH_FACTORS_MISMATCH",
     "Palette length does not match number of factors")
+GEOMETRY_ATTRIBUTE_LENGTH_MISMATCH = Warning(
+    1009,
+    "GEOMETRY_ATTRIBUTE_LENGTH_MISMATCH",
+    "Geometry attributes must have the same length as geometries")
 EXT = Warning(
     9999,
     "EXT",

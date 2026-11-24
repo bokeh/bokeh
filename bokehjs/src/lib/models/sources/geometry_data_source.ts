@@ -1,0 +1,414 @@
+import type {
+  Feature, FeatureCollection, Geometry, GeometryCollection, Position,
+} from "geojson"
+
+import type * as p from "core/properties"
+import {logger} from "core/logging"
+import {construct} from "core/has_props"
+import type {HasProps, HasPropsClass, ModelAttrs} from "core/has_props"
+import type {Kind} from "core/kinds"
+import type {Arrayable, Attrs, Data} from "core/types"
+import {zip} from "core/util/array"
+import {is_equal} from "core/util/eq"
+import {is_NDArray, to_nested_array, get_array_item} from "core/util/ndarray"
+import {dict, entries, keys} from "core/util/object"
+import {isArray, isArrayable, isArrayableOf, isNumber, isPlainObject, isDict, isString} from "core/util/types"
+import type {Index} from "core/util/templating"
+import {IndexedDataSource} from "./indexed_data_source"
+
+const coordinate_fields = new Set(["x", "y", "z", "xs", "ys", "zs"])
+
+export type GeometryValue = Geometry | null
+
+export type GeometryRecords = {
+  geometries: GeometryValue[]
+  data: Data
+}
+
+export type GeometryRecord = {geometry: GeometryValue} & {[key: string]: unknown}
+export type GeometryInput =
+  | string | FeatureCollection | GeometryCollection | Feature | Geometry | GeometryRecord
+  | {geometries: (GeometryValue | Feature)[], data: Data}
+  | (Feature | GeometryValue | GeometryRecord)[]
+
+export namespace GeometryDataSource {
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = IndexedDataSource.Props & {
+    geometries: p.Property<GeometryValue[]>
+    data: p.Property<Data>
+    crs: p.Property<string | null>
+  }
+}
+
+export interface GeometryDataSource extends GeometryDataSource.Attrs {}
+
+export function is_geometry_records(value: unknown): value is GeometryRecords {
+  if (!isPlainObject(value)) {
+    return false
+  }
+  const {geometries, data} = value as {geometries?: unknown, data?: unknown}
+  return isArray(geometries) && isDict(data)
+}
+
+function coordinate_paths(geometry: GeometryValue): Position[][] {
+  if (geometry == null) {
+    return []
+  }
+
+  switch (geometry.type) {
+    case "Point":
+      return [[geometry.coordinates]]
+    case "MultiPoint":
+      return [positions(geometry.coordinates)]
+    case "LineString":
+      return [positions(geometry.coordinates)]
+    case "MultiLineString":
+    case "Polygon":
+      return position_paths(geometry.coordinates)
+    case "MultiPolygon": {
+      const coordinates = is_NDArray(geometry.coordinates) ? to_nested_array(geometry.coordinates) : geometry.coordinates
+      return coordinates.flatMap(position_paths)
+    }
+    case "GeometryCollection":
+      return geometry.geometries.flatMap((item) => coordinate_paths(item))
+    default:
+      return []
+  }
+}
+
+function position_paths(value: unknown): Position[][] {
+  const paths = is_NDArray(value) ? to_nested_array(value) : value as unknown[]
+  return paths.map(positions)
+}
+
+function positions(value: unknown): Position[] {
+  if (is_NDArray(value)) {
+    if (value.dimension != 2) {
+      return []
+    }
+    const [rows, width] = value.shape
+    return Array.from({length: rows}, (_, row) =>
+      Array.from(value.slice(row*width, (row + 1)*width)) as Position,
+    )
+  }
+  return value as Position[]
+}
+
+function coordinate_sequence(geometry: GeometryValue, axis: 0 | 1 | 2): number[] {
+  const paths = coordinate_paths(geometry)
+  if (paths.length != 1) {
+    return []
+  }
+  return paths[0].map((position) => position[axis] ?? NaN)
+}
+
+function point_coordinate(geometry: GeometryValue, axis: 0 | 1 | 2): number {
+  return geometry?.type == "Point" ? geometry.coordinates[axis] ?? NaN : NaN
+}
+
+function geometry_from_xy(xs: Arrayable, ys: Arrayable): Geometry {
+  if (!isArrayable(xs) || !isArrayable(ys) || [xs, ys].some((row) => is_NDArray(row) && row.dimension != 1)) {
+    throw new Error("polygon x and y coordinates must have matching nesting")
+  }
+  if (xs.length != ys.length) {
+    throw new Error("polygon x and y coordinates must have the same length")
+  }
+
+  const ring = zip(xs, ys).map(([x, y]) =>
+    [x instanceof Date ? x.getTime() : x, y instanceof Date ? y.getTime() : y])
+  for (const pair of ring) {
+    for (const value of pair) {
+      if (isNumber(value)) {
+        if (!Number.isFinite(value)) {
+          throw new Error("polygon coordinates must be finite; use Polygon or MultiPolygon geometry for multipart data")
+        }
+      } else if (!isString(value) && !(isArrayableOf(value, isString) && value.length > 0)) {
+        throw new Error("polygon coordinates must be numbers or categorical factors")
+      }
+    }
+  }
+
+  if (ring.length == 0) {
+    return {type: "Polygon", coordinates: []}
+  }
+  const first = ring[0]
+  if (ring.some(([x, y]) => isNumber(x) != isNumber(first[0]) || isNumber(y) != isNumber(first[1]))) {
+    throw new Error("polygon coordinates cannot mix numbers and categorical factors on the same axis")
+  }
+  if (!is_equal(first, ring.at(-1))) {
+    ring.push(first)
+  }
+  if (ring.length < 4) {
+    throw new Error("polygon rings must contain at least three vertices")
+  }
+  return {type: "Polygon", coordinates: [ring as Position[]]}
+}
+
+export function is_coordinate_sequence(value: unknown): value is Arrayable {
+  return isArrayable(value) && (value.length == 0 || typeof value[0] != "string")
+}
+
+export function coordinate_nesting(xs: Arrayable, ys: Arrayable): boolean {
+  const x = xs[0]
+  const y = ys[0]
+  const nested_x = is_coordinate_sequence(x)
+  const nested_y = is_coordinate_sequence(y)
+  const categorical_row = (value: unknown): boolean => isArray(value) && value.length > 0 && value.every((item) => typeof item == "string")
+  if (nested_x && categorical_row(y) || nested_y && categorical_row(x) || categorical_row(x) && categorical_row(y)) {
+    return true
+  }
+  if (nested_x != nested_y) {
+    throw new Error("polygon x and y coordinates must have matching nesting")
+  }
+  return nested_x
+}
+
+function append_geometry(
+  geometry: GeometryValue,
+  properties: {[key: string]: unknown},
+  geometries: GeometryValue[],
+  rows: {[key: string]: unknown}[],
+): void {
+  if (geometry?.type == "GeometryCollection") {
+    for (const item of geometry.geometries) {
+      append_geometry(item, properties, geometries, rows)
+    }
+  } else {
+    geometries.push(geometry)
+    rows.push(properties)
+  }
+}
+
+function misaligned_attributes(data: Data, length: number): string[] {
+  return entries(data)
+    .filter(([, values]) => (is_NDArray(values) && values.dimension > 1 ? values.shape[0] : values.length) != length)
+    .map(([field]) => field)
+}
+
+function geometry_value(value: unknown): GeometryValue {
+  if (value === null) {
+    return null
+  }
+  if (!isPlainObject(value) || !isString(value.type)) {
+    throw new Error("geometry values must be GeoJSON mappings with a 'type'")
+  }
+  if (value.type == "Feature") {
+    return geometry_value(value.geometry ?? null)
+  }
+  if (value.type == "GeometryCollection") {
+    if (!isArray(value.geometries)) {
+      throw new Error("GeometryCollection must contain a geometries array")
+    }
+    return {...value, type: "GeometryCollection", geometries: value.geometries.map(geometry_value) as Geometry[]}
+  }
+  return value as unknown as Geometry
+}
+
+/** Convert GeoJSON to feature-indexed geometry and attribute storage. */
+export function geojson_to_geometry_records(
+  geojson: GeometryInput,
+): GeometryRecords {
+  if (typeof geojson == "string") {
+    geojson = JSON.parse(geojson) as Exclude<GeometryInput, string>
+  }
+  if (is_geometry_records(geojson)) {
+    const {geometries, data} = geojson
+    if (dict(data).has("geometry")) {
+      throw new Error("geometry attribute field is reserved")
+    }
+    if (misaligned_attributes(data, geometries.length).length != 0) {
+      throw new Error("geometry attributes must have the same length as geometries")
+    }
+    return {geometries: geometries.map(geometry_value), data: Object.fromEntries(entries(data))}
+  }
+  const geometries: GeometryValue[] = []
+  const rows: {[key: string]: unknown}[] = []
+
+  const append = (item: Feature | GeometryValue | GeometryRecord): void => {
+    if (item == null) {
+      append_geometry(null, {}, geometries, rows)
+    } else if ("geometry" in item && item.type != "Feature") {
+      const {geometry, ...properties} = item as GeometryRecord
+      append_geometry(geometry_value(geometry), properties, geometries, rows)
+    } else {
+      const value = item as Feature | Geometry
+      if (value.type == "Feature") {
+        append_geometry(geometry_value(value), value.properties ?? {}, geometries, rows)
+      } else {
+        append_geometry(geometry_value(value), {}, geometries, rows)
+      }
+    }
+  }
+
+  if (isArray(geojson)) {
+    for (const item of geojson) {
+      append(item)
+    }
+  } else {
+    const kind = (geojson as {type?: unknown}).type
+    if (kind == "FeatureCollection" && !("geometry" in geojson)) {
+      for (const feature of (geojson as FeatureCollection).features) {
+        append(feature)
+      }
+    } else {
+      append(geojson as Feature | Geometry | GeometryRecord)
+    }
+  }
+
+  const fields = new Set(rows.flatMap((row) => Object.keys(row)))
+  if (fields.has("geometry")) {
+    throw new Error("geometry attribute field is reserved")
+  }
+  const data = Object.fromEntries(Array.from(fields, (field) =>
+    [field, rows.map((row) => Object.hasOwn(row, field) ? row[field] ?? null : null)]))
+  return {geometries, data}
+}
+
+/** A feature-indexed source retaining natural GeoJSON geometry hierarchy. */
+export class GeometryDataSource extends IndexedDataSource {
+  declare properties: GeometryDataSource.Props
+
+  private _derived = new Map<string, Arrayable>()
+  private _alignment_check_pending = false
+
+  static override create<T extends GeometryDataSource>(
+    this: HasPropsClass<T>, attrs?: Partial<GeometryDataSource.Attrs> | GeometryInput | Map<string, unknown>,
+  ): T
+  static override create<T extends HasProps>(
+    this: HasPropsClass<T>, attrs?: ModelAttrs<T>,
+  ): T
+  static override create<T extends HasProps>(
+    this: HasPropsClass<T>, attrs: Partial<GeometryDataSource.Attrs> | GeometryInput | ModelAttrs<T> | Map<string, unknown> = {},
+  ): T {
+    return construct(this, attrs as Attrs)
+  }
+
+  /** Build closed rings. String arrays on both axes are interpreted as rows. Use explicit geometry for multi-level factors on both axes. */
+  static from_xy<T extends GeometryDataSource>(this: typeof GeometryDataSource & HasPropsClass<T>,
+      xs: Arrayable, ys: Arrayable, data: Data = {}): T {
+    for (const values of [xs, ys]) {
+      if (is_NDArray(values) && ![1, 2].includes(values.dimension)) {
+        throw new Error("polygon coordinates must be one- or two-dimensional arrays of numbers")
+      }
+    }
+    const shaped_x = is_NDArray(xs) && xs.dimension == 2
+    const shaped_y = is_NDArray(ys) && ys.dimension == 2
+    xs = is_NDArray(xs) ? to_nested_array(xs) : xs
+    ys = is_NDArray(ys) ? to_nested_array(ys) : ys
+    const nested = (xs.length == 0 && ys.length == 0) || shaped_x || shaped_y || coordinate_nesting(xs, ys)
+    if (nested && xs.length != ys.length) {
+      throw new Error("polygon x and y coordinates must have the same length")
+    }
+    if (nested && (!isArrayableOf(xs, isArrayable) || !isArrayableOf(ys, isArrayable))) {
+      throw new Error("polygon x and y coordinates must have matching nesting")
+    }
+    const geometries = nested
+      ? Array.from(xs, (x, i) => geometry_from_xy(x as Arrayable, ys[i] as Arrayable))
+      : [geometry_from_xy(xs, ys)]
+    return this.create<T>({geometries, data})
+  }
+
+  protected constructor(attrs: Partial<GeometryDataSource.Attrs> | GeometryInput | Map<string, unknown> = {}) {
+    const input = attrs instanceof Map ? Object.fromEntries(attrs) as Partial<GeometryDataSource.Attrs> : attrs
+    if (typeof input == "string" || isArray(input) || ("type" in input || "geometry" in input)) {
+      super(geojson_to_geometry_records(input))
+    } else {
+      const options = input as Partial<GeometryDataSource.Attrs>
+      const columns = dict(options.data ?? {})
+      const geometry = options.geometries === undefined ? columns.get("geometry") : undefined
+      const data = geometry === undefined ? options.data ?? {} : Object.fromEntries([...columns].filter(([name]) => name != "geometry"))
+      const geometries = options.geometries ?? (geometry === undefined ? [] : Array.from(geometry) as GeometryValue[])
+      super({...options, ...geojson_to_geometry_records({geometries, data})})
+    }
+  }
+
+  static {
+    this.define<GeometryDataSource.Props>(({List, Unknown, Dict, Arrayable, Nullable, Str}) => ({
+      geometries: [ List(Unknown) as Kind<GeometryValue[]>, [] ],
+      data:       [ Dict(Arrayable(Unknown)), {} ],
+      crs:        [ Nullable(Str), null ],
+    }))
+  }
+
+  override setv<T extends Attrs>(changed_attrs: Partial<T>, options: HasProps.SetOptions = {}): void {
+    if ("data" in changed_attrs && dict(changed_attrs.data as Data).has("geometry")) {
+      throw new Error("geometry attribute field is reserved")
+    }
+    if ("geometries" in changed_attrs) {
+      const geometries = changed_attrs.geometries as unknown
+      if (!isArray(geometries)) {
+        throw new Error("geometries must be an array")
+      }
+      changed_attrs = {...changed_attrs, geometries: geometries.map(geometry_value)}
+    }
+    const geometry_changed = "geometries" in changed_attrs || "data" in changed_attrs
+    if (geometry_changed) {
+      this._derived.clear()
+    }
+    super.setv(changed_attrs, options)
+    if (geometry_changed && !this._alignment_check_pending) {
+      this._alignment_check_pending = true
+      // A document patch can replace geometries and data in separate events.
+      queueMicrotask(() => {
+        this._alignment_check_pending = false
+        const mismatched = misaligned_attributes(this.data, this.geometries.length)
+        if (mismatched.length != 0) {
+          logger.warn(`geometry attributes must have the same length as geometries: ${mismatched.join(", ")}`)
+        }
+      })
+    }
+  }
+
+  override connect_signals(): void {
+    this.connect(this.change, () => this._derived.clear())
+    this.connect(this.data_changed, () => this._derived.clear())
+    this.on_change([this.properties.geometries, this.properties.data], () => {
+      this.data_changed.emit({structural: true})
+    })
+    // Invalidate derived fields before base selection-pruning callbacks run.
+    super.connect_signals()
+  }
+
+  get_length(): number {
+    return this.geometries.length
+  }
+
+  private _coordinate_field(name: string): Arrayable {
+    let values = this._derived.get(name)
+    if (values == null) {
+      const axis = name == "x" || name == "xs" ? 0 : name == "y" || name == "ys" ? 1 : 2
+      values = name.length == 1
+        ? this.geometries.map((geometry) => point_coordinate(geometry, axis))
+        : this.geometries.map((geometry) => coordinate_sequence(geometry, axis))
+      this._derived.set(name, values)
+    }
+    return values
+  }
+
+  get_field(name: string): Arrayable | null {
+    if (name == "geometry") {
+      return this.geometries
+    }
+    const field = dict(this.data).get(name)
+    if (field != null) {
+      return field
+    }
+    if (coordinate_fields.has(name)) {
+      return this._coordinate_field(name)
+    }
+    return null
+  }
+
+  get_record(index: Index): {[key: string]: unknown} {
+    const i = isNumber(index) ? index : index.index
+    return {
+      geometry: this.geometries[i],
+      ...Object.fromEntries(entries(this.data).map(([field, values]) => [field, get_array_item(values, i)])),
+    }
+  }
+
+  fields(): string[] {
+    return [...new Set(["geometry", ...coordinate_fields, ...keys(this.data)])]
+  }
+}

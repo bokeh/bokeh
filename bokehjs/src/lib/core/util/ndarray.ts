@@ -21,6 +21,18 @@ function encode_NDArray(array: NDArray, serializer: Serializer): NDArrayRep {
   }
 }
 
+// All recursive calls advance the same offset through the flat buffer.
+function unpack_ndarray(array: NDArray, axis: number, offset: number): unknown[] {
+  const unpack = (dimension: number): unknown[] => Array.from({length: array.shape[dimension]}, () =>
+    dimension + 1 == array.dimension ? array[offset++] : unpack(dimension + 1))
+  return unpack(axis)
+}
+
+/** Unpack a shaped array without treating its flat buffer as its outer axis. */
+export function to_nested_array(array: NDArray): unknown[] {
+  return unpack_ndarray(array, 0, 0)
+}
+
 /** Read one logical item without unpacking an entire shaped column. */
 export function get_array_item(array: Arrayable, index: number): unknown {
   if (!is_NDArray(array) || array.dimension <= 1) {
@@ -30,10 +42,7 @@ export function get_array_item(array: Arrayable, index: number): unknown {
     return undefined
   }
   const stride = array.shape.slice(1).reduce((size, length) => size*length, 1)
-  let offset = index*stride
-  const unpack = (dimension: number): unknown[] => Array.from({length: array.shape[dimension]}, () =>
-    dimension + 1 == array.dimension ? array[offset++] : unpack(dimension + 1))
-  return unpack(1)
+  return unpack_ndarray(array, 1, index*stride)
 }
 
 export interface NDArrayType<T, U=T> extends Arrayable<U>, Equatable, Cloneable, Serializable {

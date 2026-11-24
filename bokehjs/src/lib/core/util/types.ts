@@ -92,7 +92,11 @@ export function isBasicObject<T>(obj: unknown): obj is {[key: string]: T} {
 }
 
 export function isPlainObject<T>(obj: unknown): obj is {[key: string]: T} {
-  return isObject(obj) && (is_nullish(obj.constructor) || obj.constructor === Object)
+  if (!isObject(obj)) {
+    return false
+  }
+  const prototype = Object.getPrototypeOf(obj)
+  return prototype === null || prototype === Object.prototype
 }
 
 export function isDict<T>(obj: unknown): obj is Dict<T> {

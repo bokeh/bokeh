@@ -1,7 +1,7 @@
 // Based on Underscore.js 1.8.3 (http://underscorejs.org)
 
 import type {PlainObject} from "../types"
-import {isObject} from "./types"
+import {isObject, isPlainObject} from "./types"
 
 const {hasOwnProperty} = Object.prototype
 
@@ -123,7 +123,7 @@ export class Comparator {
           return this.sets(a, b)
         }
         case "[object Object]": {
-          if (a.constructor == b.constructor && (a.constructor == null || a.constructor === Object)) {
+          if (isPlainObject(a) && isPlainObject(b) && Object.getPrototypeOf(a) === Object.getPrototypeOf(b)) {
             return this.objects(a, b)
           }
           break
