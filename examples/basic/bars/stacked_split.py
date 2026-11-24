@@ -36,7 +36,7 @@ p.hbar_stack(years, y='fruits', height=0.9, color=OrRd3, source=ColumnDataSource
 p.y_range.range_padding = 0.1
 p.ygrid.grid_line_color = None
 p.legend.location = "top_left"
-p.axis.minor_tick_line_color = None
+p.axes.minor_tick_line_color = None
 p.outline_line_color = None
 
 show(p)

@@ -28,7 +28,7 @@ def make_plot(title, hist, edges, x, pdf, cdf):
     p.legend.background_fill_color = "#fefefe"
     p.xaxis.axis_label = 'x'
     p.yaxis.axis_label = 'Pr(x)'
-    p.grid.grid_line_color="white"
+    p.grids.grid_line_color="white"
     return p
 
 # Normal Distribution

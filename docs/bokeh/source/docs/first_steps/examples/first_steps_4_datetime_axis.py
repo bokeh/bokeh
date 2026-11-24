@@ -24,8 +24,8 @@ p.scatter(dates, y, size=8)
 p.line(dates, y, color="navy", line_width=1)
 
 # format axes ticks
-p.yaxis[0].formatter = NumeralTickFormatter(format="$0.00")
-p.xaxis[0].formatter = DatetimeTickFormatter(months="%b %Y")
+p.yaxis.formatter = NumeralTickFormatter(format="$0.00")
+p.xaxis.formatter = DatetimeTickFormatter(months="%b %Y")
 
 # show the results
 show(p)

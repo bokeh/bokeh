@@ -62,7 +62,7 @@ def modify_document(doc: Document) -> None:
     field.image("image", x=-6, y=-6, dw=12, dh=12, source=source, color_mapper=mapper)
     field.scatter([-2, 2], [0, 0], marker="cross", size=12, line_color="white", line_width=2)
     field.add_layout(ColorBar(color_mapper=mapper), "right")
-    field.grid.visible = False
+    field.grids.visible = False
     plot = column(colormap, field, name="plot")
     status = Div(name="status", width=320)
     extra = Div(name="extra", width=320)

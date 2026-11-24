@@ -79,7 +79,7 @@ for i, harmonic in enumerate(harmonics):
 terms_plot.scatter("term_x", "term_y", size=5, color="color", source=items)
 terms_plot.multi_line("term_xs", "term_ys", color="color", source=items)
 terms_plot.xgrid.bounds = terms_plot.xaxis.bounds = (-2.5, 2.5)
-terms_plot.axis.ticker.desired_num_ticks = 8
+terms_plot.axes.ticker.desired_num_ticks = 8
 terms_plot.legend.location = "top_right"
 terms_plot.legend.orientation = "horizontal"
 
@@ -100,7 +100,7 @@ sum_plot.circle(
 )
 sum_plot.scatter("sum_x", "sum_y", size=5, color="color", source=items)
 sum_plot.xgrid.bounds = sum_plot.xaxis.bounds = (-2.5, 2.5)
-sum_plot.axis.ticker.desired_num_ticks = 8
+sum_plot.axes.ticker.desired_num_ticks = 8
 
 
 @repeat(range(samples))

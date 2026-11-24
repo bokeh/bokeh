@@ -41,11 +41,11 @@ p = figure(title=f"US Unemployment ({years[0]} - {years[-1]})",
            tools=TOOLS, toolbar_location='below',
            tooltips=[('date', '@Month @Year'), ('rate', '@rate%')])
 
-p.grid.grid_line_color = None
-p.axis.axis_line_color = None
-p.axis.major_tick_line_color = None
-p.axis.major_label_text_font_size = "7px"
-p.axis.major_label_standoff = 0
+p.grids.grid_line_color = None
+p.axes.axis_line_color = None
+p.axes.major_tick_line_color = None
+p.axes.major_label_text_font_size = "7px"
+p.axes.major_label_standoff = 0
 p.xaxis.major_label_orientation = pi / 3
 
 r = p.rect(x="Year", y="Month", width=1, height=1, source=df,

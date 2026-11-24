@@ -18,7 +18,7 @@ G = nx.desargues_graph() # always 20 nodes
 p = figure(x_range=(-2, 2), y_range=(-2, 2),
            x_axis_location=None, y_axis_location=None,
            tools="hover", tooltips="index: @index")
-p.grid.grid_line_color = None
+p.grids.grid_line_color = None
 
 graph = from_networkx(G, nx.spring_layout, scale=1.8, center=(0,0))
 p.renderers.append(graph)

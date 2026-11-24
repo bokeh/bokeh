@@ -20,7 +20,7 @@ p.scatter(x=[0, 1, 2], y=[2, 3, 4], size=[10, 20, 30],
 p.scatter(x=[0, 1, 2], y=[3, 4, 5], size=[10, 20, 30],
           marker="circle", color="blue", fill_alpha=0.5, legend_label="Blue series")
 
-legend = p.legend[0]
+legend = p.legend
 legend.glyph_width = 40
 legend.glyph_height = 40
 legend.label_text_font_size = "12pt"

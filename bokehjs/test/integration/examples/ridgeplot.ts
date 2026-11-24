@@ -80,9 +80,9 @@ describe("Examples", () => {
     p.xgrid.grid_line_color = "#dddddd"
     p.xgrid.ticker = x_ticker
 
-    p.axis.minor_tick_line_color = null
-    p.axis.major_tick_line_color = null
-    p.axis.axis_line_color = null
+    p.axes.minor_tick_line_color = null
+    p.axes.major_tick_line_color = null
+    p.axes.axis_line_color = null
 
     await display(p)
   })
@@ -121,9 +121,9 @@ describe("Examples", () => {
     p.xgrid.grid_line_color = "#dddddd"
     p.xgrid.ticker = x_ticker
 
-    p.axis.minor_tick_line_color = null
-    p.axis.major_tick_line_color = null
-    p.axis.axis_line_color = null
+    p.axes.minor_tick_line_color = null
+    p.axes.major_tick_line_color = null
+    p.axes.axis_line_color = null
 
     await display(p)
   })

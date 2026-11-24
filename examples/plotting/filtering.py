@@ -32,7 +32,7 @@ p = figure(
     x_axis_location=None, y_axis_location=None,
     tools="pan,wheel_zoom,reset",
 )
-p.grid.grid_line_color = None
+p.grids.grid_line_color = None
 
 color_mapper = LinearColorMapper(palette=Viridis11)
 r = p.patches(

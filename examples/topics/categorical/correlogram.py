@@ -63,10 +63,10 @@ color_bar = c.construct_color_bar(
 
 p.add_layout(color_bar, "below")
 
-p.axis.major_tick_line_color = None
-p.axis.major_tick_out = 0
-p.axis.axis_line_color = None
-p.grid.grid_line_color = None
+p.axes.major_tick_line_color = None
+p.axes.major_tick_out = 0
+p.axes.axis_line_color = None
+p.grids.grid_line_color = None
 p.outline_line_color = None
 
 show(p)

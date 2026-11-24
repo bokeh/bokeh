@@ -19,7 +19,7 @@ p = figure(x_range=cats, y_range=cats,
 p.xaxis.axis_label = "Fill Options"
 p.xaxis.major_label_orientation = pi/4
 p.yaxis.axis_label = "Line Options"
-p.grid.grid_line_color = None
+p.grids.grid_line_color = None
 p.toolbar_location = None
 
 alpha = 0.5

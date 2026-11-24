@@ -41,7 +41,7 @@ waterfall_renderer = WaterfallRenderer(palette=PALETTE, num_grams=NUM_GRAMS,
                                        gram_length=GRAM_LENGTH, tile_width=TILE_WIDTH)
 waterfall_plot = figure(width=1000, height=300,
                         x_range=[0, NUM_GRAMS], y_range=[0, MAX_FREQ], **PLOTARGS)
-waterfall_plot.grid.grid_line_color = None
+waterfall_plot.grids.grid_line_color = None
 waterfall_plot.background_fill_color = "#024768"
 waterfall_plot.renderers.append(waterfall_renderer)
 waterfall_plot.yaxis.formatter = SITickFormatter(unit="Hz", unit_style="except_zero")

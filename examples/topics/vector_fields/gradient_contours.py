@@ -34,7 +34,7 @@ source = ColumnDataSource(dict(x=ax, y=ay, u=u, v=v, slope=slope,
 p = figure(width=900, height=620, x_range=(-3, 3), y_range=(-2.2, 2.2), match_aspect=True,
            title="Gradients point uphill, perpendicular to contours", tools="pan,wheel_zoom,reset",
            x_axis_label="x", y_axis_label="y")
-p.grid.visible = False
+p.grids.visible = False
 
 contours = p.contour(x, y, z, levels=np.linspace(0, 1.2, 10),
                      fill_color=list(reversed(Blues256[115::17])), line_color="#7393aa", line_alpha=0.5)

@@ -26,8 +26,8 @@ for at, title in (
 ):
     p = figure(width=380, height=190, x_range=(0, 7), y_range=(0, 4),
                title=title, toolbar_location=None, tools="")
-    p.axis.visible = False
-    p.grid.visible = False
+    p.axes.visible = False
+    p.grids.visible = False
     path = p.line(x, y, line_color="#0072b2", line_width=3)
     path.add_path_marking(marker, at=at)
     plots.append(p)

@@ -22,7 +22,7 @@ def datetime(x):
     return np.array(x, dtype=np.datetime64)
 
 p1 = figure(x_axis_type="datetime", title="Stock Closing Prices")
-p1.grid.grid_line_alpha=0.3
+p1.grids.grid_line_alpha=0.3
 p1.xaxis.axis_label = 'Date'
 p1.yaxis.axis_label = 'Price'
 
@@ -40,7 +40,7 @@ window = np.ones(window_size)/float(window_size)
 aapl_avg = np.convolve(aapl, window, 'same')
 
 p2 = figure(x_axis_type="datetime", title="AAPL One-Month Average")
-p2.grid.grid_line_alpha = 0
+p2.grids.grid_line_alpha = 0
 p2.xaxis.axis_label = 'Date'
 p2.yaxis.axis_label = 'Price'
 p2.ygrid.band_fill_color = "olive"

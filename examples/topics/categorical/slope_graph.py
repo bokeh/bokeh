@@ -59,7 +59,7 @@ p.yaxis.minor_tick_out = 0
 p.yaxis.major_tick_in = 0
 p.yaxis.ticker = [0, 20, 40, 60]
 
-p.grid.grid_line_color = None
+p.grids.grid_line_color = None
 p.outline_line_color = None
 
 show(p)

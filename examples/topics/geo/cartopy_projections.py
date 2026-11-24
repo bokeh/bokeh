@@ -27,8 +27,8 @@ for projection in projections:
     p = figure(width=400, height=400, title=f"{projection.__class__.__name__}")
     p.coastlines(projection)
     p.projection_boundary(projection, line_width=2)
-    p.grid.visible = False
-    p.axis.visible = False
+    p.grids.visible = False
+    p.axes.visible = False
     grid_items.append(p)
 
 show(grid(grid_items, ncols=2))

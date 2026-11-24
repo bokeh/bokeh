@@ -32,7 +32,7 @@ describe("Examples", () => {
       x_range: DataRange1d.create({range_padding: 0}),
       y_range: DataRange1d.create({range_padding: 0}),
     })
-    p.grid.grid_line_width = 0.5
+    p.grids.grid_line_width = 0.5
 
     const color_mapper = LinearColorMapper.create({palette: Spectral11})
     p.image({image: {value: image}, x: 0, y: 0, dw: 10, dh: 10, color_mapper})
@@ -65,7 +65,7 @@ describe("Examples", () => {
       x_range: DataRange1d.create({range_padding: 0}),
       y_range: DataRange1d.create({range_padding: 0}),
     })
-    p.grid.grid_line_width = 0.5
+    p.grids.grid_line_width = 0.5
 
     p.image_rgba({image: {value: image}, x: 0, y: 0, dw: 10, dh: 10})
     await display(p)

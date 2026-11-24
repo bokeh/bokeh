@@ -31,7 +31,7 @@ def plot(tile_source):
     p = figure(tools='hover,wheel_zoom,pan,reset', x_range=x_range, y_range=y_range, title=title,
                tooltips=[("Name", "@name"), ("Elevation", "@elevation (m)")],
                width=400, height=400)
-    p.axis.visible = False
+    p.axes.visible = False
     p.add_tile(tile_source)
 
     # create point glyphs

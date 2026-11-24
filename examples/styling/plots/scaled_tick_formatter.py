@@ -27,21 +27,21 @@ def make_plot(multiple: int, title: str):
     )
     p.line(x, [sin(value) for value in x], line_width=2)
 
-    p.xaxis[0].ticker = ScaledTicker(
+    p.xaxis.ticker = ScaledTicker(
         scale=pi,
         ticker=AdaptiveTicker(base=2, mantissas=[1]),
         desired_num_ticks=9,
     )
-    p.xaxis[0].formatter = ScaledTickFormatter(
+    p.xaxis.formatter = ScaledTickFormatter(
         unit=r"$$\pi$$",
         unit_style="symbolic",
         use_fractions=True,
         max_denominator=8,
     )
-    p.xaxis[0].axis_label = "x"
-    p.xaxis[0].major_label_standoff = 8
-    p.xaxis[0].major_label_text_font = "serif"
-    p.xaxis[0].major_label_text_font_size = "13px"
+    p.xaxis.axis_label = "x"
+    p.xaxis.major_label_standoff = 8
+    p.xaxis.major_label_text_font = "serif"
+    p.xaxis.major_label_text_font_size = "13px"
     return p
 
 show(column(

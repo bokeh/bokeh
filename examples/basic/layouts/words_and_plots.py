@@ -44,7 +44,7 @@ def scatter():
     s.scatter("flipper_length_mm", "body_mass_g", color="colors", source=source,
               fill_alpha=0.2, size=10, legend_group="species")
     # Let's move the legend off-canvas!
-    legend = s.legend[0]
+    legend = s.legend
     legend.border_line_color = None
     legend.orientation = 'horizontal'
     legend.location = 'center_left'

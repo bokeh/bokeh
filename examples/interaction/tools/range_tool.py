@@ -41,7 +41,6 @@ range_tool.overlay.fill_color = "navy"
 range_tool.overlay.fill_alpha = 0.2
 
 select.line('date', 'close', source=source)
-select.ygrid.grid_line_color = None
 select.add_tools(range_tool)
 
 show(column(p, select))

@@ -64,7 +64,7 @@ p.yaxis.axis_label= 'Density'
 p.xgrid.grid_line_color = None
 p.toolbar_location = None
 
-legend = p.legend[0]
+legend = p.legend
 p.add_layout(legend, 'right')
 legend.border_line_color = None
 

@@ -79,8 +79,8 @@ wheel_attributes = [*point_attributes, 'delta']
 button.js_on_event(events.ButtonClick, display_event(div))
 
 # AxisClick events
-p.xaxis[0].js_on_event(events.AxisClick, display_event(div, ["value"]))
-p.yaxis[0].js_on_event(events.AxisClick, display_event(div, ["value"]))
+p.xaxis.js_on_event(events.AxisClick, display_event(div, ["value"]))
+p.yaxis.js_on_event(events.AxisClick, display_event(div, ["value"]))
 
 # LOD events
 p.js_on_event(events.LODStart, display_event(div))
@@ -124,8 +124,8 @@ p.js_on_event(events.Reset, display_event(div))
 button.on_event(events.ButtonClick, print_event())
 
 # AxisClick events
-p.xaxis[0].on_event(events.AxisClick, print_event(attributes=["value"]))
-p.yaxis[0].on_event(events.AxisClick, print_event(attributes=["value"]))
+p.xaxis.on_event(events.AxisClick, print_event(attributes=["value"]))
+p.yaxis.on_event(events.AxisClick, print_event(attributes=["value"]))
 
 # LOD events
 p.on_event(events.LODStart, print_event())

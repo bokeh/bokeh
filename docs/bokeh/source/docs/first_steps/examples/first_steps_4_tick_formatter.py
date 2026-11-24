@@ -14,7 +14,7 @@ p = figure(
 )
 
 # format axes ticks
-p.yaxis[0].formatter = NumeralTickFormatter(format="$0.00")
+p.yaxis.formatter = NumeralTickFormatter(format="$0.00")
 
 # add renderers
 p.scatter(x, y, size=8)

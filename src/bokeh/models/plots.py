@@ -31,6 +31,7 @@ from typing import (
     overload,
 )
 
+from ..core.collections import Many
 from ..core.enums import (
     Location,
     OutputBackend,
@@ -115,7 +116,7 @@ class Plot(LayoutDOM):
 
     '''
 
-    def select(self, *args, **kwargs):
+    def select(self, *args, **kwargs) -> Many[Model]:
         ''' Query this object and all of its references for objects that
         match the given selector.
 
@@ -146,7 +147,7 @@ class Plot(LayoutDOM):
             type (Model) : the type to query on
 
         Returns:
-            seq[Model]
+            Many[Model]
 
         Examples:
 
@@ -170,103 +171,172 @@ class Plot(LayoutDOM):
         selector = _select_helper(args, kwargs)
 
         # Want to pass selector that is a dictionary
-        return _list_attr_splat(find(self.references(), selector))
+        return Many(find(self.references(), selector))
 
-    def row(self, row, gridplot):
-        ''' Return whether this plot is in a given row of a GridPlot.
+    def _axis(self, *sides: PlaceType) -> Many[Axis]:
+        return Many(
+            obj
+            for side in sides
+            for obj in getattr(self, side, [])
+            if isinstance(obj, Axis)
+        )
 
-        Args:
-            row (int) : index of the row to test
-            gridplot (GridPlot) : the GridPlot to check
-
-        Returns:
-            bool
-
-        '''
-        return self in gridplot.row(row)
-
-    def column(self, col, gridplot):
-        ''' Return whether this plot is in a given column of a GridPlot.
-
-        Args:
-            col (int) : index of the column to test
-            gridplot (GridPlot) : the GridPlot to check
-
-        Returns:
-            bool
-
-        '''
-        return self in gridplot.column(col)
-
-    def _axis(self, *sides: PlaceType):
-        objs: list[Model] = []
-        for side in sides:
-            objs.extend(getattr(self, side, []))
-        axis = [obj for obj in objs if isinstance(obj, Axis)]
-        return _list_attr_splat(axis)
+    def _first[T](self, objects: Many[T], description: str, plural_accessor: str) -> T:
+        first = objects.first
+        if first is None:
+            raise LookupError(
+                f"This plot has no {description}. Use plot.{plural_accessor} to access the collection, including when it is empty.",
+            )
+        return first
 
     @property
-    def xaxis(self):
-        ''' Splattable list of :class:`~bokeh.models.axes.Axis` objects for the x dimension.
+    def xaxis(self) -> Axis:
+        ''' The first :class:`~bokeh.models.axes.Axis` object for the x dimension.
+
+        Raises:
+            LookupError: if this plot has no x-axis. Use :attr:`xaxes` for optional access.
+
+        '''
+        return self._first(self.xaxes, "x-axis", "xaxes")
+
+    @property
+    def xaxes(self) -> Many[Axis]:
+        ''' Collection of :class:`~bokeh.models.axes.Axis` objects for the x dimension.
 
         '''
         return self._axis("above", "below")
 
     @property
-    def yaxis(self):
-        ''' Splattable list of :class:`~bokeh.models.axes.Axis` objects for the y dimension.
+    def yaxis(self) -> Axis:
+        ''' The first :class:`~bokeh.models.axes.Axis` object for the y dimension.
+
+        Raises:
+            LookupError: if this plot has no y-axis. Use :attr:`yaxes` for optional access.
+
+        '''
+        return self._first(self.yaxes, "y-axis", "yaxes")
+
+    @property
+    def yaxes(self) -> Many[Axis]:
+        ''' Collection of :class:`~bokeh.models.axes.Axis` objects for the y dimension.
 
         '''
         return self._axis("left", "right")
 
     @property
-    def axis(self):
-        ''' Splattable list of :class:`~bokeh.models.axes.Axis` objects.
+    def axis(self) -> Axis:
+        ''' The first :class:`~bokeh.models.axes.Axis` object.
+
+        Raises:
+            LookupError: if this plot has no axes. Use :attr:`axes` for optional access.
 
         '''
-        return _list_attr_splat(self.xaxis + self.yaxis)
+        return self._first(self.axes, "axis", "axes")
 
     @property
-    def legend(self):
-        ''' Splattable list of |Legend| objects.
+    def axes(self) -> Many[Axis]:
+        ''' Collection of all :class:`~bokeh.models.axes.Axis` objects.
 
         '''
-        panels = self.above + self.below + self.left + self.right + self.center
-        legends = [obj for obj in panels if isinstance(obj, Legend)]
-        return _legend_attr_splat(legends)
+        return self._axis("above", "below", "left", "right")
 
     @property
-    def hover(self):
-        ''' Splattable list of :class:`~bokeh.models.tools.HoverTool` objects.
+    def legend(self) -> Legend:
+        ''' The first |Legend| object.
+
+        Raises:
+            LookupError: if this plot has no legends. Use :attr:`legends` for optional access.
 
         '''
-        hovers = [obj for obj in self.tools if isinstance(obj, HoverTool)]
-        return _list_attr_splat(hovers)
-
-    def _grid(self, dimension: Literal[0, 1]):
-        grid = [obj for obj in self.center if isinstance(obj, Grid) and obj.dimension == dimension]
-        return _list_attr_splat(grid)
+        return self._first(self.legends, "legend", "legends")
 
     @property
-    def xgrid(self):
-        ''' Splattable list of :class:`~bokeh.models.grids.Grid` objects for the x dimension.
+    def legends(self) -> Many[Legend]:
+        ''' Collection of all |Legend| objects.
 
         '''
-        return self._grid(0)
+        return Many(
+            obj
+            for side in ("above", "below", "left", "right", "center")
+            for obj in getattr(self, side, [])
+            if isinstance(obj, Legend)
+        )
 
     @property
-    def ygrid(self):
-        ''' Splattable list of :class:`~bokeh.models.grids.Grid` objects for the y dimension.
+    def hover(self) -> HoverTool:
+        ''' The first :class:`~bokeh.models.tools.HoverTool` object.
+
+        Raises:
+            LookupError: if this plot has no hover tools. Use :attr:`hovers` for optional access.
 
         '''
-        return self._grid(1)
+        return self._first(self.hovers, "hover tool", "hovers")
 
     @property
-    def grid(self):
-        ''' Splattable list of :class:`~bokeh.models.grids.Grid` objects.
+    def hovers(self) -> Many[HoverTool]:
+        ''' Collection of all :class:`~bokeh.models.tools.HoverTool` objects.
 
         '''
-        return _list_attr_splat(self.xgrid + self.ygrid)
+        return Many(obj for obj in self.tools if isinstance(obj, HoverTool))
+
+    def _grids(self, *dimensions: Literal[0, 1]) -> Many[Grid]:
+        return Many(
+            obj
+            for dimension in dimensions
+            for obj in self.center
+            if isinstance(obj, Grid) and obj.dimension == dimension
+        )
+
+    @property
+    def xgrid(self) -> Grid:
+        ''' The first :class:`~bokeh.models.grids.Grid` object for the x dimension.
+
+        Raises:
+            LookupError: if this plot has no x-grid. Use :attr:`xgrids` for optional access.
+
+        '''
+        return self._first(self.xgrids, "x-grid", "xgrids")
+
+    @property
+    def xgrids(self) -> Many[Grid]:
+        ''' Collection of :class:`~bokeh.models.grids.Grid` objects for the x dimension.
+
+        '''
+        return self._grids(0)
+
+    @property
+    def ygrid(self) -> Grid:
+        ''' The first :class:`~bokeh.models.grids.Grid` object for the y dimension.
+
+        Raises:
+            LookupError: if this plot has no y-grid. Use :attr:`ygrids` for optional access.
+
+        '''
+        return self._first(self.ygrids, "y-grid", "ygrids")
+
+    @property
+    def ygrids(self) -> Many[Grid]:
+        ''' Collection of :class:`~bokeh.models.grids.Grid` objects for the y dimension.
+
+        '''
+        return self._grids(1)
+
+    @property
+    def grid(self) -> Grid:
+        ''' The first :class:`~bokeh.models.grids.Grid` object.
+
+        Raises:
+            LookupError: if this plot has no grids. Use :attr:`grids` for optional access.
+
+        '''
+        return self._first(self.grids, "grid", "grids")
+
+    @property
+    def grids(self) -> Many[Grid]:
+        ''' Collection of all :class:`~bokeh.models.grids.Grid` objects.
+
+        '''
+        return self._grids(0, 1)
 
     @property
     def tools(self) -> list[Tool | ToolProxy]:
@@ -962,42 +1032,6 @@ class GridPlot(LayoutDOM, GridCommon):
 def _check_conflicting_kwargs(a1, a2, kwargs):
     if a1 in kwargs and a2 in kwargs:
         raise ValueError(f"Conflicting properties set on plot: {a1!r} and {a2!r}")
-
-class _list_attr_splat(list):
-    def __setattr__(self, attr, value):
-        for x in self:
-            setattr(x, attr, value)
-    def __getattribute__(self, attr):
-        if attr in dir(list):
-            return list.__getattribute__(self, attr)
-        if len(self) == 0:
-            raise AttributeError(f"Trying to access {attr!r} attribute on an empty 'splattable' list")
-        if len(self) == 1:
-            return getattr(self[0], attr)
-        try:
-            return _list_attr_splat([getattr(x, attr) for x in self])
-        except Exception:
-            raise AttributeError(f"Trying to access {attr!r} attribute on a 'splattable' list, but list items have no {attr!r} attribute")
-
-    def __dir__(self):
-        if len({type(x) for x in self}) == 1:
-            return dir(self[0])
-        else:
-            return dir(self)
-
-_LEGEND_EMPTY_WARNING = """
-You are attempting to set `plot.legend.%s` on a plot that has zero legends added, this will have no effect.
-
-Before legend properties can be set, you must add a Legend explicitly, or call a glyph method with a legend parameter set.
-"""
-
-class _legend_attr_splat(_list_attr_splat):
-    def __setattr__(self, attr, value):
-        if not len(self):
-            from ..util.warnings import warn
-
-            warn(_LEGEND_EMPTY_WARNING % attr)
-        return super().__setattr__(attr, value)
 
 def _select_helper(args, kwargs):
     """ Allow flexible selector syntax.

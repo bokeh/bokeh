@@ -54,9 +54,9 @@ describe("Examples", () => {
     const y_range = DataRange1d.create({flipped: true})
     const p = figure({title: "Bokeh & Custom Markers", y_range, toolbar_location: null, width: 600, height: 800})
 
-    p.grid.grid_line_color = null
+    p.grids.grid_line_color = null
     p.background_fill_color = "#eeeeee"
-    p.axis.visible = false
+    p.axes.visible = false
 
     const N = 10
     const markers = [...MarkerType, "@bowtie" as const, "@wheel" as const]

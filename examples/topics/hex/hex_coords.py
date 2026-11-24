@@ -15,7 +15,7 @@ q = np.array([0,  0, 0, -1, -1,  1, 1])
 r = np.array([0, -1, 1,  0,  1, -1, 0])
 
 p = figure(width=400, height=400, toolbar_location=None)
-p.grid.visible = False
+p.grids.visible = False
 
 p.hex_tile(q, r, size=1, fill_color=["firebrick"]*3 + ["navy"]*4,
            line_color="white", alpha=0.5)

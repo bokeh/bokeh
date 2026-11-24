@@ -50,19 +50,19 @@ p.line(x, pdf, line_width=2, line_color="navy",
 p.xaxis.axis_label = "x"
 p.yaxis.axis_label = "PDF(x)"
 
-p.xaxis[0].ticker = ScaledTicker(
+p.xaxis.ticker = ScaledTicker(
     scale=sigma,
     origin=xbar,
     ticker=SingleIntervalTicker(interval=1),
 )
-p.xaxis[0].formatter = ScaledTickFormatter(
+p.xaxis.formatter = ScaledTickFormatter(
     origin_label=TeX(text=r"\overline{x}"),
     unit=TeX(text=r"\sigma"),
     unit_style="symbolic",
 )
 
-p.yaxis[0].ticker = ScaledTicker(scale=1/sigma, desired_num_ticks=5)
-p.yaxis[0].formatter = ScaledTickFormatter(
+p.yaxis.ticker = ScaledTicker(scale=1/sigma, desired_num_ticks=5)
+p.yaxis.formatter = ScaledTickFormatter(
     unit=TeX(text=r"\,\sigma^{-1}"),
     unit_style="except_zero",
 )

@@ -70,7 +70,7 @@ outliers = df[~df.hwy.between(df.lower, df.upper)]
 p.scatter("kind", "hwy", source=outliers, size=6, color="black", alpha=0.3)
 
 p.xgrid.grid_line_color = None
-p.axis.major_label_text_font_size="14px"
-p.axis.axis_label_text_font_size="12px"
+p.axes.major_label_text_font_size="14px"
+p.axes.axis_label_text_font_size="12px"
 
 show(p)

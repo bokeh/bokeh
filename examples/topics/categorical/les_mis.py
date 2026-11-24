@@ -58,11 +58,11 @@ p = figure(title="Les Mis Occurrences",
 
 p.width = 800
 p.height = 800
-p.grid.grid_line_color = None
-p.axis.axis_line_color = None
-p.axis.major_tick_line_color = None
-p.axis.major_label_text_font_size = "7px"
-p.axis.major_label_standoff = 0
+p.grids.grid_line_color = None
+p.axes.axis_line_color = None
+p.axes.major_tick_line_color = None
+p.axes.major_label_text_font_size = "7px"
+p.axes.major_label_standoff = 0
 p.xaxis.major_label_orientation = np.pi/3
 
 p.rect('xname', 'yname', 0.9, 0.9, source=data,

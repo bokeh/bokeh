@@ -44,7 +44,7 @@ Consider the following complete example.
     p.border_fill_color = 'black'
     p.background_fill_color = 'black'
     p.outline_line_color = None
-    p.grid.grid_line_color = None
+    p.grids.grid_line_color = None
 
     # add a text renderer to the plot (no data yet)
     r = p.text(x=[], y=[], text=[], text_color=[], text_font_size="26px",

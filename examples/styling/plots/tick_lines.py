@@ -17,8 +17,8 @@ p.xaxis.minor_tick_line_color = "orange"
 
 p.yaxis.minor_tick_line_color = None
 
-p.axis.major_tick_out = 10
-p.axis.minor_tick_in = -3
-p.axis.minor_tick_out = 8
+p.axes.major_tick_out = 10
+p.axes.minor_tick_in = -3
+p.axes.minor_tick_out = 8
 
 show(p)

@@ -22,7 +22,7 @@ p.yaxis.major_label_text_color = "orange"
 p.yaxis.major_label_orientation = "vertical"
 
 # change things on all axes
-p.axis.minor_tick_in = -3
-p.axis.minor_tick_out = 6
+p.axes.minor_tick_in = -3
+p.axes.minor_tick_out = 6
 
 show(p)

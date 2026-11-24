@@ -19,8 +19,8 @@ describe("Text glyph", () => {
       p.xaxis.axis_label = "align"
       p.yaxis.axis_label = "baseline"
       p.yaxis.major_label_orientation = "parallel"
-      p.axis.major_label_text_font_size = "12px"
-      p.axis.major_label_text_font_style = "bold italic"
+      p.axes.major_label_text_font_size = "12px"
+      p.axes.major_label_text_font_style = "bold italic"
 
       p.xgrid.grid_line_color = null
       p.ygrid.grid_line_color = null

@@ -72,10 +72,10 @@ p.text(x=x, y=dodge("period", -0.2, range=p.y_range), text="atomic mass",
 p.text(x=["3", "3"], y=["VI", "VII"], text=["LA", "AC"], text_align="center", text_baseline="middle")
 
 p.outline_line_color = None
-p.grid.grid_line_color = None
-p.axis.axis_line_color = None
-p.axis.major_tick_line_color = None
-p.axis.major_label_standoff = 0
+p.grids.grid_line_color = None
+p.axes.axis_line_color = None
+p.axes.major_tick_line_color = None
+p.axes.major_label_standoff = 0
 p.legend.orientation = "horizontal"
 p.legend.location ="top_center"
 p.hover.renderers = [r] # only hover element boxes

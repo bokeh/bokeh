@@ -10,11 +10,11 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Generator,
-    Sequence,
     Unpack,
     overload,
 )
 
+from ..core.collections import Many
 from ..core.enums import (
     LocationType as Location,
     OutputBackendType as OutputBackend,
@@ -59,18 +59,6 @@ from .ui.ui_element import StyledElement
 
 if TYPE_CHECKING:
     import xyzservices
-
-class AxisListAttrSplat(list[Axis], Axis):
-    pass
-
-class GridListAttrSplat(list[Grid], Grid):
-    pass
-
-class LegendListAttrSplat(list[Legend], Legend):
-    pass
-
-class HoverListAttrSplat(list[HoverTool], HoverTool):
-    pass
 
 class _PlotInit(_LayoutDOMInit, _BackgroundFillInit, _BackgroundHatchInit, _BorderLineInit, _BorderFillInit, _BorderHatchInit, _OutlineLineInit, total=False):
     x_range: Range
@@ -174,35 +162,55 @@ class Plot(LayoutDOM, BackgroundFill, BackgroundHatch, BorderLine, BorderFill, B
     @property
     def outer_height(self) -> int: ...
 
-    def select(self, *args: Any, **kwargs: Any) -> Sequence[Model]: ...
-
-    def row(self, row: int, gridplot: GridPlot) -> bool: ...
-
-    def column(self, col: int, gridplot: GridPlot) -> bool: ...
+    def select(self, *args: Any, **kwargs: Any) -> Many[Model]: ...
 
     @property
-    def xaxis(self) -> AxisListAttrSplat: ...
+    def xaxis(self) -> Axis: ...
 
     @property
-    def yaxis(self) -> AxisListAttrSplat: ...
+    def xaxes(self) -> Many[Axis]: ...
 
     @property
-    def axis(self) -> AxisListAttrSplat: ...
+    def yaxis(self) -> Axis: ...
 
     @property
-    def legend(self) -> LegendListAttrSplat: ...
+    def yaxes(self) -> Many[Axis]: ...
 
     @property
-    def hover(self) -> HoverListAttrSplat: ...
+    def axis(self) -> Axis: ...
 
     @property
-    def xgrid(self) -> GridListAttrSplat: ...
+    def axes(self) -> Many[Axis]: ...
 
     @property
-    def ygrid(self) -> GridListAttrSplat: ...
+    def legend(self) -> Legend: ...
 
     @property
-    def grid(self) -> GridListAttrSplat: ...
+    def legends(self) -> Many[Legend]: ...
+
+    @property
+    def hover(self) -> HoverTool: ...
+
+    @property
+    def hovers(self) -> Many[HoverTool]: ...
+
+    @property
+    def xgrid(self) -> Grid: ...
+
+    @property
+    def xgrids(self) -> Many[Grid]: ...
+
+    @property
+    def ygrid(self) -> Grid: ...
+
+    @property
+    def ygrids(self) -> Many[Grid]: ...
+
+    @property
+    def grid(self) -> Grid: ...
+
+    @property
+    def grids(self) -> Many[Grid]: ...
 
     @property
     def tools(self) -> list[Tool | ToolProxy]: ...

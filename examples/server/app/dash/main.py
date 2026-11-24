@@ -47,7 +47,7 @@ p = figure(height=180, tools=None,  # name="line",
 p.line('date', 'close', source=source, line_width=2, alpha=0.7)
 p.yaxis.axis_label = 'Traffic'
 p.background_fill_color = "#f5f5f5"
-p.grid.grid_line_color = "white"
+p.grids.grid_line_color = "white"
 
 select = figure(height=90, width=800, y_range=p.y_range,
                 x_axis_type="datetime", y_axis_type=None,
@@ -58,10 +58,9 @@ range_rool.overlay.fill_color = "navy"
 range_rool.overlay.fill_alpha = 0.2
 
 select.line('date', 'close', source=source)
-select.ygrid.grid_line_color = None
 select.add_tools(range_rool)
 select.background_fill_color = "#f5f5f5"
-select.grid.grid_line_color = "white"
+select.grids.grid_line_color = "white"
 select.x_range.range_padding = 0.01
 
 layout = column(p, select, sizing_mode="stretch_both", name="line")
@@ -87,9 +86,9 @@ region.annular_wedge(x=-0, y=1, inner_radius=0.2, outer_radius=0.32,
                      line_color="white", fill_color='color', legend_group='country', source=data, name='test')
 
 region.toolbar.active_drag = None
-region.axis.axis_label = None
-region.axis.visible = False
-region.grid.grid_line_color = None
+region.axes.axis_label = None
+region.axes.visible = False
+region.grids.grid_line_color = None
 region.legend.label_text_font_size = "0.7em"
 region.legend.spacing = 1
 region.legend.glyph_height = 15
@@ -106,7 +105,7 @@ platform = figure(height=350, toolbar_location=None, outline_line_color=None, si
 platform.toolbar.active_drag = None
 platform.x_range.start = 0
 platform.ygrid.grid_line_color = None
-platform.axis.minor_tick_line_color = None
+platform.axes.minor_tick_line_color = None
 platform.outline_line_color = None
 
 platform.hbar(left=0, right=values, y=plats, height=0.8)

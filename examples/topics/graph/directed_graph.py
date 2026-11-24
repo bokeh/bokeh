@@ -75,8 +75,8 @@ graph.selection_policy = NodesAndLinkedEdges()
 
 p = figure(width=750, height=500, x_range=(-2.5, 2.7), y_range=(-1.7, 1.7),
            title="Directed graph: arrowheads follow node size", tools="tap,reset")
-p.axis.visible = False
-p.grid.visible = False
+p.axes.visible = False
+p.grids.visible = False
 p.renderers.append(graph)
 p.add_layout(LabelSet(x="x", y="y", text="label", source=nodes,
                       text_align="center", text_baseline="middle",

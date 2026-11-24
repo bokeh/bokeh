@@ -13,13 +13,13 @@ from __future__ import annotations
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-from math import isnan
 from unittest import mock
 from unittest.mock import MagicMock, patch
 
 import pytest
 import xyzservices.providers as xyz
 
+from bokeh.core.collections import Many
 from bokeh.core.validation import check_integrity, process_validation_issues
 from bokeh.core.validation.check import ValidationIssue, ValidationIssues
 from bokeh.models import (
@@ -29,7 +29,9 @@ from bokeh.models import (
     FactorRange,
     GlyphRenderer,
     Grid,
+    HoverTool,
     Label,
+    Legend,
     LinearAxis,
     LinearScale,
     LogScale,
@@ -44,19 +46,6 @@ from bokeh.models import (
 )
 from bokeh.plotting import figure
 
-# Module under test
-import bokeh.models.plots as bmp # isort:skip
-
-#-----------------------------------------------------------------------------
-# Setup
-#-----------------------------------------------------------------------------
-
-_LEGEND_EMPTY_WARNING = """
-You are attempting to set `plot.legend.location` on a plot that has zero legends added, this will have no effect.
-
-Before legend properties can be set, you must add a Legend explicitly, or call a glyph method with a legend parameter set.
-"""
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -65,20 +54,18 @@ Before legend properties can be set, you must add a Legend explicitly, or call a
 class TestPlotLegendProperty:
     def test_basic(self) -> None:
         plot = figure(tools='')
-        x = plot.legend
-        assert isinstance(x, bmp._list_attr_splat)
-        assert len(x) == 0
+        with pytest.raises(LookupError, match=r"Use plot\.legends"):
+            plot.legend
+        assert plot.legends == []
         plot.scatter([1,2], [3,4], legend_label="foo")
-        x = plot.legend
-        assert isinstance(x, bmp._list_attr_splat)
-        assert len(x) == 1
+        assert plot.legend is plot.legends[0]
+        assert len(plot.legends) == 1
 
     def test_warning(self) -> None:
         plot = figure(tools='')
-        with pytest.warns(UserWarning) as warns:
-            plot.legend.location = "above"
-            assert len(warns) == 1
-            assert warns[0].message.args[0] == _LEGEND_EMPTY_WARNING
+        with pytest.warns(UserWarning, match=r"Setting 'location' on an empty Many collection has no effect") as warns:
+            plot.legends.location = "above"
+        assert len(warns) == 1
 
 
 class TestPlotSelect:
@@ -179,7 +166,7 @@ class TestPlotValidation:
 
         p = figure()
         p.extra_x_ranges['foo'] = Range1d()
-        p.grid.x_range_name="junk"
+        p.grids.x_range_name="junk"
         with mock.patch('bokeh.core.validation.check.log') as mock_logger:
             issues = check_integrity([p])
             process_validation_issues(issues)
@@ -194,8 +181,8 @@ class TestPlotValidation:
         # to another's references doesn't create a false positive
         p, dep = figure(), figure()
         dep.extra_x_ranges['foo'] = Range1d()
-        dep.grid.x_range_name="foo"
-        p.grid[0].js_on_change("dimension", CustomJS(code = "", args = {"toto": dep.grid[0]}))
+        dep.grids.x_range_name="foo"
+        p.grids[0].js_on_change("dimension", CustomJS(code = "", args = {"toto": dep.grids[0]}))
         with mock.patch('bokeh.core.validation.check.log') as mock_logger:
             issues = check_integrity([p])
             process_validation_issues(issues)
@@ -520,72 +507,102 @@ def test_remove_tools_invalid():
 #-----------------------------------------------------------------------------
 
 
-class Test_list_attr_splat:
-    def test_set(self) -> None:
-        obj = bmp._list_attr_splat([DataRange1d(), DataRange1d()])
-        assert len(obj) == 2
-        assert isnan(obj[0].start)
-        assert isnan(obj[1].start)
-        obj.start = 10
-        assert obj[0].start == 10
-        assert obj[1].start == 10
-
-    def test_set_empty(self) -> None:
-        obj = bmp._list_attr_splat([])
-        assert len(obj) == 0
-        obj.start = 10
-        assert len(obj) == 0
-
+class TestPlotManyIntegration:
     def test_get_set_single(self) -> None:
         p = figure()
-        assert len(p.xaxis) == 1
+        assert len(p.xaxes) == 1
+        assert p.xaxis is p.xaxes[0]
 
-        # check both ways to access
+        # check both singular and plural access
         assert p.xaxis.formatter.power_limit_low != 100
-        assert p.xaxis[0].formatter.power_limit_low != 100
+        assert p.xaxes[0].formatter.power_limit_low != 100
 
-        p.axis.formatter.power_limit_low = 100
+        p.axes.formatter.power_limit_low = 100
 
         assert p.xaxis.formatter.power_limit_low == 100
-        assert p.xaxis[0].formatter.power_limit_low == 100
+        assert p.xaxes[0].formatter.power_limit_low == 100
 
     def test_get_set_multi(self) -> None:
         p = figure()
-        assert len(p.axis) == 2
+        assert len(p.axes) == 2
+        assert p.axis is p.axes[0]
 
         # check both ways to access
-        assert p.axis[0].formatter.power_limit_low != 100
-        assert p.axis[1].formatter.power_limit_low != 100
-        assert p.axis.formatter[0].power_limit_low != 100
-        assert p.axis.formatter[1].power_limit_low != 100
+        assert p.axes[0].formatter.power_limit_low != 100
+        assert p.axes[1].formatter.power_limit_low != 100
+        assert p.axes.formatter[0].power_limit_low != 100
+        assert p.axes.formatter[1].power_limit_low != 100
 
-        p.axis.formatter.power_limit_low = 100
+        p.axes.formatter.power_limit_low = 100
 
-        assert p.axis[0].formatter.power_limit_low == 100
-        assert p.axis[1].formatter.power_limit_low == 100
-        assert p.axis.formatter[0].power_limit_low == 100
-        assert p.axis.formatter[1].power_limit_low == 100
+        assert p.axes[0].formatter.power_limit_low == 100
+        assert p.axes[1].formatter.power_limit_low == 100
+        assert p.axes.formatter[0].power_limit_low == 100
+        assert p.axes.formatter[1].power_limit_low == 100
 
-    def test_get_set_multi_mismatch(self) -> None:
-        obj = bmp._list_attr_splat([LinearAxis(), FactorRange()])
-        with pytest.raises(AttributeError) as e:
-            obj.formatter.power_limit_low == 10
-        assert str(e.value).endswith(f"list items have no {'formatter'!r} attribute")
+class TestPlotPluralAccessors:
+    def test_accessors(self) -> None:
+        hover = HoverTool()
+        plot = figure(tools=[hover])
+        plot.scatter([1, 2], [3, 4], legend_label="foo")
 
-    def test_get_empty(self) -> None:
-        obj = bmp._list_attr_splat([])
-        with pytest.raises(AttributeError) as e:
-            obj.start
-        assert str(e.value).endswith(f"Trying to access {'start'!r} attribute on an empty 'splattable' list")
+        assert isinstance(plot.axes, Many)
+        assert isinstance(plot.xaxes, Many)
+        assert isinstance(plot.yaxes, Many)
+        assert plot.axis is plot.axes[0]
+        assert plot.xaxis is plot.xaxes[0]
+        assert plot.yaxis is plot.yaxes[0]
+        assert list(plot.xaxes) == plot.xaxes
 
-    def test_get_index(self) -> None:
-        obj = bmp._list_attr_splat([1, 2, 3])
-        assert obj.index(2) == 1
+        assert isinstance(plot.grids, Many)
+        assert isinstance(plot.xgrids, Many)
+        assert isinstance(plot.ygrids, Many)
+        assert plot.grid is plot.grids[0]
+        assert plot.xgrid is plot.xgrids[0]
+        assert plot.ygrid is plot.ygrids[0]
 
-    def test_pop_value(self) -> None:
-        obj = bmp._list_attr_splat([1, 2, 3])
-        obj.pop(1)
-        assert obj == [1, 3]
+        assert isinstance(plot.legends, Many)
+        assert plot.legend is plot.legends[0]
+        assert all(isinstance(legend, Legend) for legend in plot.legends)
+        assert isinstance(plot.hovers, Many)
+        assert plot.hover is hover
+        assert plot.hovers == [hover]
+
+    @pytest.mark.parametrize(("singular", "plural"), [
+        ("axis", "axes"),
+        ("xaxis", "xaxes"),
+        ("yaxis", "yaxes"),
+        ("grid", "grids"),
+        ("xgrid", "xgrids"),
+        ("ygrid", "ygrids"),
+        ("legend", "legends"),
+        ("hover", "hovers"),
+    ])
+    def test_empty_singular_accessors(self, singular: str, plural: str) -> None:
+        plot = figure(x_axis_type=None, y_axis_type=None, tools="")
+
+        with pytest.raises(LookupError, match=rf"Use plot\.{plural}"):
+            getattr(plot, singular)
+        assert getattr(plot, plural).first is None
+
+    def test_accessors_are_snapshots(self) -> None:
+        plot = figure()
+        axes = plot.axes
+        grids = plot.grids
+
+        axes.clear()
+        grids.clear()
+
+        assert len(plot.axes) == 2
+        assert len(plot.grids) == 2
+
+    def test_select_returns_many(self) -> None:
+        plot = figure()
+
+        result = plot.select(LinearAxis)
+
+        assert isinstance(result, Many)
+        assert set(result) == set(plot.axes)
 
 #-----------------------------------------------------------------------------
 # Code

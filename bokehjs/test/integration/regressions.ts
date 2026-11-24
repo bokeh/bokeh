@@ -359,7 +359,7 @@ describe("Bug", () => {
         height: 0.8,
       })
 
-      for (const axis of p.yaxis) {
+      for (const axis of p.yaxes) {
         if (axis instanceof CategoricalAxis) {
           axis.subgroup_label_orientation = 0
         }
@@ -1085,10 +1085,10 @@ describe("Bug", () => {
       p.add_layout(LinearAxis.create({major_label_text_color: null}), "right")
       p.add_layout(LinearAxis.create({major_label_text_color: null}), "above")
 
-      p.axis.major_tick_in = 10
-      p.axis.major_tick_out = 0
-      p.axis.minor_tick_in = 5
-      p.axis.minor_tick_out = 0
+      p.axes.major_tick_in = 10
+      p.axes.major_tick_out = 0
+      p.axes.minor_tick_in = 5
+      p.axes.minor_tick_out = 0
 
       await display(p)
     })
@@ -1844,7 +1844,7 @@ describe("Bug", () => {
   describe("in issue #12058", () => {
     it("renders gaps in straight bevel-joined webgl lines", async () => {
       const p = fig([150, 150], {output_backend: "webgl", x_range: [0, 2.4], y_range: [0, 2.4]})
-      p.grid.visible = false
+      p.grids.visible = false
       p.line([0, 1, 2, 2, 2], [2, 2, 2, 1, 0], {line_width: 30, line_join: "bevel"})
       await display(p)
     })
@@ -2415,10 +2415,10 @@ describe("Bug", () => {
       const p = fig([200, 200], plot_args)
       p.add_layout(LinearAxis.create(), "above")
       p.add_layout(LinearAxis.create(), "right")
-      p.xaxis.each((axis) => (axis.formatter as BasicTickFormatter).use_scientific = false)
-      p.yaxis.each((axis) => (axis.formatter as BasicTickFormatter).use_scientific = false)
-      p.xaxis.major_label_orientation = "vertical"
-      p.yaxis.major_label_orientation = "horizontal"
+      p.xaxes.forEach((axis) => (axis.formatter as BasicTickFormatter).use_scientific = false)
+      p.yaxes.forEach((axis) => (axis.formatter as BasicTickFormatter).use_scientific = false)
+      p.xaxes.major_label_orientation = "vertical"
+      p.yaxes.major_label_orientation = "horizontal"
       const xs = [1, 2, 3].map((c) => c*a)
       const ys = [1, 2, 3].map((c) => c*b)
       p.scatter(xs, ys, {size: 10, color})
@@ -4915,7 +4915,7 @@ describe("Bug", () => {
     it("doesn't show updates to num_minor_ticks", async () => {
       const p = fig([200, 200], {x_range: [0, 5], y_range: [0, 5]})
       const {view} = await display(p)
-      for (const axis of p.yaxis) {
+      for (const axis of p.yaxes) {
         assert(axis.ticker instanceof ContinuousTicker)
         axis.ticker.num_minor_ticks = 0
       }
@@ -4928,11 +4928,11 @@ describe("Bug", () => {
       const p = figure({x_range: [0, 1e-5], y_range: [0, 1e-5], width: 350, height: 350})
       p.line({x: [0, 1e-5], y: [0, 1e-5], color: "black", line_width: 4})
       const {view} = await display(p)
-      for (const axis of p.xaxis) {
+      for (const axis of p.xaxes) {
         assert(axis.formatter instanceof BasicTickFormatter)
         axis.formatter.use_scientific = false
       }
-      for (const axis of p.yaxis) {
+      for (const axis of p.yaxes) {
         assert(axis.formatter instanceof BasicTickFormatter)
         axis.formatter.use_scientific = false
       }
@@ -4943,20 +4943,20 @@ describe("Bug", () => {
       const p = figure({x_range: [0, 1e-5], y_range: [0, 1e-5], width: 350, height: 350})
       p.line({x: [0, 1e-5], y: [0, 1e-5], color: "black", line_width: 4})
       const {view} = await display(p)
-      for (const axis of p.xaxis) {
+      for (const axis of p.xaxes) {
         assert(axis.formatter instanceof BasicTickFormatter)
         axis.formatter.use_scientific = false
       }
-      for (const axis of p.yaxis) {
+      for (const axis of p.yaxes) {
         assert(axis.formatter instanceof BasicTickFormatter)
         axis.formatter.use_scientific = false
       }
       await view.ready
-      for (const axis of p.xaxis) {
+      for (const axis of p.xaxes) {
         assert(axis.formatter instanceof BasicTickFormatter)
         axis.formatter.use_scientific = true
       }
-      for (const axis of p.yaxis) {
+      for (const axis of p.yaxes) {
         assert(axis.formatter instanceof BasicTickFormatter)
         axis.formatter.use_scientific = true
       }

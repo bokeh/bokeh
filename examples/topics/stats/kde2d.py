@@ -36,9 +36,9 @@ x, y, z = kde(df.hp, df.mpg, 300)
 p = figure(height=400, x_axis_label="hp", y_axis_label="mpg",
            background_fill_color="#fafafa", tools=None,
            title="Kernel density estimation plot of HP vs MPG")
-p.grid.level = "overlay"
-p.grid.grid_line_color = "black"
-p.grid.grid_line_alpha = 0.05
+p.grids.level = "overlay"
+p.grids.grid_line_color = "black"
+p.grids.grid_line_alpha = 0.05
 
 palette = Blues9[::-1]
 levels = np.linspace(np.min(z), np.max(z), 10)

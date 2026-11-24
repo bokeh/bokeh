@@ -199,7 +199,7 @@ def modify_document(doc: Document) -> None:
     plot.add_layout(color_bar, "right")
     plot.background_fill_color = "#020617"
     plot.border_fill_color = "#0b1020"
-    plot.grid.grid_line_alpha = 0.25
+    plot.grids.grid_line_alpha = 0.25
 
     evolution = CustomJS(
         args={"centers": centers, "particles": particles},
