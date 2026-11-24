@@ -251,8 +251,8 @@ Other variables:
 
 Via the definition of a custom stylesheet a component then can define this variables to
 customize its appearance. Examples of this type of customization are available under
-``examples/styling/accessible-style``, ``examples/styling/office-style`` and
-``examples/styling/xkcd-style``
+:bokeh-tree:`examples/styling/accessible-style`, :bokeh-tree:`examples/styling/office-style` and
+:bokeh-tree:`examples/styling/xkcd-style`
 
 Also, for each of these there are variables defined without the ``bokeh`` prefix which should be
 the ones you use with ``var`` to access the underlying value. As an example, for the variable
