@@ -115,8 +115,8 @@ describe("LinearColorMapper module", () => {
       expect(color_mapper.metrics.max).to.be.equal(20)
 
       // Emptying the source leaves stale indices on the renderer's view until
-      // the view recomputes them; _collect() must skip them instead of
-      // collecting undefined values and throwing (issue #15829).
+      // the view recomputes them; _collect() must drop out-of-range rows instead
+      // of collecting undefined values and throwing (issue #15829).
       domain_source.data = {x: [], y: [], value: []}
       expect(() => color_mapper.update_data()).to.not.throw()
 
@@ -130,7 +130,7 @@ describe("LinearColorMapper module", () => {
       expect(color_mapper.v_compute([5, 15])).to.be.equal(convert_to_uint32_palette(["red", "blue"]))
     })
 
-    it("Should not throw when stale indices are a filtered subset beyond the new data (issue #15829)", () => {
+    it("Should keep valid rows while filtered indices are stale after a source shrink (issue #15829)", () => {
       const domain_source = ColumnDataSource.create({data: {x: [0, 1, 2, 3, 4], y: [0, 1, 2, 3, 4], value: [10, 20, 30, 40, 50]}})
       const domain_renderer = GlyphRenderer.create({
         data_source: domain_source,
@@ -146,11 +146,17 @@ describe("LinearColorMapper module", () => {
       expect(color_mapper.metrics.min).to.be.equal(10)
       expect(color_mapper.metrics.max).to.be.equal(50)
 
-      // The 2-row replacement is shorter than the stale subset's size (5), so
-      // the set bit at index 4 points past the new column; _collect() must
-      // skip the stale indices instead of throwing (issue #15829).
+      // Keep row 0 in the interim scan even though the stale set bit at
+      // index 4 points past the new two-row column.
       domain_source.data = {x: [0, 1], y: [0, 1], value: [7, 8]}
       expect(() => color_mapper.update_data()).to.not.throw()
+      // update_data() scans the domain but does not recompute the view's
+      // indices, so this still exercises the stale state before recomputation.
+      expect([...domain_renderer.view.indices.ones()]).to.be.equal([0, 4])
+      expect(domain_renderer.view.indices.size).to.be.equal(5)
+      expect(color_mapper.metrics.min).to.be.equal(7)
+      expect(color_mapper.metrics.max).to.be.equal(7)
+      const interim_metrics = {...color_mapper.metrics}
 
       // Recomputing on the shorter source drops the out-of-range filter index
       // 4 (BitSet.set() ignores it with a warning); the scan then follows the
@@ -158,6 +164,7 @@ describe("LinearColorMapper module", () => {
       domain_renderer.view.compute_indices(domain_source)
       color_mapper.update_data()
       expect([...domain_renderer.view.indices.ones()]).to.be.equal([0])
+      expect(color_mapper.metrics).to.be.equal(interim_metrics)
       expect(color_mapper.metrics.min).to.be.equal(7)
       expect(color_mapper.metrics.max).to.be.equal(7)
     })
