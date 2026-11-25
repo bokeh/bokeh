@@ -35,7 +35,7 @@ from ...core.property.primitive import Int, String
 from ...core.property.required import Required
 from ...model import Model
 from ...util.helpers import flatten
-from ..callbacks import Callback
+from ..callbacks import Callback, CustomJS
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -136,12 +136,20 @@ class KeyBinding(Model):
     Arguments to pass to the command.
     """)
 
-    when = Nullable(Instance(Callback), default=None, help="""
+    when = Nullable(Instance(CustomJS), default=None, help="""
     A callback determining when a binding is active or not.
+
+    The callback is executed synchronously and must return a boolean. If it
+    returns ``False``, the binding is skipped, allowing other bindings of the
+    same keys to be considered.
     """)
 
     action = Nullable(Instance(Callback), default=None, help="""
     An ad-hoc action to execute instead of a command.
+
+    The callback is executed with the plot (or document) the binding belongs
+    to as ``cb_obj`` and without ``cb_data``, so callbacks that depend on
+    event data (e.g. ``OpenURL``) aren't useful here.
     """)
 
     priority = Int(default=0, help="""

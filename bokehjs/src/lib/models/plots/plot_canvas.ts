@@ -420,6 +420,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
     this.canvas_view = this._element_views.get(this._canvas)! as CanvasView
     this.canvas_view.plot_views = [this]
+    await Promise.all(this.model.key_bindings.map((binding) => binding.compile()))
     this.canvas_view.ui_event_bus.add_key_bindings(this.key_bindings)
 
     this.frame_view = this._element_views.get(this._frame)! as CartesianFrameView

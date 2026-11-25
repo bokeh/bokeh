@@ -1,5 +1,6 @@
 import {Model} from "../../model"
 import type {Document} from "document"
+import {Callback} from "../callbacks/callback"
 import {CustomJS} from "../callbacks/customjs"
 import type {ExecutableLike, SyncExecutableLike} from "core/util/callbacks"
 import {KeyCombination, KeySequence} from "core/keyboard"
@@ -38,9 +39,20 @@ export class KeyBinding extends Model {
       command: [ Nullable(Str), null ],
       args: [ Dict(Unknown), {} ],
       when: [ Nullable(Or(Ref(CustomJS), Func<[], boolean>())), null ],
-      action: [ Nullable(Or(Ref(CustomJS), Func<[], void | Promise<void>>())), null ],
+      action: [ Nullable(Or(Ref(Callback), Func<[], void | Promise<void>>())), null ],
       priority: [ Int, 0 ],
     }))
+  }
+
+  /**
+   * Prepares callbacks that are executed synchronously, i.e. `when`.
+   * This must be called before the binding is used.
+   */
+  async compile(): Promise<void> {
+    const {when} = this
+    if (when instanceof CustomJS) {
+      await when.compile()
+    }
   }
 
   to_internal(origin: Document | Model): InternalKeyBinding {

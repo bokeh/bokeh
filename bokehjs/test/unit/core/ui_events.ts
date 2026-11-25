@@ -1,6 +1,6 @@
 import * as sinon from "sinon"
 
-import {expect} from "#framework/assertions"
+import {expect, expect_instanceof} from "#framework/assertions"
 import {display} from "#framework/layouts"
 import {restorable} from "#framework/util"
 import {actions, xy} from "#framework/interactive"
@@ -21,6 +21,9 @@ import {Plot} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {ZoomInTool} from "@bokehjs/models/tools/actions/zoom_in_tool"
 import {KeyBinding} from "@bokehjs/models/ui/key_binding"
+import {CustomJS} from "@bokehjs/models/callbacks/customjs"
+import {SetValue} from "@bokehjs/models/callbacks/set_value"
+import {Title} from "@bokehjs/models/annotations/title"
 //import type {UIEvent, PanEvent, TapEvent} from "@bokehjs/core/ui_events"
 import type {UIEvent} from "@bokehjs/core/ui_events"
 import type {UIEventBus} from "@bokehjs/core/ui_events"
@@ -221,6 +224,40 @@ describe("ui_event_bus module", () => {
       key("s", {ctrlKey: true, metaKey: true})
       await wait_for_commands()
       expect(calls).to.be.equal(["Meta+s", "Ctrl+s"])
+    })
+
+    it("should skip bindings whose CustomJS when condition is false", async () => {
+      const calls: string[] = []
+      const plot = Plot.create({
+        x_range: Range1d.create({start: 0, end: 10}),
+        y_range: Range1d.create({start: 0, end: 10}),
+        key_bindings: [
+          KeyBinding.create({keys: "x", priority: 1, when: CustomJS.create({code: "return false"}), action: () => { calls.push("disabled") }}),
+          KeyBinding.create({keys: "x", priority: 0, when: CustomJS.create({code: "return true"}), action: () => { calls.push("enabled") }}),
+        ],
+      })
+      const {view} = await display(plot)
+      ui_event_bus = view.canvas_view.ui_event_bus
+
+      key("x")
+      await wait_for_commands()
+      expect(calls).to.be.equal(["enabled"])
+    })
+
+    it("should support any Callback as an action", async () => {
+      const plot = Plot.create({
+        x_range: Range1d.create({start: 0, end: 10}),
+        y_range: Range1d.create({start: 0, end: 10}),
+      })
+      plot.key_bindings = [KeyBinding.create({keys: "t", action: SetValue.create({obj: plot, attr: "title", value: "Changed"})})]
+      const {view} = await display(plot)
+      ui_event_bus = view.canvas_view.ui_event_bus
+
+      key("t")
+      await wait_for_commands()
+      const {title} = plot
+      expect_instanceof(title, Title)
+      expect(title.text).to.be.equal("Changed")
     })
 
     it("should execute commands from the command line", async () => {

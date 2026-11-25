@@ -11,7 +11,7 @@ from typing import Any, Sequence
 
 # Bokeh imports
 from ...model import Model
-from ..callbacks import Callback
+from ..callbacks import Callback, CustomJS
 
 type KeyCombination = str # TODO
 
@@ -26,7 +26,7 @@ class KeyBinding(Model):
 
     args: dict[str, Any] = ...
 
-    when: Callback | None = ...
+    when: CustomJS | None = ...
 
     action: Callback | None = ...
 
