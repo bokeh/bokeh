@@ -44,6 +44,10 @@ New features
   ``figure()`` API supports the equivalent ``tools: null``
   (:bokeh-issue:`15747`).
 * Reduced verboseness of server debug logs (:bokeh-pull:`13038`)
+* Added ``pan_together`` property to ``PanTool``,
+  mirroring ``WheelZoomTool``'s ``zoom_together``,
+  to control whether panning on an axis affects only that axis (``"none"``),
+  its cross axis pair (``"cross"``), or all axes in the same dimension (``"all"``) (:bokeh-issue:`13325`)
 * ``ContourRenderer.add_labels()`` labels contour levels and can leave a gap in
   the contour stroke behind each label.
 * Bokeh properties are now typed for static type checkers. Accessing a

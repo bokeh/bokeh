@@ -6975,6 +6975,7 @@
   PanTool: {
     __extends__: "Drag",
     dimensions: "both",
+    pan_together: "all",
   },
   PlotActionTool: {
     __extends__: "ActionTool",
