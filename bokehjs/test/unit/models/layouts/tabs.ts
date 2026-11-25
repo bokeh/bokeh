@@ -1,4 +1,4 @@
-import {expect, expect_instanceof} from "#framework/assertions"
+import {expect, expect_instanceof, expect_not_null} from "#framework/assertions"
 import {display} from "#framework/layouts"
 
 import {TabPanel} from "@bokehjs/models/layouts/tab_panel"
@@ -6,6 +6,9 @@ import {Tabs} from "@bokehjs/models/layouts/tabs"
 import {Plot} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Tooltip} from "@bokehjs/models/ui/tooltip"
+import {Column} from "@bokehjs/models/layouts/column"
+import {Div} from "@bokehjs/models/widgets/div"
+import * as tabs_css from "@bokehjs/styles/tabs.css"
 import {range} from "@bokehjs/core/util/array"
 import {enumerate} from "@bokehjs/core/util/iterator"
 
@@ -230,5 +233,63 @@ describe("Tabs", () => {
     await tabs_view.ready
 
     expect(tabs_view.sig_child_views.map((view) => view.model)).to.be.equal(tabs.tabs.map((tab) => tab.child))
+  })
+
+  describe("should lay out tab panels", () => {
+    async function display_tabs(tabs: Tabs) {
+      const {view} = await display(tabs, [600, 600])
+      const header_el = view.shadow_el.querySelector<HTMLElement>(`.${tabs_css.header}`)
+      const panel_el = view.shadow_el.querySelector<HTMLElement>(`.${tabs_css.panel}.${tabs_css.active}`)
+      expect_not_null(header_el)
+      expect_not_null(panel_el)
+      return {view, header_el, panel_el}
+    }
+
+    it("so that a stretched child fills the whole tab", async () => {
+      const plot = Plot.create({
+        x_range: Range1d.create({start: 0, end: 10}),
+        y_range: Range1d.create({start: 0, end: 10}),
+        sizing_mode: "stretch_both",
+      })
+      const tabs = Tabs.create({tabs: [TabPanel.create({title: "Plot", child: plot})], width: 400, height: 300})
+      const {view, header_el} = await display_tabs(tabs)
+
+      const plot_view = view.owner.get_one(plot)
+      expect(plot_view.el.offsetWidth).to.be.equal(400)
+      expect(plot_view.el.offsetHeight).to.be.equal(300 - header_el.offsetHeight)
+    })
+
+    it("so that a fixed size child keeps its size", async () => {
+      const plot = Plot.create({
+        x_range: Range1d.create({start: 0, end: 10}),
+        y_range: Range1d.create({start: 0, end: 10}),
+        width: 200,
+        height: 150,
+      })
+      const tabs = Tabs.create({tabs: [TabPanel.create({title: "Plot", child: plot})], width: 400, height: 300})
+      const {view} = await display_tabs(tabs)
+
+      const plot_view = view.owner.get_one(plot)
+      expect(plot_view.el.offsetWidth).to.be.equal(200)
+      expect(plot_view.el.offsetHeight).to.be.equal(150)
+    })
+
+    it("so that contents taller than the tab don't grow a stretched layout", async () => {
+      const text = range(100).map((i) => `Line ${i}`).join("<br>")
+      const div = Div.create({text, sizing_mode: "stretch_both", margin: 0, styles: {overflow: "auto"}})
+      const tabs = Tabs.create({tabs: [TabPanel.create({title: "Text", child: div})], sizing_mode: "stretch_both"})
+      const column = Column.create({children: [tabs], width: 400, height: 300})
+      const {view} = await display(column, [600, 600])
+
+      const tabs_view = view.owner.get_one(tabs)
+      const header_el = tabs_view.shadow_el.querySelector<HTMLElement>(`.${tabs_css.header}`)
+      expect_not_null(header_el)
+      expect(tabs_view.el.offsetHeight).to.be.equal(300)
+
+      // the child fills the tab and scrolls its contents
+      const div_view = view.owner.get_one(div)
+      expect(div_view.el.offsetHeight).to.be.equal(300 - header_el.offsetHeight)
+      expect(div_view.el.scrollHeight).to.be.above(div_view.el.clientHeight)
+    })
   })
 })
