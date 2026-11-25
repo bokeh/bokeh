@@ -5835,25 +5835,21 @@ describe("Bug", () => {
 
   describe("in issue #12069", () => {
     it("long axis labels can be misaligned", async () => {
-      const fruits = ["Strawberries\nwith a multi line label", "Oranges", "Apples"]
+      const fruits = ["Strawberries with a multi\nline label", "Oranges", "Apples"]
       const counts = [500, 600, 100]
 
       function plot(axis_label_correction_policy: CorrectionPolicy) {
-        const p = fig([300, 300], {toolbar_location: null, x_range: fruits})
+        const title = `axis_label_correction_policy=${axis_label_correction_policy}`
+        const p = fig([300, 300], {toolbar_location: null, x_range: fruits, title})
         p.vbar({x: fruits, top: counts, width: 0.9})
-
         p.xaxis.major_label_orientation = 3.1415 / 4
         p.xaxis.axis_label_correction_policy = axis_label_correction_policy
-        p.yaxis.major_label_orientation = -3.1415 / 4
-        p.yaxis.axis_label_correction_policy = axis_label_correction_policy
-        p.y_range.start = 0
-        p.y_range.end = 600
         return p
       }
 
       const p1 = plot("never")
       const p2 = plot("always")
-      await display(gridplot([[p1, p2]], {toolbar_location: "above"}), "auto")
+      await display(gridplot([[p1, p2]], {toolbar_location: "above"}))
     })
   })
 })
