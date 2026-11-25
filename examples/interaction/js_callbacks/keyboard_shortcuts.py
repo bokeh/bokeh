@@ -1,3 +1,11 @@
+''' Define ``CustomJS`` keyboard shortcuts on a plot and on the whole document.
+
+.. bokeh-example-metadata::
+    :title: Keyboard shortcuts
+    :keywords: key, binding, keyboard, shortcut, CustomJS
+    :apis: bokeh.models.CustomJS, bokeh.models.KeyBinding, bokeh.document.DocumentConfig, bokeh.plotting.figure.circle
+'''
+
 import numpy as np
 
 from bokeh.io import curdoc

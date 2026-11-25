@@ -1,3 +1,11 @@
+''' Add a custom key binding to a plot, triggered by a key combination.
+
+.. bokeh-example-metadata::
+    :title: Key bindings
+    :keywords: key, binding, keyboard, shortcut
+    :apis: bokeh.models.CustomJS, bokeh.models.KeyBinding, bokeh.plotting.figure.circle
+'''
+
 import numpy as np
 
 from bokeh.models import CustomJS, KeyBinding
