@@ -173,6 +173,10 @@ class StreamableDataSource(Protocol):
 class PatchableDataSource(Protocol):
     def patch(self, patches: Patches, setter: Setter | None = None) -> None: ...
 
+@runtime_checkable
+class ReplaceableDataSource(Protocol):
+    def replace(self, data: Any, *, setter: Setter | None = None) -> None: ...
+
 class DocumentChangedEvent:
     ''' Base class for all internal events representing a change to a
     Bokeh Document.
@@ -499,6 +503,12 @@ class ColumnDataChangedEvent(DocumentPatchedEvent, kind="ColumnDataChanged"):
         if isinstance(receiver, ColumnDataChangedMixin):
             receiver._column_data_changed(self)
 
+    def _data_to_serialize(self) -> Any:
+        data = self.data if self.data is not None else getattr(self.model, self.attr)
+        if self.cols is None:
+            return data
+        return {col: value for col in self.cols if (value := data.get(col)) is not None}
+
     def to_serializable(self, serializer: Serializer) -> ColumnDataChanged:
         ''' Create a JSON representation of this event suitable for sending
         to clients.
@@ -516,23 +526,17 @@ class ColumnDataChangedEvent(DocumentPatchedEvent, kind="ColumnDataChanged"):
             serializer (Serializer): serializer object
 
         '''
-        data = self.data if self.data is not None else getattr(self.model, self.attr)
-        cols = self.cols
-
-        if cols is not None:
-            data = {col: value for col in cols if (value := data.get(col)) is not None}
-
         return ColumnDataChanged(
             kind  = self.kind,
             model = self.model.ref,
             attr  = self.attr,
-            data  = serializer.encode(data),
-            cols  = serializer.encode(cols),
+            data  = serializer.encode(self._data_to_serialize()),
+            cols  = serializer.encode(self.cols),
         )
 
     @classmethod
     def _handle_json(cls, doc: Document, setter: Setter | None, event_data: dict[str, Any]) -> None:
-        event = cls(document=doc, setter=setter, model=event_data["model"], attr=event_data["attr"], data=event_data["data"], cols=event_data["cols"])
+        event = cls(document=doc, setter=setter, model=event_data["model"], attr=event_data["attr"], data=event_data["data"], cols=event_data.get("cols"))
         cls._handle_event(doc, event)
 
     @staticmethod
@@ -540,7 +544,13 @@ class ColumnDataChangedEvent(DocumentPatchedEvent, kind="ColumnDataChanged"):
         model = event.model
         attr = event.attr
         data = event.data
-        model.set_from_json(attr, data, setter=event.setter)
+        # This target synchronizes geometry and aligned attributes, rather than one property.
+        if attr == "records":
+            if not isinstance(model, ReplaceableDataSource):
+                raise RuntimeError("records replacements require a replaceable data source")
+            model.replace(data, setter=event.setter)
+        else:
+            model.set_from_json(attr, data, setter=event.setter)
 
 class ColumnsStreamedEvent(DocumentPatchedEvent, kind="ColumnsStreamed"):
     ''' A concrete event representing efficiently streaming new data
@@ -552,7 +562,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent, kind="ColumnsStreamed"):
 
     data: DataDict
 
-    def __init__(self, document: Document, model: Model, attr: str, data: DataDict | pd.DataFrame,
+    def __init__(self, document: Document, model: Model, attr: str, data: Any,
             rollover: int | None = None, setter: Setter | None = None, callback_invoker: Invoker | None = None):
         '''
 
@@ -595,7 +605,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent, kind="ColumnsStreamed"):
 
 
         stream_data: DataDict
-        if isinstance(data, dict):
+        if attr == "records" or isinstance(data, dict):
             stream_data = data
         else:
             import pandas as pd
@@ -642,16 +652,20 @@ class ColumnsStreamedEvent(DocumentPatchedEvent, kind="ColumnsStreamed"):
 
     @classmethod
     def _handle_json(cls, doc: Document, setter: Setter | None, event_data: dict[str, Any]) -> None:
-        event = cls(document=doc, setter=setter, model=event_data["model"], attr=event_data["attr"], data=event_data["data"], rollover=event_data["rollover"])
+        event = cls(document=doc, setter=setter, model=event_data["model"], attr=event_data["attr"], data=event_data["data"], rollover=event_data.get("rollover"))
         cls._handle_event(doc, event)
 
     @staticmethod
     def _handle_event(doc: Document, event: ColumnsStreamedEvent) -> None:
         model = event.model
         attr = event.attr
-        assert attr == "data"
+        assert attr in {"data", "records"}
         data = event.data
         rollover = event.rollover
+        if attr == "records" and not isinstance(model, ReplaceableDataSource):
+            raise RuntimeError("records streams require a replaceable data source")
+        if attr != "records" and isinstance(model, ReplaceableDataSource):
+            raise RuntimeError("replaceable data source streams require the records attribute")
         if not isinstance(model, StreamableDataSource):
             raise RuntimeError(f"expected streamable data source, got {model!r}")
         model._stream(data, rollover, event.setter)
@@ -740,8 +754,12 @@ class ColumnsPatchedEvent(DocumentPatchedEvent, kind="ColumnsPatched"):
     def _handle_event(doc: Document, event: ColumnsPatchedEvent) -> None:
         model = event.model
         attr = event.attr
-        assert attr == "data"
+        assert attr in {"data", "records"}
         patches = event.patches
+        if attr == "records" and not isinstance(model, ReplaceableDataSource):
+            raise RuntimeError("records patches require a replaceable data source")
+        if attr != "records" and isinstance(model, ReplaceableDataSource):
+            raise RuntimeError("replaceable data source patches require the records attribute")
         if not isinstance(model, PatchableDataSource):
             raise RuntimeError(f"expected patchable data source, got {model!r}")
         model.patch(patches, event.setter)

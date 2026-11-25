@@ -1,0 +1,39 @@
+from collections.abc import Sequence
+from typing import Any, assert_type
+
+import numpy as np
+
+from bokeh.geometry import GeometryValue, MultiLineString, Point, geometry_collection, multi_line_string, point, polygon
+from bokeh.models import GeometryDataSource
+
+assert_type(point([1, 2]), Point)
+assert_type(multi_line_string([[[1, 2], [3, 4]]]), MultiLineString)
+shapes: list[GeometryValue] = [point([1, 2]), polygon([[[0, 0], [2, 0], [0, 2]]])]
+source = GeometryDataSource(geometries=[geometry_collection(shapes)])
+empty_source = GeometryDataSource()
+empty_source.stream(point([3, 4]))
+source.replace({"geometries": shapes, "data": {}})
+source.stream({"geometries": [point([3, 4])], "data": {}})
+source.patch({"geometry": [(0, point([5, 6]))]})
+
+bad_key: Point = {"type": "Point", "coordiantes": [1, 2]}  # mypy: typeddict-item,typeddict-unknown-key | pyright: reportAssignmentType
+bad_type: Point = {"type": "Piont", "coordinates": [1, 2]}  # mypy: typeddict-item | pyright: reportAssignmentType
+multi_line_string([[1, 2]])  # mypy: list-item,list-item | pyright: reportArgumentType
+
+point("ab")  # mypy: arg-type | pyright: reportArgumentType
+multi_line_string("abc")  # mypy: arg-type | pyright: reportArgumentType
+polygon("abc")  # mypy: arg-type | pyright: reportArgumentType
+
+coords = np.array([[0, 0], [1, 1]])
+source = GeometryDataSource(geometries=[multi_line_string([coords])])
+
+
+class GeoObject:
+    @property
+    def __geo_interface__(self) -> Point:
+        return point([1, 2])
+
+
+source = GeometryDataSource(geometries=[GeoObject()])
+source.geometries = [GeoObject()]
+assert_type(source.geometries, Sequence[dict[str, Any] | None])

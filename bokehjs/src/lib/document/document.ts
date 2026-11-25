@@ -4,20 +4,19 @@ import {logger} from "../core/logging"
 import type {Class} from "core/class"
 import type {ColorScheme} from "core/enums"
 import {HasProps} from "core/has_props"
-import type {Property} from "core/properties"
 import {ModelResolver} from "core/resolvers"
 import type {ModelRep} from "core/serialization"
 import {Serializer} from "core/serialization"
 import {Deserializer} from "core/serialization/deserializer"
 import {Version} from "core/util/version"
 import type {Ref} from "core/util/refs"
-import type {ID, Data} from "core/types"
+import type {ID} from "core/types"
 import {Signal, Signal0} from "core/signaling"
 import {isString} from "core/util/types"
 import type {Equatable, Comparator} from "core/util/eq"
 import {equals, is_equal} from "core/util/eq"
 import {copy} from "core/util/array"
-import {entries, dict} from "core/util/object"
+import {entries} from "core/util/object"
 import * as sets from "core/util/set"
 import type {CallbackLike} from "core/util/callbacks"
 import {execute} from "core/util/callbacks"
@@ -895,29 +894,15 @@ export class Document implements Equatable {
           break
         }
         case "ColumnDataChanged": {
-          const {model, attr, data, cols} = event
-          if (cols != null) {
-            const new_data = dict(data)
-            const current_data = dict(model.property(attr).get_value() as Data)
-            for (const [name, column] of current_data) {
-              if (!new_data.has(name)) {
-                new_data.set(name, column)
-              }
-            }
-          }
-          model.setv({data}, {sync: false, check_eq: false})
+          event.model._apply_column_data_changed(event)
           break
         }
         case "ColumnsStreamed": {
-          const {model, attr, data, rollover} = event
-          const prop = model.property(attr) as Property<Data>
-          model.stream_to(prop, data, rollover, {sync: false})
+          event.model._apply_columns_streamed(event)
           break
         }
         case "ColumnsPatched": {
-          const {model, attr, patches} = event
-          const prop = model.property(attr) as Property<Data>
-          model.patch_to(prop, patches, {sync: false})
+          event.model._apply_columns_patched(event)
           break
         }
         case "RootAdded": {

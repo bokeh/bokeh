@@ -41,6 +41,9 @@ from ..events import (
 from ..models.callbacks import Callback as JSEventCallback
 from ..util.callback_manager import _check_callback
 from .events import (
+    ColumnDataChangedEvent,
+    ColumnsPatchedEvent,
+    ColumnsStreamedEvent,
     MessageSentEvent,
     ModelChangedEvent,
     RootAddedEvent,
@@ -81,6 +84,8 @@ __all__ = (
     'SessionCallbackRemoved',
     'TitleChangedEvent',
 )
+
+_DATA_EVENTS = (ColumnDataChangedEvent, ColumnsStreamedEvent, ColumnsPatchedEvent)
 
 
 Callback = Callable[[], None | Awaitable[None]]
@@ -492,9 +497,20 @@ def _combine_document_events(new_event: DocumentChangedEvent, old_events: list[D
         None
 
     '''
+    new_is_data = isinstance(new_event, _DATA_EVENTS)
+    new_records = new_is_data and getattr(new_event, "attr", None) == "records"
+    new_model = getattr(new_event, "model", None)
+    new_eligible = new_is_data or isinstance(new_event, ModelChangedEvent)
     for event in reversed(old_events):
         if event.combine(new_event):
             return
+        # Composite geometry edits must retain their order relative to property replacements.
+        # A ModelChanged event for "records" is an ordinary property update.
+        if new_eligible and getattr(event, "model", None) is new_model:
+            if new_records and isinstance(event, ModelChangedEvent):
+                break
+            if isinstance(event, _DATA_EVENTS) and (new_records or event.attr == "records"):
+                break
 
     # no combination was possible
     old_events.append(new_event)

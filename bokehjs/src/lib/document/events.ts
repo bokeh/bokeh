@@ -1,8 +1,6 @@
 import type {Document} from "./document"
-import type {Data} from "core/types"
 import type {HasProps} from "core/has_props"
 import type {Ref} from "core/util/refs"
-import type {PatchSet} from "core/patching"
 import type {Equatable, Comparator} from "core/util/eq"
 import {equals} from "core/util/eq"
 import type {Serializable, Serializer, ModelRep} from "core/serialization"
@@ -94,11 +92,12 @@ export namespace Decoded {
     model: HasProps
   }
 
+  // The target model interprets data payloads, which need not be column dictionaries.
   export type ColumnDataChanged = {
     kind: "ColumnDataChanged"
     model: HasProps
     attr: string
-    data: Data
+    data: unknown
     cols?: string[]
   }
 
@@ -106,7 +105,7 @@ export namespace Decoded {
     kind: "ColumnsStreamed"
     model: HasProps
     attr: string
-    data: Data
+    data: unknown
     rollover?: number
   }
 
@@ -114,7 +113,7 @@ export namespace Decoded {
     kind: "ColumnsPatched"
     model: HasProps
     attr: string
-    patches: PatchSet<unknown>
+    patches: unknown
   }
 
   export type DocumentChanged =
@@ -218,7 +217,7 @@ export class ColumnDataChangedEvent extends DocumentChangedEvent {
   constructor(document: Document,
       readonly model: HasProps,
       readonly attr: string,
-      readonly data: Data,
+      readonly data: unknown,
       readonly cols?: string[]) {
     super(document)
   }
@@ -248,7 +247,7 @@ export class ColumnsStreamedEvent extends DocumentChangedEvent {
   constructor(document: Document,
       readonly model: HasProps,
       readonly attr: string,
-      readonly data: Data,
+      readonly data: unknown,
       readonly rollover?: number) {
     super(document)
   }
@@ -278,7 +277,7 @@ export class ColumnsPatchedEvent extends DocumentChangedEvent {
   constructor(document: Document,
       readonly model: HasProps,
       readonly attr: string,
-      readonly patches: PatchSet<unknown>) {
+      readonly patches: unknown) {
     super(document)
   }
 

@@ -7,6 +7,8 @@ import type {Slice} from "core/util/slice"
 import * as typed_array from "core/util/typed_array"
 
 // exported for testing
+export function stream_to_column<T>(col: T[], new_col: T[], rollover?: number): T[]
+export function stream_to_column(col: Arrayable, new_col: Arrayable, rollover?: number): Arrayable
 export function stream_to_column(col: Arrayable, new_col: Arrayable, rollover?: number): Arrayable {
   if (isArray(col) && isArray(new_col)) {
     const result = col.concat(new_col)

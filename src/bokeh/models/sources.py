@@ -24,32 +24,34 @@ import gzip
 import json
 import math
 import sys
+from collections.abc import MutableSequence
 from dataclasses import asdict, is_dataclass
 from datetime import date
+from functools import partial
 from numbers import Real
+from operator import setitem
 from os import fspath
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
     Iterator,
-    Literal,
     Mapping,
     Self,
     Sequence,
     TextIO,
-    TypedDict,
     TypeGuard,
     cast,
 )
 
 import numpy as np
 
-from ..core.has_props import abstract
+from ..core.has_props import HasProps, abstract
 from ..core.property.any import Any as AnyVal, AnyRef
 from ..core.property.container import ColumnData, Dict, List, RestrictedDict, Seq
 from ..core.property.data_class import Dataclass
 from ..core.property.data_frame import EagerDataFrame, PandasGroupBy
+from ..core.property.descriptors import PropertyDescriptor
 from ..core.property.enum import Enum
 from ..core.property.instance import Instance, InstanceDefault
 from ..core.property.json import JSON
@@ -57,8 +59,11 @@ from ..core.property.nullable import Nullable
 from ..core.property.primitive import Bool, Int, String
 from ..core.property.readonly import Readonly
 from ..core.property.required import Required
+from ..core.property.singletons import OldValueUnavailable
+from ..core.property.wrappers import PropertyValueContainer
 from ..core.validation import warning
 from ..core.validation.warnings import GEOMETRY_ATTRIBUTE_LENGTH_MISMATCH
+from ..geometry import Polygon, polygon
 from ..model import Model
 from ..util.dependencies import uses_pandas
 from ..util.serialization import (
@@ -76,6 +81,8 @@ if TYPE_CHECKING:
 
     from ..core.has_props import Setter
     from ..core.types import PathLike
+    from ..document import Document
+    from ..document.events import DocumentPatchedEvent, Invoker, ModelChangedEvent
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -969,11 +976,7 @@ class _Geometries(Seq[Any, Sequence[Any]]):
     def transform(self, value: Any) -> Sequence[Any]:
         return [_geometry_mapping(item) for item in super().transform(value)]
 
-class _PolygonGeometry(TypedDict):
-    type: Literal["Polygon"]
-    coordinates: list[list[list[Any]]]
-
-def _geometry_from_xy(x: Sequence[Any], y: Sequence[Any]) -> _PolygonGeometry:
+def _geometry_from_xy(x: Sequence[Any], y: Sequence[Any]) -> Polygon:
     if not _is_coordinate_row(x) or not _is_coordinate_row(y):
         raise ValueError("polygon x and y coordinates must have matching nesting")
     xs = [convert_datetime_type(value) if isinstance(value, date) or is_datetime_type(value) else value for value in x]
@@ -993,7 +996,7 @@ def _geometry_from_xy(x: Sequence[Any], y: Sequence[Any]) -> _PolygonGeometry:
 
     ring = [[list(value) if _is_coordinate_row(value) else value for value in pair] for pair in zip(xs, ys)]
     if not ring:
-        return _PolygonGeometry(type="Polygon", coordinates=[])
+        return polygon([])
     if any(isinstance(x_value, Real) != isinstance(xs[0], Real) or isinstance(y_value, Real) != isinstance(ys[0], Real)
            for x_value, y_value in ring):
         raise ValueError("polygon coordinates cannot mix numbers and categorical factors on the same axis")
@@ -1001,7 +1004,7 @@ def _geometry_from_xy(x: Sequence[Any], y: Sequence[Any]) -> _PolygonGeometry:
         ring.append(ring[0])
     if len(ring) < 4:
         raise ValueError("polygon rings must contain at least three vertices")
-    return _PolygonGeometry(type="Polygon", coordinates=[ring])
+    return polygon([ring])
 
 def _is_coordinate_row(value: Any) -> TypeGuard[Sequence[Any] | npt.NDArray[Any]]:
     return (isinstance(value, (Sequence, np.ndarray)) and not isinstance(value, (str, bytes))
@@ -1084,6 +1087,108 @@ def _geometry_records(value: Any) -> tuple[list[dict[str, Any] | None], DataDict
     data = {field: [record.get(field) for record in properties] for field in fields}
     return geometries, data
 
+def _geometry_patch_index(index: Any) -> int | slice:
+    if isinstance(index, slice):
+        return slice(*(None if item is None else _geometry_patch_index(item) for item in (index.start, index.stop, index.step)))
+    if isinstance(index, (int, np.integer)) and not isinstance(index, bool):
+        return int(index)
+    raise ValueError("geometry patch indices must be integers or slices")
+
+
+def _patch_geometry_vertices(geometry: Any, path: tuple[Any, ...], value: Any) -> Callable[[], None]:
+    """Apply one validated edit and return an undo operation."""
+    if geometry is None:
+        raise ValueError("vertex patches require a geometry")
+    kind = geometry.get("type", "")
+    depth = {"LineString": 1, "Polygon": 2, "MultiLineString": 2, "MultiPolygon": 3}.get(kind)
+    if depth is None or len(path) != depth:
+        raise ValueError("vertex paths must identify a vertex or vertex slice within one explicit ring")
+
+    publish = []
+
+    def materialize(parent: Any, index: Any) -> list[Any]:
+        values = parent[index]
+        if isinstance(values, list):
+            return values
+        converted = values.tolist() if hasattr(values, "tolist") else list(values)
+        publish.append((parent, index, values, converted))
+        return converted
+
+    ring = materialize(geometry, "coordinates")
+    for index in path[:-1]:
+        if not isinstance(index, int) or index < 0 or index >= len(ring):
+            raise ValueError("out-of-bounds geometry part or ring index")
+        ring = materialize(ring, index)
+    index = path[-1]
+    if isinstance(index, slice):
+        if index.step not in (None, 1):
+            raise ValueError("vertex slices require step 1")
+        start = 0 if index.start is None else index.start
+        stop = len(ring) if index.stop is None else index.stop
+        if not isinstance(start, int) or not isinstance(stop, int) or not 0 <= start <= stop <= len(ring):
+            raise ValueError("out-of-bounds vertex slice")
+        index = slice(start, stop)
+        positions = list(value)
+    elif isinstance(index, int) and 0 <= index < len(ring):
+        positions = [value]
+    else:
+        raise ValueError("out-of-bounds vertex index")
+    if any(not _is_coordinate_row(p) or len(p) < 2 for p in positions):
+        raise ValueError("vertices must contain at least x and y coordinates")
+    replacement = _geometry_value([list(p) for p in positions])
+    start, stop = (index.start, index.stop) if isinstance(index, slice) else (index, index + 1)
+    previous = ring[start:stop]
+    for parent, key, old, new in publish:
+        parent[key] = new
+    ring[start:stop] = replacement
+
+    def undo() -> None:
+        ring[start:start + len(replacement)] = previous
+        for parent, key, old, new in reversed(publish):
+            parent[key] = old
+
+    return undo
+
+
+def _validate_geometry_attributes(geometries: Sequence[Any], data: Mapping[str, Any]) -> None:
+    lengths = {len(column) for column in data.values()}
+    if len(lengths) > 1 or (lengths and lengths != {len(geometries)}):
+        raise ValueError("geometry attributes must have the same length as geometries")
+
+
+def _snapshot_geometry_payload(value: Any, memo: dict[int, Any] | None = None) -> Any:
+    # Copy mutable containers without following model references into their documents.
+    if isinstance(value, HasProps):
+        return value
+    if memo is None:
+        memo = {}
+    identity = id(value)
+    if identity in memo:
+        return memo[identity]
+    if isinstance(value, Mapping):
+        result: Any = {}
+        memo[identity] = result
+        result.update((key, _snapshot_geometry_payload(item, memo)) for key, item in value.items())
+    elif isinstance(value, MutableSequence):
+        result = []
+        memo[identity] = result
+        result.extend(_snapshot_geometry_payload(item, memo) for item in value)
+    elif isinstance(value, tuple):
+        items = [_snapshot_geometry_payload(item, memo) for item in value]
+        result = memo.setdefault(identity, tuple(items))
+    elif isinstance(value, np.ndarray):
+        result = value.copy()
+        memo[identity] = result
+        if value.dtype.hasobject:
+            for index, item in enumerate(value.flat):
+                result.flat[index] = _snapshot_geometry_payload(item, memo)
+    elif isinstance(value, np.generic):
+        result = value.copy()
+    else:
+        return value
+    return result
+
+
 class GeometryDataSource(IndexedDataSource):
     ''' A feature-indexed source containing geometry records and attributes.
 
@@ -1128,9 +1233,7 @@ class GeometryDataSource(IndexedDataSource):
             geometries = [] if raw_geometries is None else list(raw_geometries)
             data = {} if raw_data is None else dict(raw_data)
 
-        lengths = {len(column) for column in data.values()}
-        if len(lengths) > 1 or (lengths and lengths != {len(geometries)}):
-            raise ValueError("geometry attributes must have the same length as geometries")
+        _validate_geometry_attributes(geometries, data)
 
         # Only geo inputs carry CRS metadata. Checking the type avoids building
         # a second __geo_interface__, and skips DataFrame columns named "crs".
@@ -1210,6 +1313,224 @@ class GeometryDataSource(IndexedDataSource):
         self.data[name] = data
         return name
 
+
+
+    def replace(self, data: Any, *, setter: Setter | None = None) -> None:
+        ''' Replace all geometry records and aligned attributes.
+
+        ``data`` accepts the same GeoJSON, ``__geo_interface__``, and natural
+        geometry-record inputs as the constructor.
+        '''
+        geometries, attributes = _geometry_records(data)
+        hint = None
+        if self.document is not None:
+            from ..document.events import ColumnDataChangedEvent
+            hint = ColumnDataChangedEvent(self.document, self, "records", setter=setter)
+        self._set_records(geometries, attributes, hint=hint, setter=setter)
+
+
+    def _set_records(self, geometries: Sequence[Any], data: Mapping[str, Any], *,
+            hint: Any = None, setter: Setter | None = None, incremental: bool = False) -> None:
+        _validate_geometry_attributes(geometries, data)
+        old_geometries = OldValueUnavailable if incremental else self.geometries
+        old_data = OldValueUnavailable if incremental else self.data
+        prepared = []
+        for name, new in (("geometries", geometries), ("data", data)):
+            if new is getattr(self, name):
+                continue
+            new = list(new) if name == "geometries" else dict(new)
+            descriptor = self.lookup(name)
+            assert isinstance(descriptor, PropertyDescriptor)
+            # Incremental geometry inputs are already normalized. Retain existing vertex storage.
+            value = descriptor.property.wrap(new) if incremental and name == "geometries" else descriptor.property.prepare_value(self, name, new)
+            prepared.append((descriptor, getattr(self, name), value))
+        if hint is not None and hint.kind == "ColumnDataChanged" and hint.attr == "records":
+            records = {"geometries": self.geometries, "data": self.data}
+            records.update((descriptor.name, value) for descriptor, old, value in prepared)
+            hint.data = _snapshot_geometry_payload(records)
+        for descriptor, old, value in prepared:
+            if isinstance(old, PropertyValueContainer):
+                old._unregister_owner(self, descriptor)
+            descriptor._set_value(self, value)
+        new_geometries, new_data = self.geometries, self.data
+
+        def invoke() -> None:
+            for attr, old, new in (
+                ("geometries", old_geometries, new_geometries),
+                ("data", old_data, new_data),
+            ):
+                for callback in self._callbacks.get(attr, []):
+                    self._invoke_callbacks([callback], attr, old, getattr(self, attr) if incremental else new)
+
+        callback_invoker = invoke if self._callbacks.get("geometries") or self._callbacks.get("data") else None
+        if self.document is None:
+            if callback_invoker is not None:
+                callback_invoker()
+        else:
+            self.document.callbacks.notify_change(
+                self, "geometries", old_geometries, new_geometries,
+                hint=hint, setter=setter, callback_invoker=callback_invoker,
+            )
+        for attr in ("geometries", "data"):
+            self._update_callback_policy_values(attr, getattr(self, attr))
+
+
+    def _create_model_changed_event(self, document: Document, attr: str, new: Any,
+            setter: Setter | None = None, callback_invoker: Invoker | None = None) -> ModelChangedEvent:
+        if attr in ("geometries", "data"):
+            new = _snapshot_geometry_payload(new)
+        return super()._create_model_changed_event(document, attr, new, setter, callback_invoker)
+
+    def trigger(self, attr: str, old: Any, new: Any,
+            hint: DocumentPatchedEvent | None = None, setter: Setter | None = None) -> None:
+        from ..document.events import ColumnDataChangedEvent
+
+        # Queued replacements must retain their values across later in-place patches.
+        if isinstance(hint, ColumnDataChangedEvent) and hint.data is None:
+            hint.data = _snapshot_geometry_payload(hint._data_to_serialize())
+        super().trigger(attr, old, new, hint, setter)
+
+
+    def stream(self, new_data: Any, rollover: int | None = None, setter: Setter | None = None) -> None:
+        ''' Append geometry records and attributes, optionally retaining only
+        the newest ``rollover`` records.
+
+        This is the geometry-record analogue of
+        :meth:`~bokeh.models.sources.ColumnDataSource.stream` and synchronizes
+        through one incremental record event in server applications.
+
+        As with ``ColumnDataSource.stream()``, Python callbacks receive
+        :data:`~bokeh.util.callback_manager.OldValueUnavailable` as ``old``.
+        Deferred callbacks read the current records rather than snapshots.
+        '''
+        self._stream(new_data, rollover, setter)
+
+
+    def _stream(self, new_data: Any, rollover: int | None = None, setter: Setter | None = None) -> None:
+        if rollover is not None and (not isinstance(rollover, (int, np.integer)) or isinstance(rollover, bool) or rollover < 0):
+            raise ValueError("rollover must be a non-negative integer")
+        rollover = int(rollover) if rollover is not None else None
+        geometries, data = _geometry_records(new_data)
+        geometries = [_geometry_mapping(geometry) for geometry in geometries]
+        _validate_geometry_attributes(geometries, data)
+        descriptor = self.lookup("data")
+        assert isinstance(descriptor, PropertyDescriptor)
+        descriptor.property.validate(data)
+        existing_fields = set(self.data)
+        new_fields = set(data)
+        missing = sorted(existing_fields - new_fields)
+        if missing and geometries:
+            raise ValueError(f"Must stream updates to all existing attributes (missing: {', '.join(missing)})")
+
+        combined_geometries = [*self.geometries, *geometries]  # pyright: ignore[reportGeneralTypeIssues]
+        combined_data: dict[str, Any] = {}
+        for field in existing_fields | new_fields:
+            previous = self.data[field] if field in existing_fields else [None] * self.length
+            appended = data.get(field, [])
+            if isinstance(previous, np.ndarray):
+                combined_data[field] = previous if len(appended) == 0 else np.concatenate((previous, appended), axis=0)
+            elif isinstance(appended, np.ndarray) and len(previous) == 0:
+                combined_data[field] = appended
+            else:
+                combined_data[field] = [*previous, *appended]
+        if rollover is not None:
+            combined_geometries = [] if rollover == 0 else combined_geometries[-rollover:]
+            combined_data = {
+                field: values[:0] if rollover == 0 else values[-rollover:]
+                for field, values in combined_data.items()
+            }
+
+        records = {"geometries": geometries, "data": data}
+        hint = None
+        if self.document is not None:
+            from ..document.events import ColumnsStreamedEvent
+            hint = ColumnsStreamedEvent(self.document, self, "records", _snapshot_geometry_payload(records), rollover, setter)
+        self._set_records(combined_geometries, combined_data, hint=hint, setter=setter, incremental=True)
+
+
+    def patch(self, patches: Mapping[str, Sequence[tuple[Index, Any]]], setter: Setter | None = None) -> None:
+        """Patch feature values or vertices without replacing a whole geometry.
+
+        Integer indices replace feature values. A geometry tuple starts with a
+        feature index, followed by part and ring indices as required by its
+        geometry type, and a vertex index or slice. A slice can append vertices
+        within a ring without altering part or ring boundaries.
+
+        Writable attribute columns and list-based coordinates are updated in
+        place. Overwritten values are retained only to roll back invalid
+        batches. Immutable or read-only columns and shaped geometry arrays
+        may require copies or materialization.
+
+        As with ``ColumnDataSource.patch()``, Python callbacks receive
+        :data:`~bokeh.util.callback_manager.OldValueUnavailable` as ``old``.
+        Deferred callbacks read the current records rather than snapshots.
+        Take an explicit copy before patching if historical values are needed.
+
+        .. code-block:: python
+
+            source.patch({"geometry": [((0, 0, 2), [3, 4])]})
+            source.patch({"geometry": [((0, 0, slice(3, 3)), [[5, 6]])]})
+        """
+        valid_fields = {"geometry", *self.data}  # pyright: ignore[reportGeneralTypeIssues]
+        extra = set(patches) - valid_fields
+        if extra:
+            raise ValueError(f"Can only patch existing geometry fields (extra: {', '.join(sorted(extra))})")
+
+        geometries = self.geometries
+        data = dict(cast(Mapping[str, Any], self.data))
+        normalized_patches: dict[str, list[tuple[Any, Any]]] = {}
+        undo: list[Callable[[], None]] = []
+
+        def assign(values: Any, index: int, value: Any) -> None:
+            previous = values[index]
+            if isinstance(previous, (np.ndarray, np.generic)):
+                previous = previous.copy()
+            # Composite patch publication handles notifications once per batch.
+            assign_item = list.__setitem__ if isinstance(values, list) else setitem
+            undo.append(partial(assign_item, values, index, previous))
+            assign_item(values, index, value)
+
+        try:
+            for field, changes in patches.items():
+                values: Any = geometries if field == "geometry" else data[field]
+                if field != "geometry":
+                    if isinstance(values, np.ndarray):
+                        if not values.flags.writeable:
+                            values = values.copy()
+                    elif not isinstance(values, MutableSequence):
+                        values = list(values)
+                    data[field] = values
+                normalized = normalized_patches[field] = []
+                for index, value in changes:
+                    if isinstance(index, (tuple, list)):
+                        if not index:
+                            raise ValueError("vertex patches require a geometry feature index")
+                        index = tuple(_geometry_patch_index(item) for item in index)
+                        feature, *path = index
+                        if field != "geometry" or not isinstance(feature, int) or not 0 <= feature < self.length:
+                            raise ValueError("vertex patches require a valid geometry feature index")
+                        normalized_value = _snapshot_geometry_payload(_geometry_value(value))
+                        undo.append(_patch_geometry_vertices(geometries[feature], tuple(path), normalized_value))
+                    else:
+                        index = _geometry_patch_index(index)
+                        if isinstance(index, slice):
+                            raise ValueError("slices are supported only within geometry vertex paths")
+                        if not isinstance(index, int) or not 0 <= index < self.length:
+                            raise ValueError(f"Out-of-bounds index ({index}) in patch for field: {field}")
+                        normalized_value = _snapshot_geometry_payload(_geometry_mapping(value) if field == "geometry" else value)
+                        # Keep replacement payloads independent of subsequent vertex edits.
+                        assign(values, index, _geometry_mapping(normalized_value) if field == "geometry" else value)
+                    normalized.append((index, normalized_value))
+        except Exception:
+            for rollback in reversed(undo):
+                rollback()
+            raise
+
+        hint = None
+        if self.document is not None:
+            from ..document.events import ColumnsPatchedEvent
+            hint = ColumnsPatchedEvent(self.document, self, "records", normalized_patches, setter)
+        self._set_records(geometries, data, hint=hint, setter=setter, incremental=True)
 
 
 class IndexedSubset(Model):
