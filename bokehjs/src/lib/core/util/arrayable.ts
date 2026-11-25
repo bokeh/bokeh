@@ -30,6 +30,33 @@ export function max(array: Arrayable<number>): number {
   return max
 }
 
+// Keep null handling separate so numeric reductions do not pay for it.
+export function minmax_nullable(array: Arrayable<number | null>): [number, number] {
+  let min = +Infinity
+  let max = -Infinity
+  const {length} = array
+  for (let i = 0; i < length; i++) {
+    const value = array[i] ?? NaN
+    if (value < min) {
+      min = value
+    }
+    if (value > max) {
+      max = value
+    }
+  }
+  return [min, max]
+}
+
+export function min_nullable(array: Arrayable<number | null>): number {
+  const [min] = minmax_nullable(array)
+  return min
+}
+
+export function max_nullable(array: Arrayable<number | null>): number {
+  const [, max] = minmax_nullable(array)
+  return max
+}
+
 export function is_empty(array: Arrayable): boolean {
   return array.length == 0
 }

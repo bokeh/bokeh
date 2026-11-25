@@ -31,7 +31,7 @@ from .glyph_renderer import GlyphRenderer
 from .renderer import DataRenderer
 
 if TYPE_CHECKING:
-    from ..._specs import NullStringSpec
+    from ..._specs import NullableSpec
     from ...plotting.contour import ContourData
     from ..annotations import ContourColorBar
     from ..formatters import TickFormatter
@@ -101,7 +101,7 @@ class ContourRenderer(DataRenderer):
 
     def add_labels(
         self,
-        text: NullStringSpec = None,
+        text: NullableSpec[str] = None,
         *,
         formatter: TickFormatter | None = None,
         positions: str | Sequence[float] | None = None,

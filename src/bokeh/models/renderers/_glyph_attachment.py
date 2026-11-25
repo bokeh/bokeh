@@ -13,7 +13,7 @@ from typing import Any, cast
 from ...core.has_props import abstract
 from ...core.property.color import Color
 from ...core.property.container import Seq
-from ...core.property.dataspec import NullStringSpec
+from ...core.property.dataspec import StringSpec
 from ...core.property.either import Either
 from ...core.property.instance import Instance, InstanceDefault
 from ...core.property.nullable import Nullable
@@ -38,7 +38,7 @@ class ContourLabels(GlyphAttachment, ScalarTextProps):
     ``bokeh.models``.
     """
 
-    text = NullStringSpec(default=None, help="""
+    text = Nullable(StringSpec, default=None, help="""
     Text from the contour line source or a literal value. The default formats
     each row's contour level.
     """)
