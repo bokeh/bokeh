@@ -69,4 +69,29 @@ describe("Expressions and transforms in specs", () => {
     expect(exprs).to.be.equal(2)
     expect(transforms).to.be.equal(1)
   })
+
+  it("should be followed while another spec still uses them", () => {
+    const glyph = VBar.create({top: {field: "y"}, bottom: {value: 0}})
+    let exprs = 0
+    let transforms = 0
+    glyph.exprchange.connect(() => exprs++)
+    glyph.transformchange.connect(() => transforms++)
+
+    const expr = CumSum.create({field: "y"})
+    const transform = Jitter.create()
+    glyph.top = {expr, transform}
+    glyph.bottom = {expr, transform}
+
+    glyph.top = {field: "y"}
+    expr.field = "z"
+    transform.width = 2
+    expect(exprs).to.be.equal(1)
+    expect(transforms).to.be.equal(1)
+
+    glyph.bottom = {value: 0}
+    expr.field = "y"
+    transform.width = 3
+    expect(exprs).to.be.equal(1)
+    expect(transforms).to.be.equal(1)
+  })
 })

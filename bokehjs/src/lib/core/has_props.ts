@@ -579,13 +579,15 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
   /** Connect change listeners owned by this object. Overrides must call `super`. */
   connect_signals(): void {
-    const exprchange = () => this.exprchange.emit()
-    const transformchange = () => this.transformchange.emit()
-
     for (const prop of this) {
       if (!(prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec)) {
         continue
       }
+
+      // Callbacks are per spec: Signal.connect() deduplicates identical slots, so specs
+      // sharing an expression or transform would otherwise share a single connection.
+      const exprchange = () => this.exprchange.emit()
+      const transformchange = () => this.transformchange.emit()
 
       // Follow the expression and transform of the current value of the spec,
       // and move the listeners over when the value is replaced.
