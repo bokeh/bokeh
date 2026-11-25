@@ -248,6 +248,11 @@ export class SizeBarView extends BaseBarView implements Exportable {
   private _last_bbox = new BBox()
 
   override update_layout(): void {
+    // The internal plot builds its layout in its own after_render(), which
+    // hasn't run yet if the parent plot is laid out right after render().
+    if ((this._size_bar_view.layout as InternalBorderLayout | undefined) == null) {
+      this._size_bar_view.update_layout()
+    }
     this.layout = this._size_bar_view.layout
     this.layout.on_resize((outer) => {
       if (!outer.equals(this._last_bbox)) {
