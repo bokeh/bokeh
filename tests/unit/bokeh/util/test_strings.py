@@ -108,6 +108,9 @@ class Test_format_url_query_arguments:
             assert bus.format_url_query_arguments(uri, {"new": "2"}, "new_fragment")
         assert str(e.value) == "Can't extend a url with an existing and a given fragment."
 
+    def test_trailing_hash_with_arguments(self) -> None:
+        assert bus.format_url_query_arguments("https://example.com/ws#", {"new": "2"}) == "https://example.com/ws?new=2#"
+
 class Test_indent:
     TEXT = "some text\nto indent\n  goes here"
 
