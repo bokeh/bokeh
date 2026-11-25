@@ -14,15 +14,18 @@ void test("canvas outline follows pointer and keyboard focus", async () => {
     await page.setContent(`<style>:root { --outline-width: 2px; --outline-style: solid; --highlight-color: blue; } ${css}</style><button>Before plot</button><div class="bk-events" tabindex="0">Plot</div>`)
 
     const plot = page.locator(".bk-events")
+    const matches = (selector: string) => page.evaluate<boolean>(`document.querySelector('.bk-events').matches(${JSON.stringify(selector)})`)
+    const outline = () => page.evaluate<string>("getComputedStyle(document.querySelector('.bk-events')).outlineStyle")
+
     await plot.click()
-    assert.equal(await plot.evaluate((el) => el.matches(":focus")), true)
-    assert.equal(await plot.evaluate((el) => el.matches(":focus-visible")), false)
-    assert.equal(await plot.evaluate((el) => el.ownerDocument.defaultView!.getComputedStyle(el).outlineStyle), "none")
+    assert.equal(await matches(":focus"), true)
+    assert.equal(await matches(":focus-visible"), false)
+    assert.equal(await outline(), "none")
 
     await page.keyboard.press("Shift+Tab")
     await page.keyboard.press("Tab")
-    assert.equal(await plot.evaluate((el) => el.matches(":focus-visible")), true)
-    assert.notEqual(await plot.evaluate((el) => el.ownerDocument.defaultView!.getComputedStyle(el).outlineStyle), "none")
+    assert.equal(await matches(":focus-visible"), true)
+    assert.notEqual(await outline(), "none")
   } finally {
     await browser.close()
   }
