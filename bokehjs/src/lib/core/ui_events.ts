@@ -1,6 +1,6 @@
 import {UIGestures} from "./ui_gestures"
 import {Signal, Signal0} from "./signaling"
-import type {NonModifierKey, Key} from "./keyboard"
+import type {NonModifierKey, Key, KeyState} from "./keyboard"
 import {parse, unparse} from "./keyboard"
 import {offset_bbox} from "./dom"
 import * as events from "./bokeh_events"
@@ -104,11 +104,6 @@ export type ScrollEvent = {
 }
 
 export type UIEvent = GestureEvent | TapEvent | MoveEvent | ScrollEvent
-
-type KeyState = {
-  key: Key
-  modifiers: KeyModifiers
-}
 
 export type KeyEvent = {
   type: "keyup" | "keydown"
@@ -758,7 +753,7 @@ export class UIEventBus {
     return {
       type: event.type as KeyEvent["type"],
       key: normalize(event.key),
-      modifiers: this._get_modifiers(event),
+      modifiers: {...this._get_modifiers(event), meta: event.metaKey},
       native: event,
     }
   }
@@ -912,7 +907,8 @@ export class UIEventBus {
         value.key == expected.key &&
         value.modifiers.ctrl == expected.modifiers.ctrl &&
         value.modifiers.shift == expected.modifiers.shift &&
-        value.modifiers.alt == expected.modifiers.alt
+        value.modifiers.alt == expected.modifiers.alt &&
+        value.modifiers.meta == expected.modifiers.meta
       )
     }
 

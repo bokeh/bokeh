@@ -202,6 +202,27 @@ describe("ui_event_bus module", () => {
       expect(end).to.be.above(10)
     })
 
+    it("should match the Meta modifier", async () => {
+      const calls: string[] = []
+      const plot = Plot.create({
+        x_range: Range1d.create({start: 0, end: 10}),
+        y_range: Range1d.create({start: 0, end: 10}),
+        key_bindings: [
+          KeyBinding.create({keys: "Meta+s", action: () => { calls.push("Meta+s") }}),
+          KeyBinding.create({keys: "Ctrl+s", action: () => { calls.push("Ctrl+s") }}),
+        ],
+      })
+      const {view} = await display(plot)
+      ui_event_bus = view.canvas_view.ui_event_bus
+
+      key("s")
+      key("s", {metaKey: true})
+      key("s", {ctrlKey: true})
+      key("s", {ctrlKey: true, metaKey: true})
+      await wait_for_commands()
+      expect(calls).to.be.equal(["Meta+s", "Ctrl+s"])
+    })
+
     it("should execute commands from the command line", async () => {
       const plot = Plot.create({
         x_range: Range1d.create({start: 0, end: 10}),

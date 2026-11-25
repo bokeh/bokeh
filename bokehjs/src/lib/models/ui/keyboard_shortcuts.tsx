@@ -51,6 +51,7 @@ class KeyboardShortcutsPanel extends Component<KeyboardShortcutsProps> {
         const has_ctrl = modifiers.ctrl
         const has_shift = modifiers.shift && !is_upper_like(key)
         const has_alt = modifiers.alt
+        const has_meta = modifiers.meta
 
         const Key = (key: string) => <span class={key_css.key}>{key}</span>
         const Mod = (key: string) => <>{Key(key)}<span>+</span></>
@@ -60,7 +61,8 @@ class KeyboardShortcutsPanel extends Component<KeyboardShortcutsProps> {
             {has_ctrl  ? Mod("Ctrl")  : null}
             {has_shift ? Mod("Shift") : null}
             {has_alt   ? Mod("Alt")   : null}
-            {Key(key)}
+            {has_meta  ? Mod("Meta")  : null}
+            {Key(key == " " ? "Space" : key)}
           </div>
         )
       })

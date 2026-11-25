@@ -80,6 +80,7 @@ Key = enumeration(*PrintableKey, *WhitespaceKey, *UIKey, *NavigationKey, *Editin
 ModifierKey = enumeration("Ctrl", "Shift", "Alt", "Meta")
 
 KeyCombination = enumeration(
+    # all subsets of modifiers, in canonical order (Ctrl, Shift, Alt, Meta)
     *flatten(map(lambda key: [
         key,
 
@@ -91,15 +92,16 @@ KeyCombination = enumeration(
         f"Ctrl+Shift+{key}",
         f"Ctrl+Alt+{key}",
         f"Ctrl+Meta+{key}",
+        f"Shift+Alt+{key}",
+        f"Shift+Meta+{key}",
+        f"Alt+Meta+{key}",
 
         f"Ctrl+Shift+Alt+{key}",
         f"Ctrl+Shift+Meta+{key}",
         f"Ctrl+Alt+Meta+{key}",
+        f"Shift+Alt+Meta+{key}",
 
-        f"Shift+Alt+{key}",
-        f"Shift+Meta+{key}",
-
-        f"Alt+Meta+{key}",
+        f"Ctrl+Shift+Alt+Meta+{key}",
     ], Key)),
 )
 

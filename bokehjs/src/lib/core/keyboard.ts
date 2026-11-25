@@ -50,6 +50,7 @@ export type Key = Infer<typeof Key>
 
 export const KeyCombination = Enum(
   ...[...NonModifierKey].flatMap((key) => [
+    // all subsets of modifiers, in canonical order (see `unparse()`)
     key,
     `Ctrl+${key}` as const,
     `Shift+${key}` as const,
@@ -58,11 +59,14 @@ export const KeyCombination = Enum(
     `Ctrl+Shift+${key}` as const,
     `Ctrl+Alt+${key}` as const,
     `Ctrl+Meta+${key}` as const,
-    `Ctrl+Shift+Alt+${key}` as const,
-    `Ctrl+Shift+Meta+${key}` as const,
     `Shift+Alt+${key}` as const,
     `Shift+Meta+${key}` as const,
     `Alt+Meta+${key}` as const,
+    `Ctrl+Shift+Alt+${key}` as const,
+    `Ctrl+Shift+Meta+${key}` as const,
+    `Ctrl+Alt+Meta+${key}` as const,
+    `Shift+Alt+Meta+${key}` as const,
+    `Ctrl+Shift+Alt+Meta+${key}` as const,
   ]),
 )
 export type KeyCombination = Infer<typeof KeyCombination>
@@ -92,9 +96,17 @@ export type KeyModifiers = {
   alt: boolean
 }
 
+/**
+ * Modifiers of a key stroke. Unlike `KeyModifiers`, which are shared with
+ * pointer events (and are part of their public API), this includes `meta`.
+ */
+export type KeyStrokeModifiers = KeyModifiers & {
+  meta: boolean
+}
+
 export type KeyState = {
   key: Key
-  modifiers: KeyModifiers
+  modifiers: KeyStrokeModifiers
 }
 
 export function is_upper_like(key: Key): boolean {
@@ -136,9 +148,10 @@ export function is_upper_like(key: Key): boolean {
 export function parse(key_combination: KeyCombination): KeyState {
   const keys = key_combination.split("+")
   const key = keys[keys.length - 1]
+  // "Space" is an alias of " ", which is what `KeyboardEvent.key` reports
   const result = {
-    key: key == "" ? "+" : key as NonModifierKey,
-    modifiers: {ctrl: false, shift: false, alt: false},
+    key: key == "" ? "+" : key == "Space" ? " " : key as NonModifierKey,
+    modifiers: {ctrl: false, shift: false, alt: false, meta: false},
   }
   for (const key of keys) {
     switch (key) {
@@ -152,6 +165,10 @@ export function parse(key_combination: KeyCombination): KeyState {
       }
       case "Alt": {
         result.modifiers.alt = true
+        break
+      }
+      case "Meta": {
+        result.modifiers.meta = true
         break
       }
     }
@@ -173,6 +190,9 @@ export function unparse(key_state: KeyState): KeyCombination {
   }
   if (modifiers.alt) {
     s += "Alt+"
+  }
+  if (modifiers.meta) {
+    s += "Meta+"
   }
   switch (key) {
     case " ": {
