@@ -336,7 +336,7 @@ export abstract class AxisView extends GuideRendererView {
     const orient              = this.model.major_label_orientation
     const standoff            = extents.tick + this.model.major_label_standoff
     const visuals             = this.visuals.major_label_text
-    const correction_policy   = this.model.label_correction_policy
+    const correction_policy   = this.model.axis_label_correction_policy
 
     this._draw_oriented_labels(ctx, labels, coords, orient, standoff, visuals, correction_policy)
   }
@@ -562,7 +562,7 @@ export abstract class AxisView extends GuideRendererView {
       if (this.dimension == 0 && policy_x) {
         correct_x(i)
         correct_x(j)
-      } else if (this.dimension == 1 && policy_y ) {
+      } else if (this.dimension == 1 && policy_y) {
         correct_y(i)
         correct_y(j)
       }
@@ -876,7 +876,7 @@ export namespace Axis {
     axis_label_standoff_mode: p.Property<AxisLabelStandoffMode>
     axis_label_orientation: p.Property<LabelOrientation | number>
     axis_label_align: p.Property<Align>
-    label_correction_policy: p.Property<CorrectionPolicy | "auto">
+    axis_label_correction_policy: p.Property<CorrectionPolicy | "auto">
     major_label_standoff: p.Property<number>
     major_label_orientation: p.Property<LabelOrientation | number>
     major_label_overrides: p.Property<LabelOverrides>
@@ -932,11 +932,11 @@ export abstract class Axis extends GuideRenderer {
       ticker:                   [ Ref(Ticker) ],
       formatter:                [ Ref(TickFormatter) ],
       axis_label:               [ Nullable(Or(Str, Ref(BaseText))), null],
+      axis_label_align:         [ Align, "center" ],
+      axis_label_correction_policy:    [ Or(CorrectionPolicy, Auto), "auto"],
+      axis_label_orientation:   [ Or(LabelOrientation, Float), "parallel" ],
       axis_label_standoff:      [ Int, 5 ],
       axis_label_standoff_mode: [ AxisLabelStandoffMode, "tick_labels"],
-      axis_label_orientation:   [ Or(LabelOrientation, Float), "parallel" ],
-      axis_label_align:         [ Align, "center" ],
-      axis_label_correction:    [ Or(CorrectionPolicy, Auto), "auto"],
       major_label_standoff:     [ Int, 5 ],
       major_label_orientation:  [ Or(LabelOrientation, Float), "horizontal" ],
       major_label_overrides:    [ LabelOverrides, new Map() ],

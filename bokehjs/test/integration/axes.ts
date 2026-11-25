@@ -155,6 +155,18 @@ import {radians} from "@bokehjs/core/util/math"
       await plot({axis_label: "This is an axis label", axis_label_standoff: 20}, {minor_size: 100})
     })
 
+    it("should support axis_label_correction_policy='auto'", async () => {
+      await plot({axis_label_correction_policy: "auto"})
+    })
+
+    it("should support axis_label_correction_policy='always'", async () => {
+      await plot({axis_label_correction_policy: "always"})
+    })
+
+    it("should support axis_label_correction_policy='never'", async () => {
+      await plot({axis_label_correction_policy: "never"})
+    })
+
     const multiline_axis_label = "This is an axis label\nthat spans\nexactly three lines"
 
     it("should support multiple line axis_label with axis_label_text_align=left", async () => {

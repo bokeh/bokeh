@@ -23,7 +23,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-from ..core.enums import Align, CorrectionPolicy, AxisLabelStandoffMode, LabelOrientation
+from ..core.enums import (
+    Align,
+    AxisLabelStandoffMode,
+    CorrectionPolicy,
+    LabelOrientation,
+)
 from ..core.has_props import abstract
 from ..core.property.auto import Auto
 from ..core.property.container import Dict, Seq, Tuple
@@ -177,9 +182,9 @@ class Axis(GuideRenderer):
 
     _axis_label_text_font_style = Override(default="italic")
 
-    label_correction_policy = Enum(CorrectionPolicy, default="auto", help="""
+    axis_label_correction_policy = Enum(CorrectionPolicy, default="auto", help="""
     Operation on labels to keep them in the visible area if
-    the label is to long and parts would be cut off.
+    the label is too long and parts would be cut off.
     """)
 
     major_label_standoff = Int(default=5, help="""
