@@ -5853,7 +5853,7 @@ describe("Bug", () => {
 
       const p1 = plot("never")
       const p2 = plot("always")
-      return {gp: gridplot([[p1, p2]], {toolbar_location: "above"})}
+      await display(gridplot([[p1, p2]], {toolbar_location: "above"}), "auto")
     })
   })
 })

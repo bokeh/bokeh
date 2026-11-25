@@ -13,6 +13,8 @@ from __future__ import annotations
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
+import pytest
+
 from bokeh.core.validation.check import check_integrity
 from bokeh.models import (
     BasicTicker,
@@ -25,6 +27,7 @@ from bokeh.models import (
 
 # Module under test
 import bokeh.models.axes as bma # isort:skip
+from bokeh.core.enums import CorrectionPolicyType
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -79,9 +82,10 @@ def test_axis_label_accepts_string_with_dollar_signs() -> None:
     assert isinstance(a.axis_label, PlainText)
     assert a.axis_label.text == r"$\sin(x+6)$"
 
-def test_axis_accepts_string_for_label_correction_policy() -> None:
-    a = bma.Axis(label_correction_policy="never")
-    assert isinstance(a.label_correction_policy, str)
+@pytest.mark.parametrize("correction_policy",  ["auto", "always", "never"])
+def test_axis_accepts_axis_label_correction_policy(correction_policy: CorrectionPolicyType) -> None:
+    a = bma.Axis(axis_label_correction_policy=correction_policy)
+    assert isinstance(a.axis_label_correction_policy, str)
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
