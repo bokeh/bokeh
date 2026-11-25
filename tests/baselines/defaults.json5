@@ -7363,6 +7363,14 @@
     action: null,
     priority: 0,
   },
+  KeyboardShortcuts: {
+    __extends__: "UIElement",
+    source: {
+      type: "symbol",
+      name: "unset",
+    },
+    editable: false,
+  },
   DividerItem: {
     __extends__: "Model",
   },

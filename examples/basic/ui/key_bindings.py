@@ -1,14 +1,15 @@
-''' Add a custom key binding to a plot, triggered by a key combination.
+''' Add a custom key binding to a plot and list the plot's key bindings next to it.
 
 .. bokeh-example-metadata::
     :title: Key bindings
     :keywords: key, binding, keyboard, shortcut
-    :apis: bokeh.models.CustomJS, bokeh.models.KeyBinding, bokeh.plotting.figure.circle
+    :apis: bokeh.layouts.row, bokeh.models.CustomJS, bokeh.models.KeyBinding, bokeh.models.KeyboardShortcuts, bokeh.plotting.figure.circle
 '''
 
 import numpy as np
 
-from bokeh.models import CustomJS, KeyBinding
+from bokeh.layouts import row
+from bokeh.models import CustomJS, KeyBinding, KeyboardShortcuts
 from bokeh.plotting import figure, show
 
 N = 4000
@@ -33,4 +34,7 @@ do_something = KeyBinding(
 )
 p.key_bindings.append(do_something)
 
-show(p)
+# limit the height to the plot's, so that a long list of key bindings scrolls
+shortcuts = KeyboardShortcuts(source=p, styles={"max-height": f"{p.height}px"})
+
+show(row(p, shortcuts))

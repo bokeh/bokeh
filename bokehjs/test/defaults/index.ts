@@ -302,7 +302,6 @@ describe("Defaults", () => {
     "ClickButton",
     "Figure",
     "GMap",
-    "KeyboardShortcuts",
     "LinearInterpolationScale",
     "OnOffButton",
     "ParkMillerLCG",

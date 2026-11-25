@@ -31,11 +31,12 @@ from ...core.property.either import Either
 from ...core.property.enum import Enum
 from ...core.property.instance import Instance
 from ...core.property.nullable import Nullable
-from ...core.property.primitive import Int, String
+from ...core.property.primitive import Bool, Int, String
 from ...core.property.required import Required
 from ...model import Model
 from ...util.helpers import flatten
 from ..callbacks import Callback, CustomJS
+from .ui_element import UIElement
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -43,6 +44,7 @@ from ..callbacks import Callback, CustomJS
 
 __all__ = (
     "KeyBinding",
+    "KeyboardShortcuts",
 )
 
 #-----------------------------------------------------------------------------
@@ -157,6 +159,29 @@ class KeyBinding(Model):
 
     A binding with higher priority wins. Bindings with equal priority are
     tried in the order they were registered.
+    """)
+
+class KeyboardShortcuts(UIElement):
+    """ Displays key bindings available in a UI element.
+
+    This includes key bindings defined on the element itself, provided by its
+    components (e.g. plot's tools), and global key bindings defined on the
+    element's document.
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    source = Required(Instance(UIElement), help="""
+    The UI element (e.g. a plot) whose key bindings are displayed.
+    """)
+
+    editable = Bool(default=False, help="""
+    Whether key bindings can be changed in the UI.
+
+    .. note::
+        This is not supported yet.
     """)
 
 #-----------------------------------------------------------------------------

@@ -7,11 +7,12 @@
 
 # Standard library imports
 from dataclasses import dataclass
-from typing import Any, Sequence
+from typing import Any, Sequence, Unpack
 
 # Bokeh imports
 from ...model import Model
 from ..callbacks import Callback, CustomJS
+from .ui_element import UIElement, _UIElementInit
 
 type KeyCombination = str # TODO
 
@@ -31,3 +32,14 @@ class KeyBinding(Model):
     action: Callback | None = ...
 
     priority: int = ...
+
+class _KeyboardShortcutsInit(_UIElementInit, total=False):
+    source: UIElement
+    editable: bool
+
+class KeyboardShortcuts(UIElement):
+    def __init__(self, **kwargs: Unpack[_KeyboardShortcutsInit]) -> None: ...
+
+    source: UIElement = ...
+
+    editable: bool = ...
