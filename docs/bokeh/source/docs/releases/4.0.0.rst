@@ -65,6 +65,11 @@ New features
   restored value. Interactions with tools, e.g. panning a plot, aren't
   affected.
 
+* The documentation is now also available as Markdown, for AI coding agents
+  and other tools. Every page has a Markdown version at the same URL with a
+  ``.md`` suffix instead of ``.html``, and an ``llms.txt`` index lists these
+  pages (:bokeh-issue:`15845`).
+
 Removals
 --------
 

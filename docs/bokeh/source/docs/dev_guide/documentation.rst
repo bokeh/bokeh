@@ -106,9 +106,12 @@ Bokeh uses :doc:`Sphinx <sphinx:index>` to generate the HTML files displayed
 at :ref:`docs.bokeh.org <about>`. The documentation is written in
 :doc:`reStructuredText (ReST) <sphinx:usage/restructuredtext/index>`.
 
-HTML is the only output format supported by Bokeh's documentation. Many pages
+HTML is the primary output format of Bokeh's documentation. Many pages
 use dynamic content and rely heavily on JavaScript. Bokeh's documentation also
 uses several :ref:`custom Sphinx extensions <bokeh.sphinxext>`.
+
+In addition, the build writes a Markdown version of every page for AI coding
+agents and other tools. See :ref:`contributor_guide_documentation_markdown`.
 
 1. Prepare your environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -191,6 +194,8 @@ When building Bokeh's documentation, the most common options for ``make`` are:
   are generated from scratch on the next build.
 * ``html``: build any HTML output that hasn't been built yet or needs to be
   rebuilt to include changes to the documentation source files.
+* ``all``: like ``html``, and also build the Markdown version of every page and
+  the ``llms.txt`` index. See :ref:`contributor_guide_documentation_markdown`.
 * ``serve``: start a minimal web server and open a web browser to display the
   docs. Starting a server is necessary because large portions of the
   documentation require JavaScript files in the background.
@@ -411,6 +416,57 @@ support.
 
 To learn more about options for the Sphinx build process, see
 :doc:`sphinx:man/sphinx-build` in the Sphinx documentation.
+
+.. _contributor_guide_documentation_markdown:
+
+Markdown pages and llms.txt
+'''''''''''''''''''''''''''
+
+AI coding agents and chat assistants read documentation more reliably as
+Markdown than as HTML. For this reason, the published documentation also
+includes:
+
+* A Markdown version of every page, next to the HTML file. For example,
+  ``docs/user_guide/basic/scatters.md`` next to ``scatters.html``.
+* An ``llms.txt`` file in the root of the build output, following the
+  `llms.txt convention <https://llmstxt.org/>`_. It lists the Markdown pages
+  with a short description of each page. Pages for individual models and
+  examples are left out to keep the index small. They are linked from the
+  pages that are listed.
+
+Each HTML page also links to its Markdown version with a
+``<link rel="alternate" type="text/markdown">`` tag.
+
+The `sphinx-llm <https://github.com/NVIDIA/sphinx-llm>`_ extension generates
+these files. After the HTML build, it runs a second Sphinx build with a
+Markdown builder that reuses the results of the first build. This second build
+is not parallel and adds several minutes, even if no source file has changed.
+For this reason, ``make html`` does not include it. To also build the Markdown
+pages and ``llms.txt``, the way CI and release builds do, use ``make all``:
+
+.. code-block:: sh
+
+    make all SPHINXOPTS="-j auto"
+
+A build with ``make all`` fails if the Markdown build emits a warning. Run it
+before you open a pull request that changes a custom Sphinx directive, role, or
+node.
+
+The Markdown pages contain the text, tables, and code of a page, including the
+source code of every ``bokeh-plot`` example. They do not contain plots or other
+content that only works in HTML. If you write or change a custom Sphinx
+directive, role, or node, make sure it also has a useful Markdown output:
+
+* Standard docutils and Sphinx nodes, such as paragraphs, lists, tables, and
+  code blocks, work without any extra steps. This includes directives that
+  render reStructuredText from a template, such as ``bokeh-model``.
+* The Markdown build drops raw HTML. To provide an alternative, return an
+  additional node from ``markdown_block()`` or ``markdown_inline()`` in
+  ``bokeh.sphinxext._internal.bokeh_markdown``. See the ``bokeh-palette`` role
+  for an example.
+* A custom node class needs a Markdown handler next to its HTML handler. See
+  ``bokeh_palette_group`` for an example. Without a handler, the Markdown build
+  emits an "unknown node type" warning, which fails the documentation build.
 
 .. _contributor_guide_documentation_edit:
 
