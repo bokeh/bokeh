@@ -154,8 +154,7 @@ def format_url_query_arguments(
         ValueError: if a fragment exists in the url and a second fragment is given.
 
     '''
-    has_fragment = "#" in url
-    if "#" in url:
+    if has_fragment := "#" in url:
         if fragment is not None and fragment != "":
             raise ValueError("Can't extend a url with an existing and a given fragment.")
         url, fragment = url.split("#", 1)
@@ -168,8 +167,6 @@ def format_url_query_arguments(
     if fragment is not None and (fragment != "" or has_fragment):
         url += "#" + fragment
     return url
-
-
 
 #-----------------------------------------------------------------------------
 # Dev API
