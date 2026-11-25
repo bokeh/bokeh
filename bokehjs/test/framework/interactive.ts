@@ -16,27 +16,6 @@ export function xy(x: number, y: number): Point {
   return {x, y}
 }
 
-type BrowserInput = {type: "click" | "move", x: number, y: number} | {type: "press", key: string}
-
-async function browser_input(input: BrowserInput): Promise<void> {
-  const binding = (window as Window & {__bokeh_test_input?: (input: BrowserInput) => Promise<void>}).__bokeh_test_input
-  assert(binding != null)
-  await binding(input)
-}
-
-export async function browser_click(el: Element): Promise<void> {
-  const {left, top, width, height} = el.getBoundingClientRect()
-  await browser_input({type: "click", x: left + width/2, y: top + height/2})
-}
-
-export async function browser_press(key: string): Promise<void> {
-  await browser_input({type: "press", key})
-}
-
-export async function browser_move(x: number, y: number): Promise<void> {
-  await browser_input({type: "move", x, y})
-}
-
 const _event_common: Partial<UIEventInit> = {
   bubbles: true,
   composed: true,

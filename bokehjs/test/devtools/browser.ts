@@ -158,7 +158,7 @@ export class BrowserManager {
   private exceptions: Exception[] = []
   private crashed = false
 
-  constructor(private readonly executable: string, private readonly enable_browser_input: boolean = false) {}
+  constructor(private readonly executable: string) {}
 
   async launch(): Promise<void> {
     const in_docker = (process.env.BOKEH_IN_DOCKER ?? "") == "1"
@@ -205,15 +205,6 @@ export class BrowserManager {
     await command("Browser.grantPermissions", context.grantPermissions(["clipboard-read", "clipboard-write"]))
 
     const page = await command("Browser.newPage", context.newPage())
-    if (this.enable_browser_input) {
-      await command("Browser.exposeBinding", page.exposeBinding("__bokeh_test_input", async (_source, input: {type: "click" | "move", x: number, y: number} | {type: "press", key: string}) => {
-        switch (input.type) {
-          case "click": return page.mouse.click(input.x, input.y)
-          case "move": return page.mouse.move(input.x, input.y)
-          case "press": return page.keyboard.press(input.key)
-        }
-      }))
-    }
     page.on("console", (message) => {
       const level = message.type()
       if (level == "warning" || level == "error") {

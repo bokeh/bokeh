@@ -49,9 +49,9 @@ task("test:codebase:compile", async () => {
   compile_typescript("./test/codebase/tsconfig.json")
 })
 
-task("test:devtools", async () => {
+task("test:devtools", [passthrough("styles:compile")], async () => {
   compile_typescript("./test/devtools/tsconfig.json")
-  await node(["--test", "./test/devtools/_build/image.test.js", "./test/devtools/_build/browser-executable.test.js"])
+  await node(["--test", "./test/devtools/_build/image.test.js", "./test/devtools/_build/browser-executable.test.js", "./test/devtools/_build/canvas-focus.test.js"])
 })
 
 task("test:make", async () => {

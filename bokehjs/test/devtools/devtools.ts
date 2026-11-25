@@ -628,7 +628,7 @@ async function run_tests(browser: BrowserManager, ctx: TestRunContext): Promise<
 }
 
 async function run(): Promise<void> {
-  const browser = new BrowserManager(executable, new URL(url).pathname == "/integration")
+  const browser = new BrowserManager(executable)
   let ok = false
   try {
     await browser.launch()

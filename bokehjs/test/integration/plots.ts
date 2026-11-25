@@ -2,7 +2,7 @@ import * as sinon from "sinon"
 
 import {expect} from "#framework/assertions"
 import {display, fig, row} from "#framework/layouts"
-import {browser_click, browser_move, browser_press, mouse_click} from "#framework/interactive"
+import {mouse_click} from "#framework/interactive"
 
 import {figure} from "@bokehjs/api/plotting"
 import type {Location, WindowAxis} from "@bokehjs/core/enums"
@@ -12,27 +12,6 @@ import {HTML} from "@bokehjs/models/dom"
 import type {Data} from "@bokehjs/core/types"
 
 describe("Plot", () => {
-  it.no_image("should show the canvas outline only for keyboard focus", async () => {
-    const {view} = await display(fig([200, 200], {tools: []}))
-    const {events_el} = view.canvas
-
-    try {
-      await browser_click(events_el)
-      expect(events_el.matches(":focus")).to.be.true
-      expect(events_el.matches(":focus-visible")).to.be.false
-      expect(getComputedStyle(events_el).outlineStyle).to.be.equal("none")
-
-      for (let i = 0; i < 10 && !events_el.matches(":focus-visible"); i++) {
-        await browser_press("Tab")
-      }
-      expect(events_el.matches(":focus-visible")).to.be.true
-      expect(getComputedStyle(events_el).outlineStyle).to.not.be.equal("none")
-    } finally {
-      events_el.blur()
-      await browser_move(0, 0)
-    }
-  })
-
   const f = (location: Location | null, options: {title?: string, inner?: boolean} = {}) => {
     const {title, inner} = options
     const p = fig([200, 200], {
