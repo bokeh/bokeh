@@ -20,9 +20,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Any
-
 # Bokeh imports
 from ...core.enums import enumeration
 from ...core.property.any import AnyRef
@@ -115,10 +112,6 @@ class KeyBinding(Model):
     If both are provided, ``action`` takes precedence.
     """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-
     description = Nullable(String, default=None, help="""
     Descriptive explanation of the binding.
 
@@ -168,10 +161,6 @@ class KeyboardShortcuts(UIElement):
     components (e.g. plot's tools), and global key bindings defined on the
     element's document.
     """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
 
     source = Required(Instance(UIElement), help="""
     The UI element (e.g. a plot) whose key bindings are displayed.
