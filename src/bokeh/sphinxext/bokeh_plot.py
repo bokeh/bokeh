@@ -116,6 +116,7 @@ from bokeh.util.warnings import BOKEH_DEPRECATION_MESSAGE_PATTERN
 
 from ._internal import PARALLEL_SAFE, SphinxParallelSpec
 from ._internal.bokeh_directive import BokehDirective
+from ._internal.bokeh_markdown import MARKDOWN_FORMAT, is_markdown_build, markdown_skip
 from ._internal.example_handler import ExampleHandler
 from ._internal.util import get_sphinx_resources
 
@@ -160,6 +161,10 @@ class autoload_script(nodes.General, nodes.Element):
         raise nodes.SkipNode
 
     html = visit_html.__func__, None # type: ignore[attr-defined]
+
+    # Markdown builds remove these nodes in add_page_resources. This handler
+    # only prevents "unknown node type" warnings for a node that is left over.
+    markdown = markdown_skip, None
 
 class BokehPlotDirective(BokehDirective):
 
@@ -330,6 +335,8 @@ def builder_inited(app: Any) -> None:
 
 
 def add_page_resources(app: Any, doctree: nodes.document, docname: str) -> None:
+    if is_markdown_build(app):
+        _remove_plots(doctree)
     if app.builder.format != "html":
         return
     plots = list(doctree.findall(autoload_script))
@@ -348,9 +355,12 @@ def add_page_resources(app: Any, doctree: nodes.document, docname: str) -> None:
 
 
 def build_finished(app: Any, exception: Exception | None) -> None:
+    # Only HTML pages load the embed payloads. Other builders, such as the
+    # Markdown build, share the environment but have no use for the files.
+    payloads = app.env.bokeh_plot_files if app.builder.format == "html" else {}
     files = sorted(
         (file, dirname(docname))
-        for docname, paths in app.env.bokeh_plot_files.items()
+        for docname, paths in payloads.items()
         for file in paths
     )
     files_iter = status_iterator(files, "copying bokeh-plot files... ", "brown", len(files), app.verbosity, stringify_func=lambda x: basename(x[0]))
@@ -394,7 +404,7 @@ def env_merge_info(app: Any, env: Any, docnames: list[str], other: Any) -> None:
 def setup(app: Any) -> _PlotSphinxSpec:
     """ Required Sphinx extension setup function. """
     app.add_directive("bokeh-plot", BokehPlotDirective)
-    app.add_node(autoload_script, html=autoload_script.html)
+    app.add_node(autoload_script, html=autoload_script.html, **{MARKDOWN_FORMAT: autoload_script.markdown})
     app.connect("builder-inited", builder_inited)
     app.connect("doctree-resolved", add_page_resources)
     app.connect("build-finished", build_finished)
@@ -406,6 +416,26 @@ def setup(app: Any) -> _PlotSphinxSpec:
 # -----------------------------------------------------------------------------
 # Private API
 # -----------------------------------------------------------------------------
+
+
+def _remove_plots(doctree: nodes.document) -> None:
+    # The example source is a separate code block, which is all that the
+    # Markdown version of a page needs.
+    for plot in list(doctree.findall(autoload_script)):
+        plot.parent.remove(plot)
+
+    # Every bokeh-plot has a link target with a randomly generated id. docutils
+    # moves the id to the node that follows the target, and leaves a reference
+    # to it on the target. Nothing links to these ids from Markdown, where they
+    # would only show up as noise.
+    def is_plot_id(node_id: str) -> bool:
+        return ".bokeh-content-" in node_id
+
+    for node in list(doctree.findall(nodes.Element)):
+        if isinstance(node, nodes.target) and is_plot_id(node.get("refid", "")):
+            node.parent.remove(node)
+        elif any(is_plot_id(node_id) for node_id in node["ids"]):
+            node["ids"] = [node_id for node_id in node["ids"] if not is_plot_id(node_id)]
 
 
 def _evaluate_source(source: str, filename: str, env: Any) -> tuple[Model, str | None]:

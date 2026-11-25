@@ -47,6 +47,7 @@ from sphinx.errors import SphinxError
 import bokeh.palettes as bp
 
 from . import PARALLEL_SAFE, SphinxParallelSpec
+from .bokeh_markdown import MARKDOWN_FORMAT
 from .templates import PALETTE_GROUP_DETAIL
 
 # -----------------------------------------------------------------------------
@@ -89,6 +90,13 @@ class bokeh_palette_group(nodes.General, nodes.Element):
 
     html = visit_html.__func__, None # type: ignore[attr-defined]
 
+    @staticmethod
+    def visit_markdown(visitor: Any, node: Any) -> None:
+        visitor.add(_palette_group_markdown(node["group"]), prefix_eol=2, suffix_eol=2)
+        raise nodes.SkipNode
+
+    markdown = visit_markdown.__func__, None # type: ignore[attr-defined]
+
 
 class BokehPaletteGroupDirective(Directive):
 
@@ -103,7 +111,7 @@ class BokehPaletteGroupDirective(Directive):
 
 def setup(app: Any) -> SphinxParallelSpec:
     """ Required Sphinx extension setup function. """
-    app.add_node(bokeh_palette_group, html=bokeh_palette_group.html)
+    app.add_node(bokeh_palette_group, html=bokeh_palette_group.html, **{MARKDOWN_FORMAT: bokeh_palette_group.markdown})
     app.add_directive("bokeh-palette-group", BokehPaletteGroupDirective)
 
     return PARALLEL_SAFE
@@ -111,6 +119,28 @@ def setup(app: Any) -> SphinxParallelSpec:
 # -----------------------------------------------------------------------------
 # Private API
 # -----------------------------------------------------------------------------
+
+
+def _palette_group(group_name: str) -> dict[str, dict[int, Any]]:
+    group = getattr(bp, group_name, None)
+    if not isinstance(group, dict):
+        raise SphinxError(f"invalid palette group name {group_name}")
+    return group
+
+
+def _palette_group_markdown(group_name: str) -> str:
+    # One line per palette, with the colors of its largest displayed size.
+    # Smaller sizes of a palette are listed by size only.
+    lines = []
+    for name, palettes in sorted(_palette_group(group_name).items()):
+        # same cutoff as the HTML version, to not show large (e.g. 256 length) palettes
+        numbers = [x for x in sorted(palettes) if x < 30]
+        if not numbers:
+            continue
+        sizes = ", ".join(str(number) for number in numbers)
+        colors = ", ".join(f"`{color}`" for color in palettes[numbers[-1]])
+        lines.append(f"* **{name}** (sizes: {sizes}). {name}{numbers[-1]}: {colors}")
+    return "\n".join(lines)
 
 # -----------------------------------------------------------------------------
 # Code

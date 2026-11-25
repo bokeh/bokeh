@@ -85,6 +85,7 @@ from docutils import nodes
 from sphinx.errors import SphinxError
 
 from . import PARALLEL_SAFE, SphinxParallelSpec
+from .bokeh_markdown import markdown_inline
 from .templates import PALETTE_DETAIL
 
 # -----------------------------------------------------------------------------
@@ -139,7 +140,7 @@ def bokeh_palette(
     w = 20 if len(p) < 15 else 10 if len(p) < 32 else 5 if len(p) < 64 else 2 if len(p) < 128 else 1
     html = PALETTE_DETAIL.render(palette=p, width=w)
     node = nodes.raw("", html, format="html")
-    return [node], []
+    return [node, markdown_inline(_palette_markdown(p))], []
 
 
 def setup(app: Any) -> SphinxParallelSpec:
@@ -151,6 +152,18 @@ def setup(app: Any) -> SphinxParallelSpec:
 # -----------------------------------------------------------------------------
 # Private API
 # -----------------------------------------------------------------------------
+
+# Longer palettes are abbreviated in Markdown. Their colors are available from
+# bokeh.palettes, and hundreds of color codes are of little use in running text.
+_MAX_MARKDOWN_COLORS = 12
+
+
+def _palette_markdown(palette: list[str] | tuple[str, ...]) -> str:
+    if len(palette) <= _MAX_MARKDOWN_COLORS:
+        return ", ".join(f"`{color}`" for color in palette)
+    head = ", ".join(f"`{color}`" for color in palette[:3])
+    tail = ", ".join(f"`{color}`" for color in palette[-3:])
+    return f"{head}, ..., {tail} ({len(palette)} colors)"
 
 # -----------------------------------------------------------------------------
 # Code

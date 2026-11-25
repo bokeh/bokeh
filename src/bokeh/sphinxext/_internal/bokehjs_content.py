@@ -60,6 +60,7 @@ from sphinx.util.nodes import set_source_info
 from bokeh.embed.resources import ResourceRequirements
 
 from . import PARALLEL_SAFE, SphinxParallelSpec
+from .bokeh_markdown import MARKDOWN_FORMAT, markdown_pass
 from .templates import (
     BJS_CODEPEN_INIT,
     BJS_EPILOGUE,
@@ -109,6 +110,9 @@ class bokehjs_content(nodes.General, nodes.Element):
         visitor.body.append(BJS_EPILOGUE.render(title=node["title"], enable_codepen=not node["disable_codepen"], js_source=node["js_source"]))
 
     html = visit_html.__func__, depart_html.__func__ # type: ignore[attr-defined]
+
+    # The only child is the code block with the example source.
+    markdown = markdown_pass, markdown_pass
 
 
 class BokehJSContent(CodeBlock):
@@ -248,7 +252,7 @@ class BokehJSContent(CodeBlock):
 
 def setup(app: Any) -> SphinxParallelSpec:
     """ Required Sphinx extension setup function. """
-    app.add_node(bokehjs_content, html=bokehjs_content.html)
+    app.add_node(bokehjs_content, html=bokehjs_content.html, **{MARKDOWN_FORMAT: bokehjs_content.markdown})
     app.add_directive("bokehjs-content", BokehJSContent)
 
     return PARALLEL_SAFE
