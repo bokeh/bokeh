@@ -97,14 +97,15 @@ export class Message<T> {
     }
   }
 
-  send(socket: Socket): void {
-    const buffers: [ID, ArrayBuffer][] = []
+  /** Serialize the message to its envelope JSON and binary buffers, in envelope order. */
+  encode(): [envelope_json: string, buffers: ArrayBuffer[]] {
+    const buffers: ArrayBuffer[] = []
     const buffer_ids: ID[] = []
     const envelope_json = JSON.stringify({header: this.header, content: this.content, buffers: buffer_ids}, (_, val) => {
       if (val instanceof Buffer) {
         const id = `${buffers.length}`
         buffer_ids.push(id)
-        buffers.push([id, val.buffer])
+        buffers.push(val.buffer)
         return {id}
       } else {
         return val
@@ -113,10 +114,15 @@ export class Message<T> {
     if (buffers.length > max_buffers_per_message) {
       throw new Error(`Message cannot contain more than ${max_buffers_per_message} buffers`)
     }
+    return [envelope_json, buffers]
+  }
+
+  send(socket: Socket): void {
+    const [envelope_json, buffers] = this.encode()
 
     socket.send(envelope_json)
 
-    for (const [, buffer] of buffers) {
+    for (const buffer of buffers) {
       socket.send(buffer)
     }
   }

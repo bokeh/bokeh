@@ -1,6 +1,8 @@
 export {index} from "./standalone"
 export {create_notebook_patch_receiver, NotebookPatchError} from "./notebook"
 export type {NotebookPatch} from "./notebook"
+export {pull_comm_session} from "../client/comm"
+export type {CommSessionOptions, SessionChannel, SessionError} from "../client/comm"
 export {
   EmbedError, embed_schema,
   is_embed_payload, validate_embed_payload,

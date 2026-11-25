@@ -3,7 +3,9 @@ import {ReadonlyJSONObject} from "@lumino/coreutils"
 
 import {ContextManager} from "./context"
 import {BokehNotebookError, NOTEBOOK_COMM_TARGET, RESOURCE_COMM_TARGET, ResourceRecord} from "./protocol"
-import {ApplicationViewConnection, KernelProxy, LiveConnection} from "./runtime"
+import {
+  ApplicationSession, ApplicationViewConnection, KernelProxy, LiveConnection, SessionChannel, SessionError,
+} from "./runtime"
 import {dataViews, LiveRevisionTransport, withTimeout} from "./transport"
 
 export function safelyCloseComm(comm: Kernel.IComm): void {
@@ -170,6 +172,124 @@ export function kernelProxy(manager: ContextManager): KernelProxy {
       const comm = kernel.createComm(NOTEBOOK_COMM_TARGET)
       try {comm.open({kind: "release", view_id: viewId})}
       finally {window.setTimeout(() => safelyCloseComm(comm), 250)}
+    },
+    openApplicationSession: async (viewId) => {
+      await manager.context.sessionContext.ready
+      const kernel = current()
+      if (kernel == null) throw new Error("The notebook kernel is not connected")
+      return new Promise<ApplicationSession>((resolve, reject) => {
+        const comm = kernel.createComm(NOTEBOOK_COMM_TARGET)
+        let receiveClose: ((error?: SessionError) => void) | undefined
+        let closeError: SessionError | undefined
+        let settled = false
+        let closed = false
+
+        // Unloading the page doesn't close its comms, so the kernel would keep
+        // the session of every reloaded view. Close it while the kernel
+        // connection can still send the message.
+        const unload = (event: PageTransitionEvent) => {
+          if (!event.persisted) channel.close()
+        }
+        const channel: SessionChannel = {
+          on_message: null,
+          on_close: null,
+          open() {
+            comm.send({kind: "connect"})
+          },
+          send(envelope, buffers) {
+            comm.send({kind: "bokeh", envelope}, undefined, buffers)
+          },
+          close() {
+            window.removeEventListener("pagehide", unload)
+            if (closed) return
+            closed = true
+            safelyCloseComm(comm)
+          },
+        }
+        window.addEventListener("pagehide", unload)
+        const timer = window.setTimeout(() => {
+          if (settled) return
+          settled = true
+          closed = true
+          reject(new BokehNotebookError(
+            "APPLICATION_SESSION_TIMEOUT",
+            `The kernel did not create a session for application view ${viewId}.`,
+            "Check that the notebook kernel is idle and connected, then re-run show(app).",
+          ))
+          safelyCloseComm(comm)
+        }, 30_000)
+
+        comm.onMsg = (message) => {
+          const data = message.content.data as ReadonlyJSONObject
+          if (!settled) {
+            if (data.kind === "session" && typeof data.session_id === "string" && typeof data.resource_id === "string") {
+              settled = true
+              window.clearTimeout(timer)
+              resolve({
+                sessionId: data.session_id,
+                resourceId: data.resource_id,
+                requires: data.requires,
+                channel,
+                onClose(callback) {
+                  receiveClose = callback
+                  if (closed) queueMicrotask(() => callback(closeError))
+                },
+                close: () => channel.close(),
+              })
+            } else if (data.kind === "error") {
+              settled = true
+              closed = true
+              window.clearTimeout(timer)
+              const cause = new Error(String(data.message ?? "The application session failed"))
+              if (typeof data.traceback === "string") cause.stack = data.traceback
+              reject(new BokehNotebookError(
+                String(data.code ?? "APPLICATION_SESSION_FAILED"),
+                `The application could not create a session for this view: ${cause.message}`,
+                "Fix the error in the application code, then re-run the cells that call serve(...) and show(app).",
+                cause,
+              ))
+              safelyCloseComm(comm)
+            }
+            return
+          }
+          if (data.kind === "bokeh" && typeof data.envelope === "string") {
+            channel.on_message?.(data.envelope, dataViews(message.buffers))
+          } else if (data.kind === "error") {
+            closeError = {
+              text: String(data.message ?? data.code ?? "session error"),
+              traceback: typeof data.traceback === "string" ? data.traceback : null,
+            }
+          }
+        }
+
+        comm.onClose = () => {
+          const wasClosed = closed
+          closed = true
+          window.removeEventListener("pagehide", unload)
+          if (!settled) {
+            settled = true
+            window.clearTimeout(timer)
+            reject(new BokehNotebookError(
+              "APPLICATION_VIEW_UNAVAILABLE",
+              `Application view ${viewId} closed before its session was created.`,
+              "Re-run show(app) to create a new application view.",
+            ))
+          } else if (!wasClosed) {
+            channel.on_close?.()
+            receiveClose?.(closeError)
+          }
+        }
+        try {comm.open({view_id: viewId, transport: "comms"})}
+        catch (error) {
+          if (!settled) {
+            settled = true
+            closed = true
+            window.clearTimeout(timer)
+            reject(error)
+          }
+          safelyCloseComm(comm)
+        }
+      })
     },
     openApplicationView: async (viewId) => {
       await manager.context.sessionContext.ready

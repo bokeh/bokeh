@@ -254,6 +254,37 @@ Notebook 7 handle this automatically. Remote deployments normally route the
 connection through ``jupyter-server-proxy``. See the JupyterHub section below
 for configuration details.
 
+Applications over notebook comms
+''
+
+In JupyterLab and Notebook 7, an application can also run its sessions over
+the kernel's Jupyter comms, the channel the notebook already uses to talk to
+the kernel. No port is opened, and the browser never connects to a server, so
+this works with remote kernels and proxies that the browser cannot reach:
+
+.. code-block:: python
+
+    app = serve(modify_document, transport="comms")
+
+.. code-block:: python
+
+    view = show(app)
+
+The application works as it does with ``bokeh serve``. Every frontend that
+renders a view gets its own session and document, created by the
+application's handlers. ``on_change()``, ``on_event()`` and periodic callbacks
+run in the kernel, and errors raised by Python callbacks are shown above the
+view. Callbacks run when the kernel is idle, so they wait while a cell is
+executing. ``view.sessions`` returns the sessions of a view, and a later cell
+may change their documents directly:
+
+.. code-block:: python
+
+    view.sessions[0].document.get_model_by_name("title").text = "Updated"
+
+Plain ``show(plot)`` output stays one-way: Python changes update the view, but
+changes made in the browser are not sent back to the kernel.
+
 marimo and Colab
 ''''''''''''''''
 
