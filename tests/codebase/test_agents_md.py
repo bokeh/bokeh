@@ -47,8 +47,12 @@ _LINK = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
 #: placeholders such as <name> are left out.
 _NOT_A_PATH = re.compile(r"[\s<>*=@#(]|^/|^-|://")
 
-#: Arguments of commands are only checked as paths if they name a file.
-_FILE_SUFFIXES = (".json", ".json5", ".md", ".py", ".pyi", ".rst", ".toml", ".ts", ".txt", ".yaml", ".yml")
+#: Words with a slash that are not paths.
+_NOT_PATHS = {"bokeh/bokeh"}  # the repository on GitHub
+
+#: Arguments of commands, and words without a slash, are only checked as paths
+#: if they name a file.
+_FILE_SUFFIXES = (".json", ".json5", ".lock", ".md", ".py", ".pyi", ".rst", ".toml", ".ts", ".txt", ".yaml", ".yml")
 
 
 def _find(name: str) -> list[Path]:
@@ -159,14 +163,16 @@ def test_paths_exist(path: Path) -> None:
     candidates = [link for link in _LINK.findall(text) if "://" not in link]
     for span in _code_spans(path):
         if " " not in span:
-            # a code span that looks like a path
-            if "/" in span and not _NOT_A_PATH.search(span):
+            # a code span that looks like a path, or that names a file
+            # ".pyi" alone is a file type, not a file
+            names_file = span.endswith(_FILE_SUFFIXES) and not span.startswith(".")
+            if ("/" in span or names_file) and span not in _NOT_PATHS and not _NOT_A_PATH.search(span):
                 candidates.append(span)
         else:
             # the files that a command names
             candidates += [
                 arg for arg in _split(span)
-                if "/" in arg and arg.endswith(_FILE_SUFFIXES) and not _NOT_A_PATH.search(arg)
+                if arg.endswith(_FILE_SUFFIXES) and not _NOT_A_PATH.search(arg)
             ]
 
     missing = []

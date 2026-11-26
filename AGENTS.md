@@ -15,7 +15,7 @@ pixi run test-py                        # all Python unit tests
 pixi run test-codebase                  # repository-wide checks, including ruff
 pixi run mypy                           # type checks
 pixi run test-js-unit                   # BokehJS unit tests
-pixi run check-formatting               # whitespace and line endings, fixes files in place
+pixi run check-formatting               # whitespace and line endings, fixes files
 ```
 
 - Run the tests for what you changed first, not whole suites.
@@ -57,12 +57,13 @@ Ask the contributor before you:
 
 Never:
 
-- push to `main` or `branch-X.Y`, or to a remote the contributor did not name, merge a pull request, or request a review on your own
+- push to `main` or `branch-X.Y`, merge a pull request, or request a review on your own
 - edit generated files by hand, or weaken a test, a type, or a lint rule to make a check pass
-- open several pull requests for one issue, or close one and open it again
+- close a pull request and open a new one for the same change
 
 ## Pull requests
 
+- Most contributors cannot push to `bokeh/bokeh`. Check with `gh repo view bokeh/bokeh --json viewerPermission`. Without `WRITE` or higher, push to the contributor's fork and open the pull request from it. If no remote points to a fork, offer to create one with `gh repo fork bokeh/bokeh --remote`.
 - Keep the checklist of `.github/PULL_REQUEST_TEMPLATE.md` and fill it in. Link the issue with `fixes #NNNN`. Leave an item that does not apply unchecked and say why.
 - The title is a plain sentence in ASCII, without emoji. The changelog is generated from titles.
 - Keep the description short. Say what changed and why, and what you could not verify. Do not list the diff file by file.
@@ -81,6 +82,6 @@ Disclose AI involvement, every time. This is stricter than the guidelines on pur
 ## Keep these files current
 
 - A pull request that changes a command, path, tool, or convention described in an `AGENTS.md` file updates that file.
-- Keep the files short. They cost tokens in every session. Explanations go into the contributor guide.
+- Keep the files short. Explanations go into the contributor guide.
 - `tests/codebase/test_agents_md.py` checks the commands, paths, and size of every `AGENTS.md`.
 - For people: `docs/bokeh/source/docs/dev_guide/ai_tools.rst`.
