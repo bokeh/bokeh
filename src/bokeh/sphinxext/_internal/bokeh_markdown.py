@@ -119,7 +119,13 @@ def _visit_raw(translator: Any, node: nodes.raw) -> None:
     # Raw HTML, LaTeX, etc. is meaningless in Markdown. Only pass through
     # content that was written for Markdown.
     if MARKDOWN_FORMAT in node.get("format", "").split():
-        translator.add(node.astext())
+        if isinstance(node.parent, nodes.TextElement):
+            translator.add(node.astext())
+        else:
+            # a block, for example from a ``.. raw:: markdown`` directive
+            translator.ensure_eol(2)
+            translator.add(node.astext().strip())
+            translator.ensure_eol(2)
     raise nodes.SkipNode
 
 

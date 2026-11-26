@@ -464,6 +464,11 @@ directive, role, or node, make sure it also has a useful Markdown output:
   additional node from ``markdown_block()`` or ``markdown_inline()`` in
   ``bokeh.sphinxext._internal.bokeh_markdown``. See the ``bokeh-palette`` role
   for an example.
+* In reStructuredText source files and templates, add a ``.. raw:: markdown``
+  block next to a ``.. raw:: html`` block. The HTML build ignores it. See the
+  template of the ``bokeh-gallery`` directive for an example. Dropped HTML does
+  not cause a warning, so open the generated ``.md`` file and check that links
+  and headings are still there.
 * A custom node class needs a Markdown handler next to its HTML handler. See
   ``bokeh_palette_group`` for an example. Without a handler, the Markdown build
   emits an "unknown node type" warning, which fails the documentation build.

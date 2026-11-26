@@ -1,10 +1,18 @@
+{% for group in groups %}
+{% if group.title %}
+.. raw:: markdown
+
+    #### {{ group.title }}
+
+{% endif %}
 .. raw:: html
 
-    {% for group in groups %}
     <div class="bk-gallery-group">
     {% if group.title %}<h2>{{ group.title | e }}</h2>{% endif %}
     <ul class="bk-gallery list-unstyled">
-    {% for card in group.cards %}
+{% for card in group.cards %}
+.. raw:: html
+
     <li class="bk-thumbnail">
     <a {% if card.target -%} target="{{ card.target | e }}" {%- endif %} href="{{ card.url | e }}">
     <img class="img-fluid" width="300" height="300"
@@ -14,19 +22,28 @@
     >
     <span class="bk-thumbnail-title">{{ card.title | e }}</span>
     </a>
-{% if card.desc and card.parse_desc %}
 
+.. raw:: markdown
+
+    {{ card.markdown }}
+
+{% if card.desc and card.parse_desc %}
 .. container:: bk-thumbnail-description
 
     {{ card.desc }}
 
+{% endif %}
 .. raw:: html
 
-{% elif card.desc %}
+{% if card.desc and not card.parse_desc %}
     <div class="bk-thumbnail-description">{{ card.desc | safe }}</div>
 {% endif %}
     </li>
-    {% endfor %}
+
+{% endfor %}
+.. raw:: html
+
     </ul>
     </div>
-    {% endfor %}
+
+{% endfor %}
