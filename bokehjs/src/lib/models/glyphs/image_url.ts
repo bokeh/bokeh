@@ -46,52 +46,11 @@ export class ImageURLView extends XYGlyphView {
   private _set_data_iteration: number = 0
 
   protected override _set_data(): void {
-    if (this.inherited_url) {
-      return
-    }
-
-    this._set_data_iteration++
-
-    const {url} = this
-    const n_url = url.length
-
-    this.image = resize(this.image, n_url, null)
-    this.loaders = new Array(n_url).fill(null)
-    this.resolved = new Indices(n_url)
-
-    const {retry_attempts, retry_timeout} = this.model
-    const {_set_data_iteration} = this
-
-    for (let i = 0; i < n_url; i++) {
-      const url_i = url.get(i)
-      if (url_i == "") {
-        continue
-      }
-
-      const loader = new ImageLoader(url_i, {
-        loaded: (image_i) => {
-          if (this._set_data_iteration == _set_data_iteration && !this.resolved.get(i)) {
-            this.resolved.set(i)
-            this.image[i] = image_i
-            this.loaders[i] = null
-            this.renderer.request_paint()
-          }
-        },
-        failed: () => {
-          if (this._set_data_iteration == _set_data_iteration) {
-            this.resolved.set(i)
-            this.loaders[i] = null
-            const image_i = this.image[i]
-            if (image_i != null) {
-              this.image[i] = null
-              this.renderer.request_paint()
-            }
-          }
-        },
-        attempts: retry_attempts + 1,
-        timeout: retry_timeout,
-      })
-      this.loaders[i] = loader
+    // Glyphs that inherit `url` (e.g. selection and non-selection glyphs) share
+    // the images of their base glyph (see `_paint()`), but still need their own
+    // anchor and bounds.
+    if (!this.inherited_url) {
+      this._load_images()
     }
 
     const w_data = this.model.properties.w.units == "data"
@@ -135,6 +94,52 @@ export class ImageURLView extends XYGlyphView {
     this._bounds_rect = {x0, x1, y0, y1}
   }
 
+  protected _load_images(): void {
+    this._set_data_iteration++
+
+    const {url} = this
+    const n_url = url.length
+
+    this.image = resize(this.image, n_url, null)
+    this.loaders = new Array(n_url).fill(null)
+    this.resolved = new Indices(n_url)
+
+    const {retry_attempts, retry_timeout} = this.model
+    const {_set_data_iteration} = this
+
+    for (let i = 0; i < n_url; i++) {
+      const url_i = url.get(i)
+      if (url_i == "") {
+        continue
+      }
+
+      const loader = new ImageLoader(url_i, {
+        loaded: (image_i) => {
+          if (this._set_data_iteration == _set_data_iteration && !this.resolved.get(i)) {
+            this.resolved.set(i)
+            this.image[i] = image_i
+            this.loaders[i] = null
+            this.renderer.request_paint()
+          }
+        },
+        failed: () => {
+          if (this._set_data_iteration == _set_data_iteration) {
+            this.resolved.set(i)
+            this.loaders[i] = null
+            const image_i = this.image[i]
+            if (image_i != null) {
+              this.image[i] = null
+              this.renderer.request_paint()
+            }
+          }
+        },
+        attempts: retry_attempts + 1,
+        timeout: retry_timeout,
+      })
+      this.loaders[i] = loader
+    }
+  }
+
   override has_finished(): boolean {
     return super.has_finished() && this._images_rendered
   }
@@ -170,7 +175,7 @@ export class ImageURLView extends XYGlyphView {
 
   protected _paint(ctx: Context2d, indices: Int32Array, data?: Partial<ImageURL.Data>): void {
     const {sx, sy, sw, sh, angle, global_alpha} = {...this, ...data}
-    const {image, loaders, resolved} = this
+    const {image, loaders, resolved} = this.inherited_url ? this.base_glyph ?? this : this
 
     // TODO (bev): take actual border width into account when clipping
     const {frame} = this.renderer.plot_view
