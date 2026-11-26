@@ -81,6 +81,15 @@ export class DataRange1d extends DataRange {
 
   protected readonly _plot_bounds: Map<PlotView, Rect> = new Map()
 
+  remove_plot(plot: PlotView): void {
+    if (this._plot_bounds.delete(plot)) {
+      for (const linked_plot of this.linked_plots) {
+        linked_plot.invalidate_dataranges = true
+        linked_plot.request_repaint()
+      }
+    }
+  }
+
   override connect_signals(): void {
     super.connect_signals()
 
@@ -355,7 +364,7 @@ export class DataRange1d extends DataRange {
   }
 
   reset(): void {
-    this.have_updated_interactively = false
+    this._invalidate_dataranges()
     // change events silenced as PlotView.update_dataranges triggers property callbacks
     this.setv({
       range_padding: this._initial_range_padding,
