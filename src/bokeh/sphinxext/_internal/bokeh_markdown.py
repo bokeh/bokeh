@@ -35,6 +35,7 @@ log = logging.getLogger(__name__)
 # Imports
 # -----------------------------------------------------------------------------
 
+import posixpath
 from typing import Any
 
 from docutils import nodes
@@ -129,6 +130,19 @@ def _visit_raw(translator: Any, node: nodes.raw) -> None:
     raise nodes.SkipNode
 
 
+def _visit_image(translator: Any, node: nodes.image) -> None:
+    # The Markdown pages are published next to the HTML pages, so link to the
+    # image files of the HTML build, relative to the current page.
+    uri = node["uri"]
+    builder = translator.builder
+    image = builder.env.images.get(uri)
+    if image is not None:
+        docdir = posixpath.dirname(builder.current_doc_name)
+        uri = posixpath.relpath(posixpath.join("_images", image[1]), docdir or ".")
+    translator.add(f"![{node.get('alt', 'image')}]({uri})")
+    raise nodes.SkipNode
+
+
 def _visit_block(translator: Any, node: nodes.Node) -> None:
     translator.ensure_eol(2)
 
@@ -143,6 +157,7 @@ _STANDARD_NODE_HANDLERS: dict[type[nodes.Element], tuple[Any, Any]] = {
     # reStructuredText comments are notes for documentation authors
     nodes.comment: (markdown_skip, None),
     nodes.raw: (_visit_raw, None),
+    nodes.image: (_visit_image, None),
     # the explanation of an abbreviation is an HTML tooltip, keep the text
     nodes.abbreviation: (markdown_pass, markdown_pass),
     # captions of figures and code blocks

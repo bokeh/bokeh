@@ -39,3 +39,13 @@ Documentation for this specific version is located at
             </tbody>
 
         </table>
+{% if table %}
+
+    .. raw:: markdown
+
+        | Filename | Hash |
+        | --- | --- |
+        {%- for name, hash in table %}
+        | `{{ name }}` | `{{ hash }}` |
+        {%- endfor %}
+{% endif %}

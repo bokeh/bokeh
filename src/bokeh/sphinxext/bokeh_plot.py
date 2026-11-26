@@ -88,12 +88,13 @@ from collections.abc import Callable
 from contextlib import closing
 from heapq import nlargest
 from importlib import import_module
-from os import getenv
+from os import getenv, sep
 from os.path import (
     basename,
     dirname,
     isabs,
     join,
+    relpath,
 )
 from time import perf_counter
 from typing import Any, ClassVar, NamedTuple, cast
@@ -101,6 +102,7 @@ from uuid import uuid4
 
 from docutils import nodes
 from docutils.parsers.rst.directives import choice, flag
+from sphinx import addnodes
 from sphinx.errors import SphinxError
 from sphinx.util.nodes import set_source_info
 from sphinx.util.osutil import copyfile, ensuredir
@@ -146,6 +148,10 @@ class _PlotSphinxSpec(SphinxParallelSpec):
 # -----------------------------------------------------------------------------
 # General API
 # -----------------------------------------------------------------------------
+
+#: provides the ``bokeh-tree`` role
+_BOKEH_ROLES = "bokeh.sphinxext._internal.bokeh_roles"
+
 
 class autoload_script(nodes.General, nodes.Element):
 
@@ -212,6 +218,8 @@ class BokehPlotDirective(BokehDirective):
         intro = self.parse(docstring, '<bokeh-content>') if docstring and process_docstring else []
 
         above, below = self.process_code_block(source, docstring)
+        if not above and not below:
+            below = self.process_markdown_source(source, path, docstring)
 
         autoload = [autoload_script(
             height_hint=height_hint, script_tag=script_tag, requirements=self._requirements,
@@ -238,6 +246,26 @@ class BokehPlotDirective(BokehDirective):
             return [], [code_block]
 
         return [], []
+
+    def process_markdown_source(self, source: str, path: str, docstring: str | None) -> list[Any]:
+        '''Return a stand-in for a plot that is displayed without its source.
+
+        The Markdown version of a page has no plots. A plot without its source
+        would leave nothing behind, so link to the source, or include it.
+
+        '''
+        only = addnodes.only(expr=MARKDOWN_FORMAT)
+        set_source_info(self, only)
+
+        from ._internal import REPO_TOP
+        repo_path = relpath(path, REPO_TOP).replace(sep, "/")
+        if self.arguments and not repo_path.startswith("..") and _BOKEH_ROLES in self.env.config.extensions:
+            text = f"The plot at this position is not part of this Markdown page. Its source code is :bokeh-tree:`{repo_path}`."
+            only += self.parse(text, "<bokeh-content>")
+        else:
+            source = _remove_module_docstring(source, docstring).strip()
+            only += nodes.literal_block(source, source, language="python", classes=[])
+        return [only]
 
     def process_args_or_content(self) -> tuple[str, str]:
         # filename *or* python code content, but not both

@@ -28,6 +28,25 @@ from bokeh.sphinxext.bokeh_plot import (
     build_finished,
 )
 
+# a 1x1 pixel image
+_PNG = bytes.fromhex(
+    "89504e470d0a1a0a0000000d49484452000000010000000108060000001f15c489"
+    "0000000d49444154789c6360000002000001e221bc330000000049454e44ae426082",
+)
+
+
+def _build_markdown(source: Path, tmp_path: Path) -> list[str]:
+    """Run a Markdown build and return its warnings."""
+    warnings = StringIO()
+    app = Sphinx(
+        str(source), str(source), str(tmp_path / "out"), str(tmp_path / "doctrees"), "markdown",
+        status=None, warning=warnings, freshenv=True,
+    )
+    app.build()
+    assert app.statuscode == 0
+    # Sphinx warns about its own nodes when a process creates more than one application
+    return [line for line in warnings.getvalue().splitlines() if "is already registered" not in line]
+
 
 def _raw_formats(result: list[nodes.Node]) -> list[str]:
     return [node["format"] for node in result if isinstance(node, nodes.raw)]
@@ -110,6 +129,38 @@ def test_plots_and_their_targets_are_removed_from_markdown() -> None:
     assert document.astext().split() == ["docstring", "show(p)"]
 
 
+# the bokeh-tree role uses a deprecated Sphinx API
+@pytest.mark.filterwarnings("ignore:.*BuildEnvironment.app.*")
+def test_plot_without_source_links_to_its_file_in_markdown(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    pytest.importorskip("sphinx_markdown_builder")
+    # REPO_TOP is derived from the working directory of a documentation build
+    monkeypatch.setattr("bokeh.sphinxext._internal.REPO_TOP", Path(__file__).parents[4])
+
+    source = tmp_path / "source"
+    source.mkdir()
+    (source / "conf.py").write_text(dedent("""
+        extensions = [
+            "sphinx_markdown_builder",
+            "bokeh.sphinxext.bokeh_plot",
+            "bokeh.sphinxext._internal.bokeh_markdown",
+            "bokeh.sphinxext._internal.bokeh_roles",
+        ]
+        version = "4.0.0"
+    """))
+    (source / "index.rst").write_text(dedent("""
+        Title
+        =====
+
+        .. bokeh-plot:: __REPO__/examples/basic/lines/line_steps.py
+            :source-position: none
+    """))
+
+    assert _build_markdown(source, tmp_path) == []
+    text = (tmp_path / "out" / "index.md").read_text()
+    assert "[examples/basic/lines/line_steps.py](https://github.com/bokeh/bokeh/tree/4.0.0/examples/basic/lines/line_steps.py)" in text
+    assert "p.step(" not in text
+
+
 @pytest.mark.parametrize("builder_format, copied", [("html", True), ("markdown", False)])
 def test_plot_payloads_are_only_copied_for_html(tmp_path: Path, builder_format: str, copied: bool) -> None:
     payload = tmp_path / "bokeh-content-abc-page.json"
@@ -148,6 +199,10 @@ def test_markdown_build_of_html_only_content(tmp_path: Path) -> None:
         Title
         =====
 
+        .. toctree::
+
+            sub/page
+
         .. an author comment
 
         The :abbr:`API (application programming interface)` reference.
@@ -178,17 +233,37 @@ def test_markdown_build_of_html_only_content(tmp_path: Path) -> None:
             :disable_codepen: true
 
             const plot = Bokeh.Plotting.figure()
+
+        A plot without its source:
+
+        .. bokeh-plot::
+            :source-position: none
+
+            from bokeh.plotting import figure, show
+
+            hidden = figure()
+            hidden.scatter([1, 2], [3, 4])
+            show(hidden)
+
+        .. raw:: markdown
+
+            [written for Markdown](https://example.org)
+    """))
+    (source / "pics").mkdir()
+    (source / "pics" / "dot.png").write_bytes(_PNG)
+    (source / "sub").mkdir()
+    (source / "sub" / "page.rst").write_text(dedent("""
+        Page
+        ====
+
+        .. image:: /pics/dot.png
+            :alt: a dot
+
+        .. image:: https://example.org/remote.png
+            :alt: remote
     """))
 
-    warnings = StringIO()
-    app = Sphinx(
-        str(source), str(source), str(tmp_path / "out"), str(tmp_path / "doctrees"), "markdown",
-        status=None, warning=warnings, freshenv=True,
-    )
-    app.build()
-
-    assert warnings.getvalue() == ""
-    assert app.statuscode == 0
+    assert _build_markdown(source, tmp_path) == []
 
     text = (tmp_path / "out" / "index.md").read_text()
     assert "# Title" in text
@@ -198,6 +273,14 @@ def test_markdown_build_of_html_only_content(tmp_path: Path) -> None:
     assert "* **Bright** (sizes: " in text
     assert "p.line([1, 2], [3, 4])" in text
     assert "const plot = Bokeh.Plotting.figure()" in text
+    # a plot without source and without a file to link to keeps its source
+    assert "hidden.scatter([1, 2], [3, 4])" in text
+    assert "\n\n[written for Markdown](https://example.org)\n" in text
+
+    # images are linked where the HTML build puts them
+    page = (tmp_path / "out" / "sub" / "page.md").read_text()
+    assert "![a dot](../_images/dot.png)" in page
+    assert "![remote](https://example.org/remote.png)" in page
 
     for html_only in ("Not part of the page", "an author comment", "html-only", "<script", "bokeh-content-", "<span"):
         assert html_only not in text
