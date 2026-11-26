@@ -14,9 +14,11 @@ unnoticed. They cannot tell whether a described convention is still correct.
 '''
 from __future__ import annotations
 
+import os
 import re
 import shlex
 import tomllib
+from functools import cache
 from pathlib import Path
 
 import pytest
@@ -47,8 +49,11 @@ _LINK = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
 #: placeholders such as <name> are left out.
 _NOT_A_PATH = re.compile(r"[\s<>*=@#(]|^/|^-|://")
 
-#: Words with a slash that are not paths.
-_NOT_PATHS = {"bokeh/bokeh"}  # the repository on GitHub
+#: Words with a slash that are not paths in a checkout.
+_NOT_PATHS = {
+    "bokeh/bokeh",            # the repository on GitHub
+    "docs/bokeh/build/html",  # the output of the documentation build
+}
 
 #: Arguments of commands, and words without a slash, are only checked as paths
 #: if they name a file.
@@ -64,6 +69,22 @@ def _find(name: str) -> list[Path]:
 AGENTS_FILES = _find("AGENTS.md")
 
 _ids = [path.relative_to(TOP_PATH).as_posix() for path in AGENTS_FILES]
+
+
+@cache
+def _tracked() -> set[str]:
+    ''' Return the files that git tracks, and their directories.
+
+    A path that only exists in a working tree, such as build output, must not
+    make a test pass on one machine and fail on another.
+
+    '''
+    tracked: set[str] = set()
+    for file in ls_files():
+        if file:
+            tracked.add(file)
+            tracked.update(parent.as_posix() for parent in Path(file).parents)
+    return tracked
 
 
 def _code_spans(path: Path) -> list[str]:
@@ -175,13 +196,18 @@ def test_paths_exist(path: Path) -> None:
                 if arg.endswith(_FILE_SUFFIXES) and not _NOT_A_PATH.search(arg)
             ]
 
+    tracked = _tracked()
+    here = path.parent.relative_to(TOP_PATH)
+
     missing = []
     for candidate in candidates:
         target = candidate.split("#")[0].rstrip("/")
         # paths are relative to the file or to the top of the repository
-        if not (path.parent / target).exists() and not (TOP_PATH / target).exists():
+        relative = Path(os.path.normpath(here / target)).as_posix()
+        top = Path(os.path.normpath(target)).as_posix()
+        if relative not in tracked and top not in tracked:
             missing.append(candidate)
-    assert missing == [], "these paths do not exist, relative to the file or to the top of the repository"
+    assert missing == [], "git tracks no such paths, relative to the file or to the top of the repository"
 
 
 @pytest.mark.parametrize("name", POINTER_FILES)
