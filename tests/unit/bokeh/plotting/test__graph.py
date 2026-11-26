@@ -15,8 +15,14 @@ from __future__ import annotations
 #-----------------------------------------------------------------------------
 import pytest
 
-from bokeh.core.properties import field
-from bokeh.models import ColumnDataSource, MultiLine, Scatter
+# Bokeh imports
+from bokeh.core.properties import field, value
+from bokeh.models import (
+    ColumnDataSource,
+    MultiLine,
+    RecordDataSource,
+    Scatter,
+)
 
 # Module under test
 import bokeh.plotting._graph as bpg # isort:skip
@@ -42,9 +48,25 @@ class Test_get_graph_kwargs:
 
         kw = bpg.get_graph_kwargs(node_source, edge_source)
 
-        # 'index' column is added from pandas df
         assert set(kw['node_renderer'].data_source.data.keys()) == {"index", "foo"}
         assert set(kw['edge_renderer'].data_source.data.keys()) == {"index", "start", "end", "bar"}
+
+    def test_edge_mapping_can_defer_endpoints_until_validation(self) -> None:
+        kw = bpg.get_graph_kwargs({"index": [0, 1]}, {"weight": [1]})
+
+        assert kw["data_source"].edges.data == {"weight": [1]}
+
+    def test_preserves_alias_named_attributes_with_canonical_topology_columns(self) -> None:
+        nodes = {"index": [0, 1], "id": ["a", "b"]}
+        edges = {"start": [0], "end": [1], "source": ["attribute"]}
+        kw = bpg.get_graph_kwargs(nodes, edges)
+
+        assert kw["data_source"].nodes.data == nodes
+        assert kw["data_source"].edges.data == edges
+
+    def test_rejects_duplicate_node_ids_in_column_mappings(self) -> None:
+        with pytest.raises(ValueError, match="duplicate graph node identifier"):
+            bpg.get_graph_kwargs({"index": [0, 0]}, {"start": [0], "end": [0]})
 
     def test_handle_sources(self) -> None:
         node_source = ColumnDataSource(data=dict(foo=[]))
@@ -54,6 +76,18 @@ class Test_get_graph_kwargs:
 
         assert set(kw['node_renderer'].data_source.data.keys()) == {"foo"}
         assert set(kw['edge_renderer'].data_source.data.keys()) == {"start", "end", "bar"}
+        assert kw['data_source'].nodes is node_source
+        assert kw['data_source'].edges is edge_source
+
+    def test_preserves_record_data_sources(self) -> None:
+        node_source = RecordDataSource(records=[{"index": "A"}, {"index": "B"}])
+        edge_source = RecordDataSource(records=[{"start": "A", "end": "B"}])
+        kw = bpg.get_graph_kwargs(node_source, edge_source)
+
+        assert kw['node_renderer'].data_source is node_source
+        assert kw['edge_renderer'].data_source is edge_source
+        assert kw['data_source'].nodes is node_source
+        assert kw['data_source'].edges is edge_source
 
     def test_handle_node_property_mixins(self) -> None:
         kwargs = dict(node_fill_color="purple", node_selection_fill_color="blue",
@@ -80,19 +114,16 @@ class Test_get_graph_kwargs:
         node_glyph = kw['node_renderer'].glyph
         assert isinstance(node_glyph, Scatter) and node_glyph.marker == "x"
 
+    def test_handle_node_marker_value(self) -> None:
+        marker = value("diamond")
+        kw = bpg.get_graph_kwargs({}, {}, node_marker=marker)
+        node_glyph = kw['node_renderer'].glyph
+        assert isinstance(node_glyph, Scatter) and node_glyph.marker == marker
+
     def test_handle_node_marker_dataspec_correctly(self) -> None:
         node_source = {'marker': ['square', 'circle', 'x']}
 
         kw = bpg.get_graph_kwargs(node_source, {}, node_marker='marker')
-
-        node_glyph = kw['node_renderer'].glyph
-        assert isinstance(node_glyph, Scatter)
-        assert node_glyph.marker == field('marker')
-
-    def test_handle_node_marker_field_dict(self) -> None:
-        node_source = {'marker': ['square', 'circle', 'x']}
-
-        kw = bpg.get_graph_kwargs(node_source, {}, node_marker={'field': 'marker'})
 
         node_glyph = kw['node_renderer'].glyph
         assert isinstance(node_glyph, Scatter)
@@ -112,6 +143,21 @@ class Test_get_graph_kwargs:
         assert kw['node_renderer'].glyph.tags == []
         assert kw['edge_renderer'].glyph.name is None
         assert kw['edge_renderer'].glyph.tags == []
+
+    def test_handle_node_marker_field(self) -> None:
+        marker = field("marker")
+        kw = bpg.get_graph_kwargs({}, {}, node_marker=marker)
+        node_glyph = kw['node_renderer'].glyph
+        assert isinstance(node_glyph, Scatter) and node_glyph.marker == marker
+
+    @pytest.mark.parametrize(("marker", "expected"), [
+        ({"field": "marker"}, field("marker")),
+        ({"value": "diamond"}, value("diamond")),
+    ])
+    def test_handle_node_marker_dict(self, marker, expected) -> None:
+        kw = bpg.get_graph_kwargs({"marker": ["square"]}, {}, node_marker=marker)
+        node_glyph = kw['node_renderer'].glyph
+        assert isinstance(node_glyph, Scatter) and node_glyph.marker == expected
 
     def test_handle_edge_property_mixins(self) -> None:
         kwargs = dict(edge_line_color="purple", edge_selection_line_color="blue",

@@ -39,6 +39,8 @@ __all__ = (
     "DataSource",
     "GeoJSONDataSource",
     "GeometryDataSource",
+
+    "GraphDataSource",
     "IndexedDataSource",
     "IndexedSubset",
     "RecordDataSource",
@@ -165,6 +167,23 @@ class GeometryDataSource(IndexedDataSource):
     def length(self) -> int: ...
 
     def add(self, data: Sequence[Any] | npt.NDArray[Any], name: str) -> str: ...
+
+type GraphNodes = IndexedDataSource | DataDictLike | Mapping[Any, Any] | Sequence[Any]
+type GraphEdges = IndexedDataSource | DataDictLike | Mapping[str, Sequence[Any]] | Sequence[Any]
+
+class _GraphDataSourceInit(_DataSourceInit, total=False):
+    graph: Any
+    nodes: GraphNodes | None
+    edges: GraphEdges | None
+
+class GraphDataSource(DataSource):
+    @overload
+    def __init__(self, **kwargs: Unpack[_GraphDataSourceInit]) -> None: ...
+    @overload
+    def __init__(self, graph: Any, /, **kwargs: Unpack[_GraphDataSourceInit]) -> None: ...
+
+    nodes: IndexedDataSource = ...
+    edges: IndexedDataSource = ...
 
 class _IndexedSubsetInit(_ModelInit, total=False):
     filter: Filter
