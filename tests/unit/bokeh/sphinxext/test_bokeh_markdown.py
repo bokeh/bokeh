@@ -13,16 +13,12 @@ from docutils.utils import new_document
 from sphinx.application import Sphinx
 
 from bokeh.palettes import Blues8, viridis
-from bokeh.sphinxext._internal.bokeh_color import BokehColorDirective
 from bokeh.sphinxext._internal.bokeh_dataframe import _dataframe_markdown
 from bokeh.sphinxext._internal.bokeh_markdown import (
-    MARKDOWN_FORMAT,
     _fail_on_warnings,
     is_markdown_build,
-    markdown_block,
-    markdown_inline,
 )
-from bokeh.sphinxext._internal.bokeh_palette import _palette_markdown, bokeh_palette
+from bokeh.sphinxext._internal.bokeh_palette import _palette_markdown
 from bokeh.sphinxext._internal.bokeh_palette_group import _palette_group_markdown
 from bokeh.sphinxext._internal.templates import RELEASE_DETAIL
 from bokeh.sphinxext.bokeh_plot import (
@@ -50,30 +46,20 @@ def _build_markdown(source: Path, tmp_path: Path) -> list[str]:
     return [line for line in warnings.getvalue().splitlines() if "is already registered" not in line]
 
 
-def _raw_formats(result: list[nodes.Node]) -> list[str]:
-    return [node["format"] for node in result if isinstance(node, nodes.raw)]
-
-
-def test_is_markdown_build() -> None:
-    assert is_markdown_build(SimpleNamespace(builder=SimpleNamespace(format="markdown")))
-    assert not is_markdown_build(SimpleNamespace(builder=SimpleNamespace(format="html")))
-    assert not is_markdown_build(SimpleNamespace(builder=None))
-
-
-@pytest.mark.parametrize("builder_format, warncount, statuscode", [
-    ("markdown", 0, 0),
-    ("markdown", 1, 1),
-    ("html", 1, 0),
+@pytest.mark.parametrize("builder, warncount, statuscode", [
+    (SimpleNamespace(format="markdown"), 0, 0),
+    (SimpleNamespace(format="markdown"), 1, 1),
+    (SimpleNamespace(format="html"), 1, 0),
+    (None, 1, 0),
 ])
-def test_markdown_build_fails_on_warnings(builder_format: str, warncount: int, statuscode: int) -> None:
-    app = SimpleNamespace(builder=SimpleNamespace(format=builder_format), _warncount=warncount, statuscode=0)
-    _fail_on_warnings(app, None)
-    assert app.statuscode == statuscode
-
-
-def test_sphinx_counts_warnings() -> None:
+def test_only_markdown_builds_fail_on_warnings(builder: SimpleNamespace | None, warncount: int, statuscode: int) -> None:
     # _fail_on_warnings depends on this private attribute
     assert "_warncount" in Sphinx.__annotations__
+
+    app = SimpleNamespace(builder=builder, _warncount=warncount, statuscode=0)
+    assert is_markdown_build(app) == (getattr(builder, "format", None) == "markdown")
+    _fail_on_warnings(app, None)
+    assert app.statuscode == statuscode
 
 
 def test_release_template_has_a_markdown_table() -> None:
@@ -88,39 +74,13 @@ def test_release_template_has_a_markdown_table() -> None:
     assert "raw:: markdown" not in RELEASE_DETAIL.render(version="3.0.0", table=[])
 
 
-def test_markdown_nodes_are_only_for_markdown() -> None:
-    block = markdown_block("| a |")
-    inline = markdown_inline("`#fff`")
-    assert block["format"] == inline["format"] == MARKDOWN_FORMAT
-    assert block.astext() == "\n\n| a |\n\n"
-    assert inline.astext() == "`#fff`"
-
-
-def test_palette_markdown_lists_short_palettes_in_full() -> None:
-    assert _palette_markdown(Blues8) == ", ".join(f"`{color}`" for color in Blues8)
-
-
-def test_palette_markdown_abbreviates_long_palettes() -> None:
-    palette = viridis(256)
-    text = _palette_markdown(palette)
-    assert text.startswith(f"`{palette[0]}`, `{palette[1]}`, `{palette[2]}`, ..., ")
-    assert text.endswith(f"`{palette[-1]}` (256 colors)")
-    assert text.count("`") == 12
-
-
-def test_palette_role_emits_html_and_markdown() -> None:
-    result, messages = bokeh_palette("bokeh-palette", ":bokeh-palette:`Blues8`", "Blues8", 1, None)
-    assert messages == []
-    assert _raw_formats(result) == ["html", MARKDOWN_FORMAT]
-    assert Blues8[0] in result[1].astext()
-
-
-def test_color_directive_emits_html_and_markdown() -> None:
-    directive = BokehColorDirective.__new__(BokehColorDirective)
-    directive.arguments = ["aliceblue"]
-    result = directive.run()
-    assert _raw_formats(result) == ["html", MARKDOWN_FORMAT]
-    assert result[1].astext().strip() == "aliceblue: `#f0f8ff`"
+@pytest.mark.parametrize("palette, expected", [
+    (Blues8, ", ".join(f"`{color}`" for color in Blues8)),
+    # long palettes are abbreviated
+    (viridis(256), "`#440154`, `#440255`, `#440357`, ..., `#F8E621`, `#FAE622`, `#FDE724` (256 colors)"),
+])
+def test_palette_markdown(palette: tuple[str, ...], expected: str) -> None:
+    assert _palette_markdown(palette) == expected
 
 
 def test_dataframe_markdown_is_a_pipe_table() -> None:
@@ -159,38 +119,6 @@ def test_plots_and_their_targets_are_removed_from_markdown() -> None:
     assert document.astext().split() == ["docstring", "show(p)"]
 
 
-# the bokeh-tree role uses a deprecated Sphinx API
-@pytest.mark.filterwarnings("ignore:.*BuildEnvironment.app.*")
-def test_plot_without_source_links_to_its_file_in_markdown(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    pytest.importorskip("sphinx_markdown_builder")
-    # REPO_TOP is derived from the working directory of a documentation build
-    monkeypatch.setattr("bokeh.sphinxext._internal.REPO_TOP", Path(__file__).parents[4])
-
-    source = tmp_path / "source"
-    source.mkdir()
-    (source / "conf.py").write_text(dedent("""
-        extensions = [
-            "sphinx_markdown_builder",
-            "bokeh.sphinxext.bokeh_plot",
-            "bokeh.sphinxext._internal.bokeh_markdown",
-            "bokeh.sphinxext._internal.bokeh_roles",
-        ]
-        version = "4.0.0"
-    """))
-    (source / "index.rst").write_text(dedent("""
-        Title
-        =====
-
-        .. bokeh-plot:: __REPO__/examples/basic/lines/line_steps.py
-            :source-position: none
-    """))
-
-    assert _build_markdown(source, tmp_path) == []
-    text = (tmp_path / "out" / "index.md").read_text()
-    assert "[examples/basic/lines/line_steps.py](https://github.com/bokeh/bokeh/tree/4.0.0/examples/basic/lines/line_steps.py)" in text
-    assert "p.step(" not in text
-
-
 @pytest.mark.parametrize("builder_format, copied", [("html", True), ("markdown", False)])
 def test_plot_payloads_are_only_copied_for_html(tmp_path: Path, builder_format: str, copied: bool) -> None:
     payload = tmp_path / "bokeh-content-abc-page.json"
@@ -207,8 +135,12 @@ def test_plot_payloads_are_only_copied_for_html(tmp_path: Path, builder_format: 
     assert (outdir / "docs" / payload.name).exists() == copied
 
 
-def test_markdown_build_of_html_only_content(tmp_path: Path) -> None:
+# the bokeh-tree role uses a deprecated Sphinx API
+@pytest.mark.filterwarnings("ignore:.*BuildEnvironment.app.*")
+def test_markdown_build_of_html_only_content(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     pytest.importorskip("sphinx_markdown_builder")
+    # REPO_TOP is derived from the working directory of a documentation build
+    monkeypatch.setattr("bokeh.sphinxext._internal.REPO_TOP", Path(__file__).parents[4])
 
     source = tmp_path / "source"
     source.mkdir()
@@ -220,7 +152,10 @@ def test_markdown_build_of_html_only_content(tmp_path: Path) -> None:
             "bokeh.sphinxext._internal.bokeh_palette",
             "bokeh.sphinxext._internal.bokeh_palette_group",
             "bokeh.sphinxext._internal.bokehjs_content",
+            "bokeh.sphinxext._internal.bokeh_color",
+            "bokeh.sphinxext._internal.bokeh_roles",
         ]
+        version = "4.0.0"
     """))
     (source / "index.rst").write_text(dedent("""
         .. meta::
@@ -251,6 +186,8 @@ def test_markdown_build_of_html_only_content(tmp_path: Path) -> None:
 
         .. bokeh-palette-group:: tol
 
+        .. bokeh-color:: aliceblue
+
         .. bokeh-plot::
 
             from bokeh.plotting import figure, show
@@ -263,6 +200,11 @@ def test_markdown_build_of_html_only_content(tmp_path: Path) -> None:
             :disable_codepen: true
 
             const plot = Bokeh.Plotting.figure()
+
+        A plot from a file, without its source:
+
+        .. bokeh-plot:: __REPO__/examples/basic/lines/line_steps.py
+            :source-position: none
 
         A plot without its source:
 
@@ -303,6 +245,10 @@ def test_markdown_build_of_html_only_content(tmp_path: Path) -> None:
     assert "* **Bright** (sizes: " in text
     assert "p.line([1, 2], [3, 4])" in text
     assert "const plot = Bokeh.Plotting.figure()" in text
+    assert "aliceblue: `#f0f8ff`" in text
+    # a plot without source links to its file
+    assert "[examples/basic/lines/line_steps.py](https://github.com/bokeh/bokeh/tree/4.0.0/examples/basic/lines/line_steps.py)" in text
+    assert "p.step(" not in text
     # a plot without source and without a file to link to keeps its source
     assert "hidden.scatter([1, 2], [3, 4])" in text
     assert "\n\n[written for Markdown](https://example.org)\n" in text

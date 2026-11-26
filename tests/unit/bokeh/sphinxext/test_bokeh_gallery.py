@@ -204,11 +204,22 @@ def test_catalog_loads_external_demos() -> None:
 
 
 def test_gallery_template_escapes_attributes_and_preserves_descriptions() -> None:
+    from bokeh.sphinxext._internal.bokeh_gallery import (
+        _html_to_markdown,
+        _markdown_link,
+    )
     from bokeh.sphinxext._internal.templates import GALLERY_PAGE
 
+    assert _markdown_link('A [B]', 'a/b.md') == r'**[A \[B\]](a/b.md)**'
+    assert _html_to_markdown("<em>(<a target='_blank' href='https://example.org/a.py'>source</a>)</em>") == '([source](https://example.org/a.py))'
+
     card = dict(url='https://example.org/?a=1&b="two"', target='_blank', img='a&b',
-                alt='A "quoted" label', title='A & B', desc='<em>HTML description</em>', parse_desc=False)
+                alt='A "quoted" label', title='A & B', desc='<em>HTML description</em>', parse_desc=False,
+                markdown=_markdown_link('A & B', 'a/b.md'))
     rendered = GALLERY_PAGE.render(groups=[dict(title='A & B', cards=[card])])
+    # the Markdown version of the page gets a heading per group and a link per card
+    assert '.. raw:: markdown\n\n    #### A & B\n' in rendered
+    assert '.. raw:: markdown\n\n    **[A & B](a/b.md)**\n' in rendered
     assert 'href="https://example.org/?a=1&amp;b=&#34;two&#34;"' in rendered
     assert 'alt="A &#34;quoted&#34; label"' in rendered
     assert '>A &amp; B</span>' in rendered
@@ -217,21 +228,3 @@ def test_gallery_template_escapes_attributes_and_preserves_descriptions() -> Non
     rendered = GALLERY_PAGE.render(groups=[dict(title='', cards=[card])])
     assert '.. container:: bk-thumbnail-description' in rendered
     assert 'A :ref:`linked summary`.' in rendered
-
-
-def test_gallery_template_has_markdown_links() -> None:
-    from bokeh.sphinxext._internal.bokeh_gallery import (
-        _html_to_markdown,
-        _markdown_link,
-    )
-    from bokeh.sphinxext._internal.templates import GALLERY_PAGE
-
-    assert _markdown_link('A [B]', 'examples/a/b.md') == r'**[A \[B\]](examples/a/b.md)**'
-    assert _html_to_markdown("Text. <em>(<a target='_blank' href='https://example.org/a.py'>source code</a>)</em>") == \
-        'Text. ([source code](https://example.org/a.py))'
-
-    card = dict(url='examples/a/b.html', target=None, img='examples/a/b', alt='alt', title='A B',
-                desc='A summary.', parse_desc=True, markdown=_markdown_link('A B', 'examples/a/b.md'))
-    rendered = GALLERY_PAGE.render(groups=[dict(title='Bars', cards=[card])])
-    assert '.. raw:: markdown\n\n    #### Bars\n' in rendered
-    assert '.. raw:: markdown\n\n    **[A B](examples/a/b.md)**\n' in rendered
