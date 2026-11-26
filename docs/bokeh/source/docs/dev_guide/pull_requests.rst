@@ -22,7 +22,9 @@ about your formatting options, see `Writing on GitHub`_ in the
 .. note::
     If you're using AI tools to assist with your contribution, please review
     our `AI Contribution Guidelines`_ to ensure your contribution follows
-    project expectations.
+    project expectations. See :ref:`contributor_guide_ai_tools` for more
+    information, including the ``AGENTS.md`` files that help coding agents
+    follow Bokeh's conventions.
 
 Pull request workflow
 ---------------------

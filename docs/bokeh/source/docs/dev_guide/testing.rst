@@ -96,6 +96,11 @@ unused imports and extra white spaces.
 Any edits you make to Bokeh's Python or JavaScript codebase should pass this
 test.
 
+The codebase tests also check the ``AGENTS.md`` files that contain
+:ref:`instructions for coding agents <contributor_guide_ai_tools_agents_md>`.
+If you rename a pixi task, a BokehJS build task, or a file that an
+``AGENTS.md`` file mentions, update that file.
+
 **Standard terminal:**
 
 .. code-block:: sh
