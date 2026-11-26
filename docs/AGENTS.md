@@ -7,9 +7,9 @@ Applies to `docs/bokeh` and to docstrings anywhere in the repository. Read the r
 Run `make` in `docs/bokeh`. The Makefile enters the pixi environment by itself.
 
 - `make html SPHINXOPTS="-j auto"`: build the documentation into `docs/bokeh/build/html`. The first build runs every example and takes several minutes.
-- `make serve`: serve the built documentation locally.
+- `make serve`: serve the built documentation locally. It opens a browser and does not return, so leave it to the contributor.
 - `make clean`: remove the build. Use it when a build keeps stale output.
-- `make reference`: regenerate the pages of the model reference. Run it after you add, rename, or remove a public model.
+- `make reference`: regenerate only the pages of the model reference. `make html` does this by itself.
 - `pixi run test-docs`: tests of the documentation sources.
 - CI builds with `pixi run -e docs-py315 build-docs`.
 
@@ -23,7 +23,7 @@ The build treats warnings as errors. A new warning is a failed build, so fix its
 | `docs/bokeh/source/docs/reference` | Reference pages. Most content comes from docstrings and from the `help` strings of properties. |
 | `docs/bokeh/source/docs/dev_guide` | Contributor guide |
 | `docs/bokeh/source/docs/releases` | Release notes, one file per version |
-| `docs/bokeh/api_reference/sections.json` | Assigns every model to a section of the model reference |
+| `docs/bokeh/api_reference` | Generates the pages of the model reference. They are not committed. |
 | `docs/bokeh/source/rst_epilog.txt` | Substitutions that are available on every page |
 | `src/bokeh/sphinxext` | Bokeh's own Sphinx directives and roles, such as `bokeh-plot`, `bokeh-model`, and `bokeh-issue` |
 
@@ -42,13 +42,13 @@ The build treats warnings as errors. A new warning is a failed build, so fix its
 - A new feature or an API change gets an entry in the file of the next version, the newest file in `docs/bokeh/source/docs/releases`.
 - Add a bullet to the matching section, such as "New features". Follow the wording of the existing entries.
 - Reference classes with `:class:` and the issue or pull request with `:bokeh-issue:` or `:bokeh-pull:`.
-- Bug fixes do not need an entry, unless the contributor or a maintainer asks for one.
+- A bug fix that users notice can get a bullet under "Bug fixes". Ask the contributor.
 
 ## A new public model
 
 1. Write the docstring of the class and the `help` string of every property.
-2. Add the model to `docs/bokeh/api_reference/sections.json`.
-3. Run `make reference`. `make html` fails when the generated pages are out of date.
+2. Run `make reference`. The section of a model comes from its module path. Add an entry to `docs/bokeh/api_reference/sections.json` only when this command reports that it cannot infer the section.
+3. Run `pixi run test-docs`.
 
 ## Changes to the contributor guide
 

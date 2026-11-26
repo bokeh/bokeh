@@ -1,11 +1,11 @@
 # Examples: instructions for coding agents
 
-Read the root [AGENTS.md](../AGENTS.md) first. The scripts in this directory are user-facing examples. The documentation embeds them, the gallery and the examples index list them, and `tests/test_examples.py` runs every one of them. Explanations: `docs/bokeh/source/docs/dev_guide/documentation.rst`.
+Read the root [AGENTS.md](../AGENTS.md) first. The scripts in this directory are user-facing examples. The documentation embeds them, the gallery and the examples index list them, and `tests/test_examples.py` runs most of them. Explanations: `docs/bokeh/source/docs/dev_guide/documentation.rst`.
 
 ## Commands
 
-- `pixi run python examples/basic/bars/mixed.py`: run one example. It writes an HTML file and tries to open a browser.
-- `BOKEH_RESOURCES=inline pixi run python examples/basic/bars/mixed.py`: use the local BokehJS build instead of the CDN. Needed when the example depends on a change in BokehJS.
+- `BOKEH_BROWSER=none pixi run python examples/basic/bars/mixed.py`: run one example. It writes an HTML file. Without `BOKEH_BROWSER=none`, it also opens a browser.
+- Add `BOKEH_RESOURCES=inline` to use the local BokehJS build instead of the CDN. This is needed when the example depends on a change in BokehJS.
 - `pixi run pytest tests/test_examples.py -k mixed`: run the examples test for matching examples.
 - `pixi run pytest tests/codebase/test_example_sampledata_metadata.py`: check the metadata of all examples.
 
@@ -27,6 +27,6 @@ Read the root [AGENTS.md](../AGENTS.md) first. The scripts in this directory are
 
 ## Tests
 
-- New examples are tested automatically.
-- `tests/examples.yaml` holds exceptions, such as `skip` and `slow`. Add an entry only when an example cannot run in CI, and say why in a comment.
-- Server examples in `examples/server` run with `bokeh serve`, not with `python`.
+- `tests/examples.yaml` lists the directories whose examples are tested. A new example in a listed directory is tested automatically. A new directory needs an entry.
+- The same file holds exceptions per directory: `skip`, `slow`, `xfail`, and `no_js`. Add one only when an example cannot run in CI.
+- The apps in `examples/server/app` run with `bokeh serve`, not with `python`.

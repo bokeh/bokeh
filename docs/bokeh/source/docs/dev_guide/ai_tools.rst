@@ -18,6 +18,11 @@ contributions that involve AI tools. They apply to issues, pull requests, and
 comments, whether or not you use a coding agent. Read them before you
 contribute.
 
+This guide doesn't repeat the guidelines, but two of their points are easy to
+miss when you work with an agent. First, a pull request needs an issue that a
+maintainer has triaged. Second, comments and reviews that an AI tool has
+generated are not acceptable, even if you disclose them.
+
 You are responsible for everything you submit. This means that you need to
 understand your contribution, test it, and be able to explain it in your own
 words when a reviewer asks. An AI tool can help you write code or text, but it
@@ -54,7 +59,9 @@ Most coding agents need no configuration to use these files. Some tools read a
 different file by default. In that case, configure your tool to read
 ``AGENTS.md``, for example with the ``context.fileName`` setting of Gemini CLI
 or the ``read`` option of Aider. Don't add instructions for a specific tool to
-the repository.
+the repository. If a tool can only read its own file, such as ``CLAUDE.md``,
+that file may exist next to an ``AGENTS.md`` file, but it must contain nothing
+but a reference to it.
 
 .. note::
     An ``AGENTS.md`` file makes it more likely that your agent follows Bokeh's
@@ -103,7 +110,7 @@ them like documentation:
 
 A :ref:`codebase test <contributor_guide_testing_local_codebase>`
 (:bokeh-tree:`tests/codebase/test_agents_md.py`) checks every ``AGENTS.md``
-file. It fails if a file mentions a pixi task, a BokehJS build task, or a path
+file. It fails if a file mentions a pixi task, a BokehJS build task, or a file
 that doesn't exist, if a file is not linked from the top-level file, or if a
 file is longer than the size limit. To run this test, use the following
 command:

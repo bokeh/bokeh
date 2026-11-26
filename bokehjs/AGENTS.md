@@ -4,7 +4,7 @@ Read the root [AGENTS.md](../AGENTS.md) first. Explanations: `docs/bokeh/source/
 
 ## Commands
 
-Run `node make` commands in this directory, inside the pixi environment (`pixi shell`, or `pixi run node make build` from this directory). `node make help` lists all tasks.
+Run `node make` commands in this directory, inside the pixi environment (`pixi shell`, or `pixi run node make build` from this directory). `node make help` lists the main tasks.
 
 - `node make build`: full build. `node make dev` builds only the library and is faster.
 - `node make build lint`: lint TypeScript (Oxlint) and LESS (stylelint). Lint needs a current build. Add `--fix` to fix what can be fixed automatically. The pre-push hook runs this.
@@ -33,7 +33,7 @@ Run `node make` commands in this directory, inside the pixi environment (`pixi s
 - Create instances with the `create()` factory, for example `Range1d.create({start: 0, end: 1})`. A custom constructor that does more than forward attributes must be `protected`.
 - Overrides of `initialize()` and `connect_signals()` call the `super` method.
 - Shared enumerations are in `src/lib/core/enums.ts`.
-- After a change to a model or a default, run `pixi run test-defaults` from the repository root, then `node make test:defaults`.
+- After a change to a model or a default: build, run `pixi run reinstall` and `pixi run test-defaults` from the repository root, commit the regenerated `tests/baselines/defaults.json5`, then run `node make test:defaults`. Details are in [src/AGENTS.md](../src/AGENTS.md).
 
 ## TypeScript conventions
 

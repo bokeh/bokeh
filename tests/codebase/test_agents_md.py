@@ -14,7 +14,6 @@ unnoticed. They cannot tell whether a described convention is still correct.
 '''
 from __future__ import annotations
 
-import os
 import re
 import shlex
 import tomllib
@@ -22,7 +21,7 @@ from pathlib import Path
 
 import pytest
 
-from tests.support.util.project import TOP_PATH
+from tests.support.util.project import TOP_PATH, ls_files
 
 #: Agents load these files into their context in every session. A limit keeps
 #: the cost in tokens low, and stops a file from turning into a second
@@ -40,19 +39,22 @@ POINTER_FILES = {
 #: Executables that the files may run with ``pixi run``, in addition to tasks.
 EXECUTABLES = {"mypy", "node", "pyright", "pytest", "python", "ruff"}
 
-_SKIPPED_DIRS = {"build", "dist", "node_modules"}
-
-_CODE_SPAN = re.compile(r"`([^`\n]+)`")
+_FENCED_BLOCK = re.compile(r"^```[^\n]*\n(.*?)^```", re.DOTALL | re.MULTILINE)
+_CODE_SPAN = re.compile(r"(?<!`)(`+)(?!`)(.+?)(?<!`)\1(?!`)")
 _LINK = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
+
+#: A word that is a path if it contains a slash. Commands, patterns, and
+#: placeholders such as <name> are left out.
+_NOT_A_PATH = re.compile(r"[\s<>*=@#(]|^/|^-|://")
+
+#: Arguments of commands are only checked as paths if they name a file.
+_FILE_SUFFIXES = (".json", ".json5", ".md", ".py", ".pyi", ".rst", ".toml", ".ts", ".txt", ".yaml", ".yml")
 
 
 def _find(name: str) -> list[Path]:
-    found = []
-    for root, dirs, files in os.walk(TOP_PATH):
-        dirs[:] = [d for d in dirs if not d.startswith(".") and d not in _SKIPPED_DIRS]
-        if name in files:
-            found.append(Path(root) / name)
-    return sorted(found)
+    # only files that git knows, so that personal, untracked files are left alone
+    files = ls_files(name, f"**/{name}", ":!:**/node_modules/**")
+    return sorted(TOP_PATH / file for file in files if file)
 
 
 AGENTS_FILES = _find("AGENTS.md")
@@ -61,7 +63,18 @@ _ids = [path.relative_to(TOP_PATH).as_posix() for path in AGENTS_FILES]
 
 
 def _code_spans(path: Path) -> list[str]:
-    return _CODE_SPAN.findall(path.read_text(encoding="utf-8"))
+    ''' Return the inline code spans of a file, and the lines of its code blocks. '''
+    text = path.read_text(encoding="utf-8")
+    spans = [line.strip() for block in _FENCED_BLOCK.findall(text) for line in block.splitlines() if line.strip()]
+    spans += [match.group(2).strip() for match in _CODE_SPAN.finditer(_FENCED_BLOCK.sub("", text))]
+    return spans
+
+
+def _split(command: str) -> list[str]:
+    try:
+        return shlex.split(command)
+    except ValueError:
+        return command.split()
 
 
 def _commands(path: Path, prefix: str) -> list[list[str]]:
@@ -71,7 +84,7 @@ def _commands(path: Path, prefix: str) -> list[list[str]]:
         # a command may follow environment variables, as in "A=b pixi run task"
         index = span.find(prefix)
         if index == 0 or (index > 0 and span[index - 1] == " "):
-            commands.append(shlex.split(span[index + len(prefix):]))
+            commands.append(_split(span[index + len(prefix):]))
     return commands
 
 
@@ -97,7 +110,7 @@ def test_agents_files_exist() -> None:
 
 def test_nested_files_are_linked_from_the_root_file() -> None:
     root = (TOP_PATH / "AGENTS.md").read_text(encoding="utf-8")
-    links = set(_LINK.findall(root))
+    links = {link.removeprefix("./") for link in _LINK.findall(root)}
     nested = {path.relative_to(TOP_PATH).as_posix() for path in AGENTS_FILES} - {"AGENTS.md"}
     assert nested - links == set()
 
@@ -144,8 +157,17 @@ def test_paths_exist(path: Path) -> None:
     text = path.read_text(encoding="utf-8")
 
     candidates = [link for link in _LINK.findall(text) if "://" not in link]
-    # a code span that looks like a path, and not like a command or a pattern
-    candidates += [span for span in _code_spans(path) if "/" in span and not re.search(r"[\s<>*=@#(]|^/|^-|://", span)]
+    for span in _code_spans(path):
+        if " " not in span:
+            # a code span that looks like a path
+            if "/" in span and not _NOT_A_PATH.search(span):
+                candidates.append(span)
+        else:
+            # the files that a command names
+            candidates += [
+                arg for arg in _split(span)
+                if "/" in arg and arg.endswith(_FILE_SUFFIXES) and not _NOT_A_PATH.search(arg)
+            ]
 
     missing = []
     for candidate in candidates:
@@ -153,7 +175,7 @@ def test_paths_exist(path: Path) -> None:
         # paths are relative to the file or to the top of the repository
         if not (path.parent / target).exists() and not (TOP_PATH / target).exists():
             missing.append(candidate)
-    assert missing == []
+    assert missing == [], "these paths do not exist, relative to the file or to the top of the repository"
 
 
 @pytest.mark.parametrize("name", POINTER_FILES)
