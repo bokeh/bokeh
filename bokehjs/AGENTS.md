@@ -47,6 +47,7 @@ Run `node make` commands in this directory, inside the pixi environment (`pixi s
 - A regression test goes into `test/unit/regressions.ts` or `test/integration/regressions.ts`, in a `describe("in issue #NNNN")` block.
 - In visual tests, use `display()` and `fig()` from `test/framework/layouts.ts` (imported as `#framework/layouts`), and keep plots small.
 - Wait for views with `await view.ready`. Do not add arbitrary delays.
+- Extend an existing test when your case fits there, and keep new tests few. Every visual test adds baseline files that need review.
 
 ## Baselines of the visual tests
 

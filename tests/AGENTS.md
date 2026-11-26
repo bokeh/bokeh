@@ -28,6 +28,13 @@ Read the root [AGENTS.md](../AGENTS.md) first. Explanations: `docs/bokeh/source/
 - `tests/baselines/defaults.json5` and `tests/baselines/cross` are generated. Regenerate them with the commands above and commit the result. Do not edit them by hand.
 - Visual baselines belong to BokehJS, see [bokehjs/AGENTS.md](../bokehjs/AGENTS.md).
 
+## Add few tests, not many
+
+- Before you write a new test, look for an existing one that covers the same behavior. Extend it when your case fits there.
+- Cover adjacent cases with `@pytest.mark.parametrize` on one test. Do not write one test function per input.
+- Write a new test for new behavior, or when an existing test would become hard to read.
+- Do not weaken or remove existing assertions to make room for your case.
+
 ## A bug fix needs a regression test
 
-Add a test that fails without the fix. Mention the issue number in the test name or in a comment.
+Add or extend a test so that it fails without the fix. Mention the issue number in the test name, in a parameter id, or in a comment.

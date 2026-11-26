@@ -42,7 +42,7 @@ Do not report a check as passed unless you ran it and saw it pass.
 
 - Every pull request needs an issue that a maintainer has triaged, which means it no longer has the `TRIAGE` label. Link it in the description with `fixes #NNNN`. If there is no such issue, tell the contributor before you write code. Process: `docs/bokeh/source/docs/dev_guide/pull_requests.rst` and `docs/bokeh/source/docs/dev_guide/creating_issues.rst`.
 - Pull requests target the default branch, not `main`. It is named `branch-X.Y`, and `git symbolic-ref refs/remotes/origin/HEAD` shows it. Name your branch `<issue number>_<short_description>`.
-- Add or update tests with every code change.
+- Add or update tests with every code change. Prefer extending or parametrizing an existing test over adding many new ones.
 - A new feature or an API change needs an entry in the release notes of the next version under `docs/bokeh/source/docs/releases/`.
 - A change to a model or property in Python needs the matching change in BokehJS, and the reverse.
 - Fill in the checklist of `.github/PULL_REQUEST_TEMPLATE.md`. Do not remove it. Leave an item that does not apply unchecked and say why.
