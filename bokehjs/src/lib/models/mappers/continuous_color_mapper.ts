@@ -5,6 +5,7 @@ import type * as p from "core/properties"
 
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {map, intersection, is_empty} from "core/util/array"
+import {filter} from "core/util/arrayable"
 import {isNumber, isArray} from "core/util/types"
 
 export namespace ContinuousColorMapper {
@@ -85,7 +86,12 @@ export abstract class ContinuousColorMapper extends ColorMapper {
           continue
         }
 
-        let array = renderer.view.indices.select(column)
+        const indices = renderer.view.indices
+        // Keep valid rows while the view still describes the old, longer
+        // source. Convert to a plain array so mapping preserves column values.
+        let array = indices.size > column.length
+          ? [...indices.ones()].filter((i) => i < column.length).map((i) => column[i])
+          : indices.select(column)
 
         const masked = renderer.view.masked
         const selected = renderer.data_source.selected.indices
@@ -100,6 +106,10 @@ export abstract class ContinuousColorMapper extends ColorMapper {
         }
 
         if (subset != null) {
+          // The mask and selection can also be stale with respect to the
+          // column during a data change; ignore out-of-range indices instead
+          // of collecting undefined values and throwing (#15829).
+          subset = filter(subset, (i) => i < array.length)
           array = map(subset, (i) => array[i])
         }
 
