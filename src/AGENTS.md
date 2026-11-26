@@ -24,7 +24,10 @@ Copy the layout of a neighboring module, for example `src/bokeh/models/ranges.py
 ## Conventions that tools do not enforce
 
 - Docstrings use the Google style, with `Args:` and `Returns:`. They are reStructuredText and end up in the reference documentation.
-- New code is fully typed. Avoid `Any`.
+- New code is fully typed. Do not use `Any`, a cast, or a `type: ignore` to make a type checker pass. Fix the type.
+- Do not add guards, fallbacks, conversions, or `try`/`except` for states that the code cannot reach. Do not catch broad exceptions.
+- Keep existing behavior unless the issue asks for a change. Watch for masked arrays, NaN and `None`, and the endpoints of ranges and palettes. Back a performance claim with a benchmark that a reviewer can run.
+- Do not fix a mutable default argument with `None`, because that changes the signature. Use an immutable default such as `()`, or copy the input.
 - Many modules have a hand-written `.pyi` stub next to them, for example `src/bokeh/models/ranges.pyi`. When you change a public signature or a property of such a module, update its stub, including the `_...Init` class of a model.
 - Lines can be up to 165 characters long. Do not rewrap existing code.
 

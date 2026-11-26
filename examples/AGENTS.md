@@ -17,6 +17,7 @@ Read the root [AGENTS.md](../AGENTS.md) first. The scripts in this directory are
 - Is a complete script that a user can copy and run. Keep it short, and show one idea.
 - Uses only Bokeh, its required dependencies, and the packages that the examples already use. Do not add a dependency for an example.
 - Ends by showing or saving its output, the way the neighboring examples do.
+- Uses current API. Do not copy deprecated calls from old code, and run the example to see that it emits no deprecation warning.
 
 ## Gallery and documentation
 

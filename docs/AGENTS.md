@@ -40,8 +40,9 @@ The build treats warnings as errors. A new warning is a failed build, so fix its
 ## Release notes
 
 - A new feature or an API change gets an entry in the file of the next version, the newest file in `docs/bokeh/source/docs/releases`.
+- A new feature also needs a place in the user guide and an example. See [examples/AGENTS.md](../examples/AGENTS.md).
 - Add a bullet to the matching section, such as "New features". Follow the wording of the existing entries.
-- Reference classes with `:class:` and the issue or pull request with `:bokeh-issue:` or `:bokeh-pull:`.
+- Reference classes with `:class:`, and the pull request with `:bokeh-pull:` and its number. Do not add the issue as well. The number exists only after the pull request is opened, so add the reference in a follow-up commit.
 - A bug fix that users notice can get a bullet under "Bug fixes". Ask the contributor.
 
 ## A new public model

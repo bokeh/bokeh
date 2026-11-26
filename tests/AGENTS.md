@@ -28,13 +28,14 @@ Read the root [AGENTS.md](../AGENTS.md) first. Explanations: `docs/bokeh/source/
 - `tests/baselines/defaults.json5` and `tests/baselines/cross` are generated. Regenerate them with the commands above and commit the result. Do not edit them by hand.
 - Visual baselines belong to BokehJS, see [bokehjs/AGENTS.md](../bokehjs/AGENTS.md).
 
-## Add few tests, not many
+## What a good test looks like here
 
-- Before you write a new test, look for an existing one that covers the same behavior. Extend it when your case fits there.
-- Cover adjacent cases with `@pytest.mark.parametrize` on one test. Do not write one test function per input.
-- Write a new test for new behavior, or when an existing test would become hard to read.
-- Do not weaken or remove existing assertions to make room for your case.
+These points come up most often in reviews.
 
-## A bug fix needs a regression test
-
-Add or extend a test so that it fails without the fix. Mention the issue number in the test name, in a parameter id, or in a comment.
+- A test for a bug fix fails without the fix. Run it against the unfixed code and see it fail, on an assertion, before you say it covers the bug.
+- One behavior per test. Do not mix cases that pass with cases that raise, and do not use `if` in a test body.
+- Cover the same behavior for several inputs, such as a list and a NumPy array, with `@pytest.mark.parametrize`. Do not copy the test body.
+- Before you add a test, check whether an existing test already covers the behavior. Do not duplicate it.
+- Cover the edge cases of the change, such as empty input, `None`, NaN, and negative indices.
+- Do not weaken or remove an existing assertion to make a test pass.
+- Mention the issue number in the name of a regression test or in a comment.

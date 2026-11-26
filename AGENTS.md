@@ -1,69 +1,83 @@
 # Bokeh: instructions for coding agents
 
-This file is for AI coding agents that work on the Bokeh repository. It lists commands and rules that are easy to get wrong. Explanations are in the contributor guide under `docs/bokeh/source/docs/dev_guide/`. Read the page for your task before you start.
+For AI coding agents that work on this repository. It lists commands and rules that are easy to get wrong. Explanations are in the contributor guide under `docs/bokeh/source/docs/dev_guide/`. Read the page for your task.
 
-## Repository map
-
-| Path | Content | More instructions |
-| --- | --- | --- |
-| `src/bokeh` | Python library | [src/AGENTS.md](src/AGENTS.md) |
-| `bokehjs` | BokehJS, the TypeScript library that renders in the browser | [bokehjs/AGENTS.md](bokehjs/AGENTS.md) |
-| `docs/bokeh` | Sphinx documentation, including the contributor guide | [docs/AGENTS.md](docs/AGENTS.md) |
-| `examples` | Example scripts, also used by the docs and the tests | [examples/AGENTS.md](examples/AGENTS.md) |
-| `tests` | Python tests and shared baselines | [tests/AGENTS.md](tests/AGENTS.md) |
-| `tools` | CI, release, and maintenance scripts | |
-
-Read the nested file before you change anything in that directory.
-
-## Setup
+## Commands
 
 All tools run through [pixi](https://pixi.sh). Details: `docs/bokeh/source/docs/dev_guide/setup.rst`.
 
-- `pixi run setup`: first-time setup. Builds BokehJS and installs Bokeh in editable mode. Run it again when `bokehjs/package-lock.json` changes.
-- `pixi run reinstall`: rebuild after pulling changes.
-- `pixi run python tools/hooks/install.py`: install the git hooks, once per clone.
-- Prefix every command with `pixi run`, for example `pixi run pytest tests/unit/bokeh/models/test_ranges.py`. The default environment is right for almost everything. Select another one from `pixi.toml` with `-e` only when a task needs it.
+```sh
+pixi run setup                          # first-time setup, and after bokehjs/package-lock.json changes
+pixi run python tools/hooks/install.py  # git hooks, once per clone
+pixi run reinstall                      # rebuild after pulling changes or editing BokehJS
+pixi run pytest tests/unit/bokeh/models/test_ranges.py  # one test file
+pixi run test-py                        # all Python unit tests
+pixi run test-codebase                  # repository-wide checks, including ruff
+pixi run mypy                           # type checks
+pixi run test-js-unit                   # BokehJS unit tests
+pixi run check-formatting               # whitespace and line endings, fixes files in place
+```
+
+- Run the tests for what you changed first, not whole suites.
 - Leave `BOKEH_RESOURCES` and `BOKEH_DEV` unset when you run tests or build the docs.
-- A change to dependencies goes into `pixi.toml`, followed by `pixi lock`. Commit both files.
+- Do not report a check as passed unless you ran it and saw it pass. Do not call a failure pre-existing unless you saw it fail without your change.
 
-## Checks to run before a pull request
+## Nested instructions
 
-Run the checks for the area you changed. The nested files list more specific ones.
+Read the file for a directory before you change anything there: [src/AGENTS.md](src/AGENTS.md) (Python library), [bokehjs/AGENTS.md](bokehjs/AGENTS.md) (BokehJS), [docs/AGENTS.md](docs/AGENTS.md), [examples/AGENTS.md](examples/AGENTS.md), [tests/AGENTS.md](tests/AGENTS.md).
 
-- `pixi run test-py`: Python unit tests. Pass a path to run a subset, for example `pixi run pytest tests/unit/bokeh/core`.
-- `pixi run test-codebase`: repository-wide checks, including `ruff`. This also runs in the pre-push hook.
-- `pixi run mypy`: type checks.
-- `pixi run test-js-unit`: BokehJS unit tests. Lint BokehJS as described in [bokehjs/AGENTS.md](bokehjs/AGENTS.md).
-- `pixi run check-formatting`: whitespace and line-ending checks, as in CI. It fixes files in place.
+## Before you start
 
-Do not report a check as passed unless you ran it and saw it pass.
+- Every pull request needs an issue that a maintainer has triaged, so it no longer has the `TRIAGE` label. If there is none, tell the contributor before you write code.
+- Check whether the issue already has a pull request, in its "Development" section or with `gh pr list --search "<issue number>"`. If one exists, do not open a competing one. Recommend that the contributor joins the discussion there and offers their findings.
+- Branch from the default branch, which `git symbolic-ref refs/remotes/origin/HEAD` shows. It is named `branch-X.Y`, not `main`. Name your branch `<issue number>_<short_description>`.
 
-## Rules for every contribution
+## Rules for the change
 
-- Every pull request needs an issue that a maintainer has triaged, which means it no longer has the `TRIAGE` label. Link it in the description with `fixes #NNNN`. If there is no such issue, tell the contributor before you write code. Process: `docs/bokeh/source/docs/dev_guide/pull_requests.rst` and `docs/bokeh/source/docs/dev_guide/creating_issues.rst`.
-- Pull requests target the default branch, not `main`. It is named `branch-X.Y`, and `git symbolic-ref refs/remotes/origin/HEAD` shows it. Name your branch `<issue number>_<short_description>`.
-- Add or update tests with every code change. Prefer extending or parametrizing an existing test over adding many new ones.
-- A new feature or an API change needs an entry in the release notes of the next version under `docs/bokeh/source/docs/releases/`.
-- A change to a model or property in Python needs the matching change in BokehJS, and the reverse.
-- Fill in the checklist of `.github/PULL_REQUEST_TEMPLATE.md`. Do not remove it. Leave an item that does not apply unchecked and say why.
 - Keep the change focused on the issue. Do not reformat or refactor unrelated code.
-- Do not push to `main` or a `branch-X.Y` branch, and do not merge pull requests.
+- When you fix a pattern, search for its other occurrences and fix them too, or say why not.
+- Add or update tests with every code change. See [tests/AGENTS.md](tests/AGENTS.md).
+- A change to a model or property in Python needs the matching change in BokehJS, and the reverse.
+- A new feature or an API change needs a release note. See [docs/AGENTS.md](docs/AGENTS.md).
+- Comments explain why, not what. Do not add comments that narrate your change or restate the code.
+- Review `git status` and the whole diff before each commit. Stage only what the change needs. No scratch files, and no lockfile changes you did not intend.
+- Update your branch with a rebase on the default branch. Do not merge the default branch into it.
+
+## Ask first, and never
+
+Ask the contributor before you:
+
+- add or update a dependency (`pixi.toml` and `pixi.lock`, or `bokehjs/package.json`)
+- change or remove public API, or change existing behavior
+- change files under `.github` or `tools`
+- accept new or changed visual baselines
+
+Never:
+
+- push to `main` or `branch-X.Y`, merge a pull request, or request a review on your own
+- edit generated files by hand, or weaken a test, a type, or a lint rule to make a check pass
+- open several pull requests for one issue, or close one and open it again
+
+## Pull requests
+
+- Keep the checklist of `.github/PULL_REQUEST_TEMPLATE.md` and fill it in. Link the issue with `fixes #NNNN`. Leave an item that does not apply unchecked and say why.
+- The title is a plain sentence in ASCII, without emoji. The changelog is generated from titles.
+- Keep the description short. Say what changed and why, and what you could not verify. Do not list the diff file by file.
 
 ## AI contributions
 
-Bokeh's [AI Contribution Guidelines](https://github.com/bokeh/bokeh/wiki/BEP-1:-Issues-and-PRs-management#ai-contribution-guidelines) apply to everything you help produce. Read them. The most important point: the contributor must understand the contribution and be able to explain it. Do not present work the contributor has not reviewed as ready.
+Bokeh's [AI Contribution Guidelines](https://github.com/bokeh/bokeh/wiki/BEP-1:-Issues-and-PRs-management#ai-contribution-guidelines) apply to everything you help produce. Read them. The contributor must understand the contribution and be able to explain it. Do not present work as ready that the contributor has not reviewed.
 
-Disclose AI involvement, every time. This rule is stricter than the guidelines on purpose.
+Disclose AI involvement, every time. This is stricter than the guidelines on purpose.
 
-- Every pull request description, issue, and comment you write or help write says that an AI tool was involved.
-- Name the tool and say what it did, for example "drafted the fix and the tests" or "wrote this description".
+- Every pull request description, issue, and comment you write or help write says that an AI tool was involved, which tool, and what it did.
 - Say what the contributor did, but only what you know to be true.
 - Do not remove a disclosure, and do not leave it out because the AI part was small.
 - Disclosure does not make a contribution acceptable. The guidelines do not accept AI-generated comments and reviews, or pasted AI responses. Help the contributor write their own.
 
 ## Keep these files current
 
-- A pull request that changes a command, path, tool, or convention described in an `AGENTS.md` file updates that file in the same pull request.
-- Keep the files short. They cost tokens in every session. Put explanations in the contributor guide and link to them from here.
-- `tests/codebase/test_agents_md.py` checks the commands, paths, and size of every `AGENTS.md`. Run it after you edit one: `pixi run pytest tests/codebase/test_agents_md.py`.
+- A pull request that changes a command, path, tool, or convention described in an `AGENTS.md` file updates that file.
+- Keep the files short. They cost tokens in every session. Explanations go into the contributor guide.
+- `tests/codebase/test_agents_md.py` checks the commands, paths, and size of every `AGENTS.md`.
 - For people: `docs/bokeh/source/docs/dev_guide/ai_tools.rst`.

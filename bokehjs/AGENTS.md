@@ -40,20 +40,25 @@ Run `node make` commands in this directory, inside the pixi environment (`pixi s
 - Double quotes for strings, template literals for interpolation.
 - No `for...in` loops.
 - No semicolons at the end of statements. Follow the style of the surrounding file and let `node make lint --fix` decide.
+- Prefer `const`. Do not add type annotations that the compiler infers, and do not add a cast without a comment that says why it is safe.
+- Connect event listeners and signals in `connect_signals()`, not in constructors or render methods.
 - Do not add dependencies to `package.json` without asking the contributor. The license check in `tests/codebase/test_js_license_set.py` will fail.
 
 ## Tests
 
-- A regression test goes into `test/unit/regressions.ts` or `test/integration/regressions.ts`, in a `describe("in issue #NNNN")` block.
+- A change to rendering needs a visual test in `test/integration`. A unit test is not enough, because it passes when the output is wrong in a consistent way.
+- A regression test goes into `test/unit/regressions.ts` or `test/integration/regressions.ts`, as `describe("in issue #NNNN")` with an `it("doesn't allow ...")` that names the bug. It fails without the fix.
 - In visual tests, use `display()` and `fig()` from `test/framework/layouts.ts` (imported as `#framework/layouts`), and keep plots small.
-- Wait for views with `await view.ready`. Do not add arbitrary delays.
-- Extend an existing test when your case fits there, and keep new tests few. Every visual test adds baseline files that need review.
+- `await display()` already waits for the view. After later changes to a model, use `await view.ready`. Do not add arbitrary delays.
 
 ## Baselines of the visual tests
 
-- Baselines exist only for Linux, and only a containerized run produces the official ones.
-- `node make baseline-test` runs the visual tests in a container (Docker, or Podman with `BOKEHJS_CONTAINER_ENGINE=podman`). `node make baseline-test:review` shows the differences, and `node make baseline-test:accept` stages the new baselines.
-- A run that creates or changes baselines fails on purpose. Look at the differences before you accept them.
-- Do not commit baselines from a run of `node make test:integration` on the host. Use that only to iterate.
-- A changed baseline is a visible change. Explain it in the pull request, and never accept a difference you cannot explain.
+A new or changed visual test needs new baseline files (`.png` and `.blf`) in the same pull request. Missing baselines are the most common reason for a failing BokehJS CI run.
+
+- Baselines exist only for Linux and come from one container image. Do not commit baselines from macOS, Windows, or a run of `node make test:integration` on the host. Use that only to iterate.
+- With a container engine: `node make baseline-test` runs the tests in that container (Docker, or Podman with `BOKEHJS_CONTAINER_ENGINE=podman`). `node make baseline-test:review` shows the differences, and `node make baseline-test:accept` stages the files.
+- Without one: push, let the BokehJS CI job fail, download its `bokehjs-report` artifact, unpack it at the top of the repository, and commit the new baseline files.
+- A run that creates or changes baselines fails on purpose. Run it again after you commit the files.
+- When you rename a test, rename its baseline files.
+- Every changed baseline is a visible change. Look at each one, explain it in the pull request, and never accept a difference you cannot explain.
 - The default tolerance is zero pixels. `it.allowing(n)` needs a comment that says why.
