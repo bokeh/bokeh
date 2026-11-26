@@ -28,8 +28,11 @@ Read the file for a directory before you change anything there: [src/AGENTS.md](
 
 ## Before you start
 
-- Every pull request needs an issue that a maintainer has triaged, so it no longer has the `TRIAGE` label. If there is none, tell the contributor before you write code.
-- Check whether the issue already has a pull request, in its "Development" section or with `gh pr list --search "<issue number>"`. If one exists, do not open a competing one. Recommend that the contributor joins the discussion there and offers their findings.
+Check the issue first: `gh issue view <number> -R bokeh/bokeh --json state,labels,closedByPullRequestsReferences`.
+
+- Every pull request needs an open issue that a maintainer has triaged, so it no longer has the `TRIAGE` label. If there is none, stop and tell the contributor. Do not write code for it.
+- If the issue already has a pull request by someone else, do not open a competing one, even if it is a draft. Recommend that the contributor joins the discussion there and offers their findings. If it is the contributor's own, continue on its branch.
+- Reproduce a bug, and check the cause that the issue states against the code, before you fix anything. Report it if they do not match.
 - Branch from the default branch, which `git symbolic-ref refs/remotes/origin/HEAD` shows. It is named `branch-X.Y`, not `main`. Name your branch `<issue number>_<short_description>`.
 
 ## Rules for the change
@@ -54,7 +57,7 @@ Ask the contributor before you:
 
 Never:
 
-- push to `main` or `branch-X.Y`, merge a pull request, or request a review on your own
+- push to `main` or `branch-X.Y`, or to a remote the contributor did not name, merge a pull request, or request a review on your own
 - edit generated files by hand, or weaken a test, a type, or a lint rule to make a check pass
 - open several pull requests for one issue, or close one and open it again
 

@@ -32,7 +32,7 @@ Read the root [AGENTS.md](../AGENTS.md) first. Explanations: `docs/bokeh/source/
 
 These points come up most often in reviews.
 
-- A test for a bug fix fails without the fix. Run it against the unfixed code and see it fail, on an assertion, before you say it covers the bug.
+- A test for a bug fix fails without the fix. Run it against the unfixed code and see it fail, on an assertion, before you say it covers the bug. For visual tests, see [bokehjs/AGENTS.md](../bokehjs/AGENTS.md).
 - One behavior per test. Do not mix cases that pass with cases that raise, and do not use `if` in a test body.
 - Cover the same behavior for several inputs, such as a list and a NumPy array, with `@pytest.mark.parametrize`. Do not copy the test body.
 - Before you add a test, check whether an existing test already covers the behavior. Do not duplicate it.

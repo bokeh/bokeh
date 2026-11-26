@@ -9,9 +9,9 @@ Run `node make` commands in this directory, inside the pixi environment (`pixi s
 - `node make build`: full build. `node make dev` builds only the library and is faster.
 - `node make build lint`: lint TypeScript (Oxlint) and LESS (stylelint). Lint needs a current build. Add `--fix` to fix what can be fixed automatically. The pre-push hook runs this.
 - `node make test:unit`: unit tests. Same as `pixi run test-js-unit`.
-- `node make test:defaults`: model defaults against `tests/baselines/defaults.json5`. Same as `pixi run test-js-defaults`.
+- `node make test:defaults`: model defaults against the baseline that Python generates. Same as `pixi run test-js-defaults`.
 - `node make test:codebase`: checks on the build output. Same as `pixi run test-js-codebase`.
-- `node make test:integration`: visual tests. Same as `pixi run test-js-integration`. See the section on baselines.
+- `node make test:integration`: visual tests. Same as `pixi run test-js-integration`. Build first, and see the section on baselines.
 - Select tests with `-k "substring"`, `-g "regex"`, or `-f path`. Example: `node make test:unit -f core/util/array -k linspace`.
 - After a change to BokehJS, run `pixi run reinstall` from the repository root before you run Python tests or examples against it.
 
@@ -47,7 +47,7 @@ Run `node make` commands in this directory, inside the pixi environment (`pixi s
 ## Tests
 
 - A change to rendering needs a visual test in `test/integration`. A unit test is not enough, because it passes when the output is wrong in a consistent way.
-- A regression test goes into `test/unit/regressions.ts` or `test/integration/regressions.ts`, as `describe("in issue #NNNN")` with an `it("doesn't allow ...")` that names the bug. It fails without the fix.
+- A regression test goes into `test/unit/regressions.ts` or `test/integration/regressions.ts`, as `describe("in issue #NNNN")` with an `it(...)` whose text completes the sentence "Bug in issue #NNNN ...", for example `it("doesn't allow ...")`. A visual test has no assertion, so look at its image before and after the fix and confirm that only the fixed one is right.
 - In visual tests, use `display()` and `fig()` from `test/framework/layouts.ts` (imported as `#framework/layouts`), and keep plots small.
 - `await display()` already waits for the view. After later changes to a model, use `await view.ready`. Do not add arbitrary delays.
 
@@ -55,9 +55,10 @@ Run `node make` commands in this directory, inside the pixi environment (`pixi s
 
 A new or changed visual test needs new baseline files (`.png` and `.blf`) in the same pull request. Missing baselines are the most common reason for a failing BokehJS CI run.
 
-- Baselines exist only for Linux and come from one container image. Do not commit baselines from macOS, Windows, or a run of `node make test:integration` on the host. Use that only to iterate.
+- Baselines exist only for Linux and come from one container image. Do not commit baselines from macOS, Windows, or a run of `node make test:integration` on the host. Use that only to iterate, and discard the files it writes to `test/baselines/linux`.
+- A baseline file is named after its test.
 - With a container engine: `node make baseline-test` runs the tests in that container (Docker, or Podman with `BOKEHJS_CONTAINER_ENGINE=podman`). `node make baseline-test:review` shows the differences, and `node make baseline-test:accept` stages the files.
-- Without one: push, let the BokehJS CI job fail, download its `bokehjs-report` artifact, unpack it at the top of the repository, and commit the new baseline files.
+- Without one: the visual tests in CI run only for pull requests. With the contributor's consent, open a draft pull request and let the BokehJS-CI workflow fail. Then run `gh run download <run id> -n bokehjs-report -D .` at the top of the repository and commit the new baseline files.
 - A run that creates or changes baselines fails on purpose. Run it again after you commit the files.
 - When you rename a test, rename its baseline files.
 - Every changed baseline is a visible change. Look at each one, explain it in the pull request, and never accept a difference you cannot explain.
