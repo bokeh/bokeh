@@ -27,7 +27,7 @@ Markdown alternative next to content that only makes sense in HTML.
 # -----------------------------------------------------------------------------
 from __future__ import annotations
 
-import logging  # isort:skip
+from sphinx.util import logging  # isort:skip
 
 log = logging.getLogger(__name__)
 
@@ -109,11 +109,21 @@ def setup(app: Any) -> SphinxParallelSpec:
     for node, handlers in _STANDARD_NODE_HANDLERS.items():
         app.add_node(node, override=True, **{MARKDOWN_FORMAT: handlers})
 
+    app.connect("build-finished", _fail_on_warnings)
+
     return PARALLEL_SAFE
 
 # -----------------------------------------------------------------------------
 # Private API
 # -----------------------------------------------------------------------------
+
+
+def _fail_on_warnings(app: Any, exception: Exception | None) -> None:
+    # sphinx_llm runs the Markdown build in a second process, without -W, and
+    # only reports a failed process to the HTML build. Fail on warnings, so
+    # that a problem in a Markdown page does not go unnoticed.
+    if exception is None and is_markdown_build(app) and app._warncount > 0:
+        app.statuscode = 1
 
 
 def _visit_raw(translator: Any, node: nodes.raw) -> None:
@@ -135,10 +145,15 @@ def _visit_image(translator: Any, node: nodes.image) -> None:
     # image files of the HTML build, relative to the current page.
     uri = node["uri"]
     builder = translator.builder
-    image = builder.env.images.get(uri)
-    if image is not None:
+    images = builder.env.images
+    # an image given as a pattern, such as plot.*, has one candidate per file type
+    candidates = [uri, *sorted(node.get("candidates", {}).values())]
+    local = next((candidate for candidate in candidates if candidate in images), None)
+    if local is not None:
         docdir = posixpath.dirname(builder.current_doc_name)
-        uri = posixpath.relpath(posixpath.join("_images", image[1]), docdir or ".")
+        uri = posixpath.relpath(posixpath.join("_images", images[local][1]), docdir or ".")
+    elif "://" not in uri:
+        log.warning(f"no image file for {uri!r} in the Markdown version of {builder.current_doc_name!r}")
     translator.add(f"![{node.get('alt', 'image')}]({uri})")
     raise nodes.SkipNode
 

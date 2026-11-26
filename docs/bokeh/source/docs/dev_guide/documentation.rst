@@ -452,6 +452,10 @@ A build with ``make all`` fails if the Markdown build emits a warning. Run it
 before you open a pull request that changes a custom Sphinx directive, role, or
 node.
 
+Run ``make clean`` before you switch between ``make html`` and ``make all`` in
+the same build directory. Otherwise, HTML pages that have not changed do not
+link to their Markdown version, or Markdown pages are out of date.
+
 The Markdown pages contain the text, tables, and code of a page, including the
 source code of every ``bokeh-plot`` example. They do not contain plots or other
 content that only works in HTML. If you write or change a custom Sphinx

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from io import StringIO
 from pathlib import Path
 from textwrap import dedent
@@ -16,12 +17,14 @@ from bokeh.sphinxext._internal.bokeh_color import BokehColorDirective
 from bokeh.sphinxext._internal.bokeh_dataframe import _dataframe_markdown
 from bokeh.sphinxext._internal.bokeh_markdown import (
     MARKDOWN_FORMAT,
+    _fail_on_warnings,
     is_markdown_build,
     markdown_block,
     markdown_inline,
 )
 from bokeh.sphinxext._internal.bokeh_palette import _palette_markdown, bokeh_palette
 from bokeh.sphinxext._internal.bokeh_palette_group import _palette_group_markdown
+from bokeh.sphinxext._internal.templates import RELEASE_DETAIL
 from bokeh.sphinxext.bokeh_plot import (
     add_page_resources,
     autoload_script,
@@ -43,7 +46,6 @@ def _build_markdown(source: Path, tmp_path: Path) -> list[str]:
         status=None, warning=warnings, freshenv=True,
     )
     app.build()
-    assert app.statuscode == 0
     # Sphinx warns about its own nodes when a process creates more than one application
     return [line for line in warnings.getvalue().splitlines() if "is already registered" not in line]
 
@@ -56,6 +58,34 @@ def test_is_markdown_build() -> None:
     assert is_markdown_build(SimpleNamespace(builder=SimpleNamespace(format="markdown")))
     assert not is_markdown_build(SimpleNamespace(builder=SimpleNamespace(format="html")))
     assert not is_markdown_build(SimpleNamespace(builder=None))
+
+
+@pytest.mark.parametrize("builder_format, warncount, statuscode", [
+    ("markdown", 0, 0),
+    ("markdown", 1, 1),
+    ("html", 1, 0),
+])
+def test_markdown_build_fails_on_warnings(builder_format: str, warncount: int, statuscode: int) -> None:
+    app = SimpleNamespace(builder=SimpleNamespace(format=builder_format), _warncount=warncount, statuscode=0)
+    _fail_on_warnings(app, None)
+    assert app.statuscode == statuscode
+
+
+def test_sphinx_counts_warnings() -> None:
+    # _fail_on_warnings depends on this private attribute
+    assert "_warncount" in Sphinx.__annotations__
+
+
+def test_release_template_has_a_markdown_table() -> None:
+    rendered = RELEASE_DETAIL.render(version="3.0.0", table=[("bokeh-3.0.0.js", "abc"), ("bokeh-3.0.0.min.js", "def")])
+    assert rendered.rstrip().endswith(
+        "    .. raw:: markdown\n\n"
+        "        | Filename | Hash |\n"
+        "        | --- | --- |\n"
+        "        | `bokeh-3.0.0.js` | `abc` |\n"
+        "        | `bokeh-3.0.0.min.js` | `def` |",
+    )
+    assert "raw:: markdown" not in RELEASE_DETAIL.render(version="3.0.0", table=[])
 
 
 def test_markdown_nodes_are_only_for_markdown() -> None:
@@ -284,3 +314,72 @@ def test_markdown_build_of_html_only_content(tmp_path: Path) -> None:
 
     for html_only in ("Not part of the page", "an author comment", "html-only", "<script", "bokeh-content-", "<span"):
         assert html_only not in text
+
+
+# sphinx_llm uses a deprecated docutils API
+@pytest.mark.filterwarnings("ignore:.*traverse.*")
+def test_html_and_markdown_pages_are_published_together(tmp_path: Path) -> None:
+    pytest.importorskip("sphinx_llm")
+
+    source = tmp_path / "source"
+    (source / "pics").mkdir(parents=True)
+    (source / "pics" / "dot.png").write_bytes(_PNG)
+    (source / "sub").mkdir()
+    (source / "conf.py").write_text(dedent("""
+        project = "Test"
+        extensions = [
+            "sphinx_llm.txt",
+            "bokeh.sphinxext.bokeh_plot",
+            "bokeh.sphinxext._internal.bokeh_markdown",
+        ]
+        llms_txt_build_parallel = False
+        llms_txt_nested_enabled = False
+        llms_txt_suffix_mode = "replace"
+    """))
+    (source / "index.rst").write_text(dedent("""
+        Title
+        =====
+
+        .. toctree::
+
+            sub/page
+    """))
+    (source / "sub" / "page.rst").write_text(dedent("""
+        Page
+        ====
+
+        Back to :doc:`the start </index>`.
+
+        .. image:: /pics/dot.png
+            :alt: a dot
+
+        .. bokeh-plot::
+            :source-position: none
+
+            from bokeh.plotting import figure, show
+
+            hidden = figure()
+            hidden.scatter([1, 2], [3, 4])
+            show(hidden)
+    """))
+
+    out = tmp_path / "out"
+    warnings = StringIO()
+    app = Sphinx(str(source), str(source), str(out), str(tmp_path / "doctrees"), "html", status=None, warning=warnings)
+    app.build()
+    assert [line for line in warnings.getvalue().splitlines() if "is already registered" not in line] == []
+
+    assert (out / "llms.txt").is_file()
+    html = (out / "sub" / "page.html").read_text()
+    assert 'type="text/markdown" href="page.md"' in html
+    # the stand-in for the source of the plot is only for Markdown
+    assert "hidden.scatter" not in html
+
+    page = (out / "sub" / "page.md").read_text()
+    assert "hidden.scatter([1, 2], [3, 4])" in page
+    assert "<script" not in page
+    targets = re.findall(r"\]\(([^)#]+)", page)
+    assert "../index.md" in targets
+    assert "../_images/dot.png" in targets
+    for target in targets:
+        assert (out / "sub" / target).is_file(), target

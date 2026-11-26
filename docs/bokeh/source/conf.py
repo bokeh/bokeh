@@ -128,6 +128,14 @@ llms_txt_exclude = [
     "docs/reference/models/*/*/**",  # one page per model, linked from docs/reference/models/*
 ]
 
+# The former pages of the model reference only say where a model has moved.
+# They are generated before the build, by api_reference.
+llms_txt_exclude += sorted(
+    path.relative_to(Path(__file__).parent).with_suffix("").as_posix()
+    for path in (Path(__file__).parent / "docs" / "reference" / "models").glob("*/*.rst")
+    if "data-bokeh-model-redirect" in path.read_text(encoding="utf-8")
+)
+
 # An llms.txt in every directory would mostly repeat the reference tree.
 llms_txt_nested_enabled = False
 

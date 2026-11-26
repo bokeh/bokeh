@@ -257,9 +257,8 @@ class BokehPlotDirective(BokehDirective):
         only = addnodes.only(expr=MARKDOWN_FORMAT)
         set_source_info(self, only)
 
-        from ._internal import REPO_TOP
-        repo_path = relpath(path, REPO_TOP).replace(sep, "/")
-        if self.arguments and not repo_path.startswith("..") and _BOKEH_ROLES in self.env.config.extensions:
+        repo_path = _repo_path(path) if self.arguments else None
+        if repo_path is not None and _BOKEH_ROLES in self.env.config.extensions:
             text = f"The plot at this position is not part of this Markdown page. Its source code is :bokeh-tree:`{repo_path}`."
             only += self.parse(text, "<bokeh-content>")
         else:
@@ -439,11 +438,21 @@ def setup(app: Any) -> _PlotSphinxSpec:
     app.connect("env-merge-info", env_merge_info)
     app.connect("env-purge-doc", env_purge_doc)
 
-    return _PlotSphinxSpec(**PARALLEL_SAFE, env_version=2)
+    return _PlotSphinxSpec(**PARALLEL_SAFE, env_version=3)
 
 # -----------------------------------------------------------------------------
 # Private API
 # -----------------------------------------------------------------------------
+
+
+def _repo_path(path: str) -> str | None:
+    """Return a path relative to the Bokeh repository, or None for a path outside of it."""
+    from ._internal import REPO_TOP
+    try:
+        repo_path = relpath(path, REPO_TOP).replace(sep, "/")
+    except ValueError:  # a different drive on Windows
+        return None
+    return None if repo_path.startswith("..") else repo_path
 
 
 def _remove_plots(doctree: nodes.document) -> None:
