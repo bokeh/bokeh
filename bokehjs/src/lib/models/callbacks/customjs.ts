@@ -9,7 +9,7 @@ import {logger} from "core/logging"
 import type {Dict} from "core/types"
 import {isFunction} from "core/util/types"
 import type {ViewManager} from "core/view_manager"
-import {index} from "embed/standalone"
+import {index} from "embed/views_index"
 
 type KV = {[key: string]: unknown}
 type Context = {index: ViewManager}
@@ -34,7 +34,7 @@ export namespace CustomJS {
 
 export interface CustomJS extends CustomJS.Attrs {}
 
-export class CustomJS extends Callback {
+export class CustomJS<_Args extends unknown[] = [], Ret = unknown> extends Callback {
   declare properties: CustomJS.Props
 
   static {
@@ -111,26 +111,26 @@ export class CustomJS extends Callback {
     return this._state
   }
 
-  async execute(obj: Model, data: KV = {}): Promise<unknown> {
+  async execute(obj: Model, data: KV = {}): Promise<Ret> {
     const {func, module} = await this.state()
     const context = {index}
     if (module) {
-      return func(to_object(this.args), obj, data, context)
+      return func(to_object(this.args), obj, data, context) as Promise<Ret>
     } else {
-      return func.call(obj, obj, data, context)
+      return func.call(obj, obj, data, context) as Promise<Ret>
     }
   }
 
-  execute_sync(obj: Model, data: KV = {}): unknown {
+  execute_sync(obj: Model, data: KV = {}): Ret {
     if (this._state == null) {
       throw new Error(`${this.type} needs to be compiled first`)
     }
     const {func, module} = this._state
     const context = {index}
     if (module) {
-      return func(to_object(this.args), obj, data, context)
+      return func(to_object(this.args), obj, data, context) as Ret
     } else {
-      return func.call(obj, obj, data, context)
+      return func.call(obj, obj, data, context) as Ret
     }
   }
 }

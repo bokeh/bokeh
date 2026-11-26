@@ -14,5 +14,5 @@ export function make_move_event(sx: number, sy: number): MoveEvent {
 }
 
 export function make_key_event(key: Keys): KeyEvent {
-  return {type: "keyup", key, modifiers: {ctrl: false, shift: false, alt: false}, native: new KeyboardEvent("keyup")}
+  return {type: "keyup", key, modifiers: {ctrl: false, shift: false, alt: false, meta: false}, native: new KeyboardEvent("keyup")}
 }

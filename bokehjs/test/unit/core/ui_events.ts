@@ -1,6 +1,6 @@
 import * as sinon from "sinon"
 
-import {expect} from "#framework/assertions"
+import {expect, expect_instanceof} from "#framework/assertions"
 import {display} from "#framework/layouts"
 import {restorable} from "#framework/util"
 import {actions, xy} from "#framework/interactive"
@@ -19,6 +19,11 @@ import {WheelZoomTool} from "@bokehjs/models/tools/gestures/wheel_zoom_tool"
 import type {PlotView} from "@bokehjs/models/plots/plot"
 import {Plot} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
+import {ZoomInTool} from "@bokehjs/models/tools/actions/zoom_in_tool"
+import {KeyBinding} from "@bokehjs/models/ui/key_binding"
+import {CustomJS} from "@bokehjs/models/callbacks/customjs"
+import {SetValue} from "@bokehjs/models/callbacks/set_value"
+import {Title} from "@bokehjs/models/annotations/title"
 //import type {UIEvent, PanEvent, TapEvent} from "@bokehjs/core/ui_events"
 import type {UIEvent} from "@bokehjs/core/ui_events"
 import type {UIEventBus} from "@bokehjs/core/ui_events"
@@ -147,6 +152,159 @@ describe("ui_event_bus module", () => {
   before_each(async () => {
     plot_view = await new_plot()
     ui_event_bus = plot_view.canvas_view.ui_event_bus
+  })
+
+  describe("key bindings", () => {
+
+    function key(key: string, init: KeyboardEventInit = {}): void {
+      ui_event_bus.on_key_up(new KeyboardEvent("keyup", {key, ...init}))
+    }
+
+    function type(text: string): void {
+      for (const ch of text) {
+        const shiftKey = ch == ":" || ch == "_" || ("A" <= ch && ch <= "Z")
+        key(ch, {shiftKey})
+      }
+    }
+
+    async function wait_for_commands(): Promise<void> {
+      await new Promise((resolve) => setTimeout(resolve, 0))
+    }
+
+    it("should execute commands referenced by tool bindings", async () => {
+      const plot = Plot.create({
+        x_range: Range1d.create({start: 0, end: 10}),
+        y_range: Range1d.create({start: 0, end: 10}),
+      })
+      plot.add_tools(PanTool.create())
+      const {view} = await display(plot)
+      ui_event_bus = view.canvas_view.ui_event_bus
+
+      expect(ui_event_bus.commands.has("pan")).to.be.true
+      key("ArrowLeft")
+      await wait_for_commands()
+      const {start, end} = plot.x_range as Range1d
+      expect(start).to.be.below(0)
+      expect(end).to.be.below(10)
+    })
+
+    it("should execute commands referenced by custom bindings with arguments", async () => {
+      const plot = Plot.create({
+        x_range: Range1d.create({start: 0, end: 10}),
+        y_range: Range1d.create({start: 0, end: 10}),
+        key_bindings: [KeyBinding.create({keys: "Ctrl+ArrowRight", command: "pan", args: new Map([["direction", "right"]])})],
+      })
+      plot.add_tools(PanTool.create())
+      const {view} = await display(plot)
+      ui_event_bus = view.canvas_view.ui_event_bus
+
+      key("ArrowRight", {ctrlKey: true})
+      await wait_for_commands()
+      const {start, end} = plot.x_range as Range1d
+      expect(start).to.be.above(0)
+      expect(end).to.be.above(10)
+    })
+
+    it("should match the Meta modifier", async () => {
+      const calls: string[] = []
+      const plot = Plot.create({
+        x_range: Range1d.create({start: 0, end: 10}),
+        y_range: Range1d.create({start: 0, end: 10}),
+        key_bindings: [
+          KeyBinding.create({keys: "Meta+s", action: () => { calls.push("Meta+s") }}),
+          KeyBinding.create({keys: "Ctrl+s", action: () => { calls.push("Ctrl+s") }}),
+        ],
+      })
+      const {view} = await display(plot)
+      ui_event_bus = view.canvas_view.ui_event_bus
+
+      key("s")
+      key("s", {metaKey: true})
+      key("s", {ctrlKey: true})
+      key("s", {ctrlKey: true, metaKey: true})
+      await wait_for_commands()
+      expect(calls).to.be.equal(["Meta+s", "Ctrl+s"])
+    })
+
+    it("should skip bindings whose CustomJS when condition is false", async () => {
+      const calls: string[] = []
+      const plot = Plot.create({
+        x_range: Range1d.create({start: 0, end: 10}),
+        y_range: Range1d.create({start: 0, end: 10}),
+        key_bindings: [
+          KeyBinding.create({keys: "x", priority: 1, when: CustomJS.create({code: "return false"}), action: () => { calls.push("disabled") }}),
+          KeyBinding.create({keys: "x", priority: 0, when: CustomJS.create({code: "return true"}), action: () => { calls.push("enabled") }}),
+        ],
+      })
+      const {view} = await display(plot)
+      ui_event_bus = view.canvas_view.ui_event_bus
+
+      key("x")
+      await wait_for_commands()
+      expect(calls).to.be.equal(["enabled"])
+    })
+
+    it("should support any Callback as an action", async () => {
+      const plot = Plot.create({
+        x_range: Range1d.create({start: 0, end: 10}),
+        y_range: Range1d.create({start: 0, end: 10}),
+      })
+      plot.key_bindings = [KeyBinding.create({keys: "t", action: SetValue.create({obj: plot, attr: "title", value: "Changed"})})]
+      const {view} = await display(plot)
+      ui_event_bus = view.canvas_view.ui_event_bus
+
+      key("t")
+      await wait_for_commands()
+      const {title} = plot
+      expect_instanceof(title, Title)
+      expect(title.text).to.be.equal("Changed")
+    })
+
+    it("should execute commands from the command line", async () => {
+      const plot = Plot.create({
+        x_range: Range1d.create({start: 0, end: 10}),
+        y_range: Range1d.create({start: 0, end: 10}),
+      })
+      plot.add_tools(ZoomInTool.create())
+      const {view} = await display(plot)
+      ui_event_bus = view.canvas_view.ui_event_bus
+
+      type(":zoom_in")
+      key("Enter")
+      await wait_for_commands()
+      const {start, end} = plot.x_range as Range1d
+      expect(start).to.be.above(0)
+      expect(end).to.be.below(10)
+    })
+
+    it("should notify about unknown commands and invalid arguments", async () => {
+      const plot = Plot.create({
+        x_range: Range1d.create({start: 0, end: 10}),
+        y_range: Range1d.create({start: 0, end: 10}),
+        key_bindings: [KeyBinding.create({keys: "Ctrl+ArrowRight", command: "pan", args: new Map([["direction", "nowhere"]])})],
+      })
+      plot.add_tools(PanTool.create())
+      const {view} = await display(plot)
+      ui_event_bus = view.canvas_view.ui_event_bus
+
+      const messages: string[] = []
+      ui_event_bus.notifications.connect((message) => messages.push(message))
+
+      type(":unknown")
+      key("Enter")
+      await wait_for_commands()
+      key("ArrowRight", {ctrlKey: true})
+      await wait_for_commands()
+      type(":pan")
+      key("Enter")
+      await wait_for_commands()
+
+      expect(messages).to.be.equal([
+        "unknown command 'unknown'",
+        "invalid value of argument 'direction' of command 'pan'; expected Enum(left, right, up, down, west, east, north, south), got nowhere",
+        "command 'pan' requires argument 'direction'",
+      ])
+    })
   })
 
   describe("_trigger method", () => {

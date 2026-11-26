@@ -1,6 +1,8 @@
 import {ActionTool, ActionToolView} from "./action_tool"
 import {MenuItem} from "../../ui/menus"
 import type {MenuItemLike} from "../../ui/menus"
+import type {InternalKeyBinding} from "core/keyboard"
+import type {Command} from "core/commands"
 import type * as p from "core/properties"
 import * as icons from "styles/icons.css"
 
@@ -50,6 +52,24 @@ export class SaveToolView extends ActionToolView {
         break
       }
     }
+  }
+
+  override commands(): Command[] {
+    return [
+      ...super.commands(),
+      {name: "save", description: "Save image to a file",    execute: () => this.doit("save"), origin: this.model},
+      {name: "copy", description: "Copy image to clipboard", execute: () => this.doit("copy"), origin: this.model},
+      {name: "open", description: "Open image in a new tab", execute: () => this.doit("open"), origin: this.model},
+    ]
+  }
+
+  override key_bindings(): InternalKeyBinding[] {
+    return [
+      ...super.key_bindings(),
+      {keys: ["S"], command: "save", origin: this.model},
+      {keys: ["C"], command: "copy", origin: this.model},
+      {keys: ["O"], command: "open", origin: this.model},
+    ]
   }
 }
 

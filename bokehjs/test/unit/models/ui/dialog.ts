@@ -4,6 +4,7 @@ import {display} from "#framework/layouts"
 import {Dialog} from "@bokehjs/models/ui/dialog"
 import {Pane} from "@bokehjs/models/ui/pane"
 import {HTML, HTMLView} from "@bokehjs/models/dom/html"
+import {Div, DivView} from "@bokehjs/models/widgets/div"
 import {Node} from "@bokehjs/models/coordinates/node"
 import {build_view} from "@bokehjs/core/build_views"
 import {bounding_box, MouseButton} from "@bokehjs/core/dom"
@@ -36,6 +37,32 @@ describe("models/ui/dialog module", () => {
         expect(title_el.textContent).to.be.equal("<b>title</b>")
         expect(content_el.textContent).to.be.equal("<i>content</i>")
         expect(view.children_views().some((child) => child instanceof HTMLView)).to.be.false
+      } finally {
+        view.remove()
+      }
+    })
+
+    it("should render vDOM based title and content", async () => {
+      const dialog = Dialog.create({
+        title: Div.create({text: "<b>title0</b>"}),
+        content: Div.create({text: "<i>content0</i>"}),
+        visible: false,
+      })
+      const {view, title_el, content_el} = await build(dialog)
+      try {
+        function rendered(el: Element): string[] {
+          const div_views = view.children_views().filter((child) => child instanceof DivView)
+          return div_views.filter((div_view) => el.contains(div_view.el)).map((div_view) => div_view.shadow_el.textContent)
+        }
+
+        expect(rendered(title_el)).to.be.equal(["title0"])
+        expect(rendered(content_el)).to.be.equal(["content0"])
+
+        dialog.title = Div.create({text: "<b>title1</b>"})
+        dialog.content = Div.create({text: "<i>content1</i>"})
+        await view.ready
+        expect(rendered(title_el)).to.be.equal(["title1"])
+        expect(rendered(content_el)).to.be.equal(["content1"])
       } finally {
         view.remove()
       }

@@ -109,12 +109,16 @@ export class DialogView extends UIElementView {
     return this._content.build(isString(content) ? null : content)
   }
 
-  protected _slot_el(view: ViewOf<UIElementLike> | null, obj: string | UIElementLike | null): ChildNode {
+  /**
+   * Renders a title or content slot into `target`. Views must be rendered
+   * with `render_to()`, because vDOM based views need a parent node to
+   * render into.
+   */
+  protected _render_slot(target: HTMLElement, view: ViewOf<UIElementLike> | null, obj: string | UIElementLike | null): void {
     if (view != null) {
-      view.render()
-      return view.el
+      view.render_to(target)
     } else {
-      return text(isString(obj) ? obj : "")
+      target.append(text(isString(obj) ? obj : ""))
     }
   }
 
@@ -123,12 +127,14 @@ export class DialogView extends UIElementView {
   protected _content_el: HTMLElement
 
   protected _update_title(): void {
-    this._title_el.replaceChildren(this._grip_el, this._slot_el(this._title.view, this.model.title))
+    this._title_el.replaceChildren(this._grip_el)
+    this._render_slot(this._title_el, this._title.view, this.model.title)
     this._title.view?.r_after_render()
   }
 
   protected _update_content(): void {
-    this._content_el.replaceChildren(this._slot_el(this._content.view, this.model.content))
+    this._content_el.replaceChildren()
+    this._render_slot(this._content_el, this._content.view, this.model.content)
     this._content.view?.r_after_render()
   }
 
@@ -271,7 +277,8 @@ export class DialogView extends UIElementView {
     this.shadow_el.append(inner_el)
 
     const header_el = div({class: dialogs.header})
-    const content_el = div({class: dialogs.content}, this._slot_el(this._content.view, this.model.content))
+    const content_el = div({class: dialogs.content})
+    this._render_slot(content_el, this._content.view, this.model.content)
     this._content_el = content_el
     const footer_el = div({class: dialogs.footer})
 
@@ -281,7 +288,8 @@ export class DialogView extends UIElementView {
 
     const grip_el = div({class: dialogs.grip})
     const title_el = this._handles.area
-    title_el.replaceChildren(grip_el, this._slot_el(this._title.view, this.model.title))
+    title_el.replaceChildren(grip_el)
+    this._render_slot(title_el, this._title.view, this.model.title)
     this._grip_el = grip_el
     this._title_el = title_el
     const controls_el = div({class: dialogs.controls})
@@ -547,10 +555,11 @@ export class DialogView extends UIElementView {
     return this.model.visible
   }
 
-  toggle(force?: boolean): void {
+  toggle(force?: boolean): boolean {
     const visible = force ?? !this.model.visible
     this.model.setv({visible}, {check_eq: false})
     this.displayed.emit(visible)
+    return this.model.visible
   }
 
   open(): void {

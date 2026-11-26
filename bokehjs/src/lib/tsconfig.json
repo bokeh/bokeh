@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "strictPropertyInitialization": false,
+    "noErrorTruncation": false,
     "jsx": "react-jsx",
     "jsxImportSource": "preact",
     "lib": ["es2022", "dom", "dom.iterable"],
