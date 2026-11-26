@@ -24,7 +24,7 @@ pixi run check-formatting               # whitespace and line endings, fixes fil
 
 ## Nested instructions
 
-Read the file for a directory before you change anything there: [src/AGENTS.md](src/AGENTS.md) (Python library), [bokehjs/AGENTS.md](bokehjs/AGENTS.md) (BokehJS), [docs/AGENTS.md](docs/AGENTS.md), [examples/AGENTS.md](examples/AGENTS.md), [tests/AGENTS.md](tests/AGENTS.md).
+Read the file for a directory before you change anything there: [src/AGENTS.md](src/AGENTS.md) (Python library), [bokehjs/AGENTS.md](bokehjs/AGENTS.md) (BokehJS), [docs/AGENTS.md](docs/AGENTS.md), [examples/AGENTS.md](examples/AGENTS.md), [tests/AGENTS.md](tests/AGENTS.md), [.github/AGENTS.md](.github/AGENTS.md) (pull requests).
 
 ## Before you start
 
@@ -44,7 +44,6 @@ Check the issue first: `gh issue view <number> -R bokeh/bokeh --json state,label
 - A new feature or an API change needs a release note. See [docs/AGENTS.md](docs/AGENTS.md).
 - Comments explain why, not what. Do not add comments that narrate your change or restate the code.
 - Review `git status` and the whole diff before each commit. Stage only what the change needs. No scratch files, and no lockfile changes you did not intend.
-- Update your branch with a rebase on the default branch. Do not merge the default branch into it.
 
 ## Ask first, and never
 
@@ -63,10 +62,7 @@ Never:
 
 ## Pull requests
 
-- Most contributors cannot push to `bokeh/bokeh`. Check with `gh repo view bokeh/bokeh --json viewerPermission`. Without `WRITE` or higher, push to the contributor's fork and open the pull request from it. If no remote points to a fork, offer to create one with `gh repo fork bokeh/bokeh --remote`.
-- Keep the checklist of `.github/PULL_REQUEST_TEMPLATE.md` and fill it in. Link the issue with `fixes #NNNN`. Leave an item that does not apply unchecked and say why.
-- The title is a plain sentence in ASCII, without emoji. The changelog is generated from titles.
-- Keep the description short. Say what changed and why, and what you could not verify. Do not list the diff file by file.
+Read [.github/AGENTS.md](.github/AGENTS.md) before you push a branch, or open or update a pull request. It covers forks, the title, the description, and the checklist.
 
 ## AI contributions
 

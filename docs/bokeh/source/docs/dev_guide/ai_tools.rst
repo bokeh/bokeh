@@ -49,6 +49,7 @@ the repository. It links to more specific files:
 * :bokeh-tree:`docs/AGENTS.md`: the documentation
 * :bokeh-tree:`examples/AGENTS.md`: the examples
 * :bokeh-tree:`tests/AGENTS.md`: the Python tests
+* :bokeh-tree:`.github/AGENTS.md`: pull requests
 
 The ``AGENTS.md`` files are short on purpose. An agent loads them at the start
 of every session, so every line costs time and tokens. They contain commands,
