@@ -969,6 +969,9 @@ class Serve(Subcommand):
                 address_string = 'localhost'
                 if server.address is not None and server.address != '':
                     address_string = server.address
+                # IPv6 literals must be enclosed in brackets in URLs
+                if ":" in address_string and not address_string.startswith("["):
+                    address_string = f"[{address_string}]"
 
                 if server_kwargs['ssl_certfile'] and (server_kwargs['ssl_certfile'].endswith('.pem') or server_kwargs['ssl_keyfile']):
                     protocol = 'https'
