@@ -268,7 +268,7 @@ export class BrowserManager {
     return this.browser
   }
 
-  private get_page(): Page {
+  get_page(): Page {
     if (this.page == null) {
       throw new Error("Browser not launched")
     }
