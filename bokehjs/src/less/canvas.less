@@ -22,7 +22,11 @@
 
 }
 
-.bk-events:focus, .bk-events:focus-visible {
+.bk-events:focus {
   outline: var(--outline-width) var(--outline-style) var(--highlight-color);
   outline-offset: -1px;
+}
+
+.bk-events:focus:not(:focus-visible) {
+  outline: none;
 }

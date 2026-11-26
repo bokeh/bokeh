@@ -19,10 +19,11 @@ import {build_frameworks} from "./frameworks.js"
 import {Linker} from "#compiler/linker.js"
 import * as preludes from "#compiler/prelude.js"
 
-function node(files: string[]): Promise<void> {
+function node(files: string[], extra_env: NodeJS.ProcessEnv = {}): Promise<void> {
   const env = {
     ...process.env,
     NODE_PATH: paths.build_dir.lib,
+    ...extra_env,
   }
 
   const proc = spawn(process.execPath, files, {stdio: "inherit", env})
@@ -461,7 +462,16 @@ export const build_integration = task("test:build:integration", [
   await bundle("integration")
 })
 
-task2("test:integration", [start, build_integration], async (server_port) => {
+const test_canvas_focus = task("test:canvas-focus", [passthrough("scripts:bundle")], async () => {
+  const executable = await chromium_executable()
+  compile_typescript("./test/devtools/tsconfig.json")
+  await node(["--test", "./test/devtools/_build/canvas-focus.test.js"], {
+    BOKEH_TEST_CHROMIUM: executable,
+    BOKEH_TEST_JS_DIR: paths.build_dir.js,
+  })
+})
+
+task2("test:integration", [start, build_integration, test_canvas_focus], async (server_port) => {
   const baselines_root = (() => {
     if (platform == "linux") {
       return "test/baselines"
