@@ -31,11 +31,29 @@ from tests.support.util.project import TOP_PATH, ls_files
 #: raising the limit.
 MAX_SIZE = 6000  # characters
 
+_POINTER = """\
+<!--
+This file is only a pointer. Never add instructions here. All instructions for coding agents go into AGENTS.md.
+Why it exists: {why}
+Remove this file when {until}.
+-->
+{pointer}"""
+
 #: Files that some tools read instead of AGENTS.md. If one exists, it must only
-#: point to the AGENTS.md next to it, so that there is one source of truth.
+#: point to the AGENTS.md next to it, so that there is one source of truth. The
+#: comment says why the tool needs the file, so that it can go when it doesn't.
 POINTER_FILES = {
-    "CLAUDE.md": "@AGENTS.md",
-    "GEMINI.md": "@AGENTS.md",
+    "CLAUDE.md": _POINTER.format(
+        why="Claude Code reads AGENTS.md only as a fallback. Older versions do not read it, and neither does a session with a CLAUDE.md in a parent directory.",
+        until="Claude Code always reads AGENTS.md",
+        pointer="@AGENTS.md",
+    ),
+    "GEMINI.md": _POINTER.format(
+        why="Gemini CLI reads GEMINI.md by default. It reads AGENTS.md only if the contributor sets context.fileName.",
+        until="Gemini CLI reads AGENTS.md by default",
+        # Gemini CLI documents imports only with an explicit relative path
+        pointer="@./AGENTS.md",
+    ),
 }
 
 #: Executables that the files may run with ``pixi run``, in addition to tasks.

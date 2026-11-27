@@ -56,13 +56,13 @@ of every session, so every line costs time and tokens. They contain commands,
 rules, and links to the pages of this contributor guide. The explanations are
 in this guide, which is the single source of truth for people and for agents.
 
-Most coding agents need no configuration to use these files. Some tools read a
-different file by default. In that case, configure your tool to read
-``AGENTS.md``, for example with the ``context.fileName`` setting of Gemini CLI
-or the ``read`` option of Aider. Don't add instructions for a specific tool to
-the repository. If a tool can only read its own file, such as ``CLAUDE.md``,
-that file may exist next to an ``AGENTS.md`` file, but it must contain nothing
-but a reference to it.
+Most coding agents need no configuration to use these files. Claude Code and
+Gemini CLI read their own files by default, ``CLAUDE.md`` and ``GEMINI.md``.
+The top-level directory of the repository contains both files. Each of them is
+only a pointer to ``AGENTS.md``. Never add instructions to a pointer file, or
+to any other file for a specific tool. All instructions go into the
+``AGENTS.md`` files. If your tool reads none of these files, configure it to
+read ``AGENTS.md``, for example with the ``read`` option of Aider.
 
 .. note::
     An ``AGENTS.md`` file makes it more likely that your agent follows Bokeh's
@@ -112,9 +112,9 @@ them like documentation:
 A :ref:`codebase test <contributor_guide_testing_local_codebase>`
 (:bokeh-tree:`tests/codebase/test_agents_md.py`) checks every ``AGENTS.md``
 file. It fails if a file mentions a pixi task, a BokehJS build task, or a file
-that doesn't exist, if a file is not linked from the top-level file, or if a
-file is longer than the size limit. To run this test, use the following
-command:
+that doesn't exist, if a file is not linked from the top-level file, if a
+file is longer than the size limit, or if a pointer file contains anything but
+its pointer. To run this test, use the following command:
 
 .. code-block:: sh
 
