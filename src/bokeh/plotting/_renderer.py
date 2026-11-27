@@ -157,14 +157,15 @@ def pop_visuals(glyphclass: type[Glyph], props: Attrs, *, prefix: str = "", defa
         props (dict) :
             Maps properties and prefixed properties to their values.
             Keys in `props` matching `glyphclass` visual properties (those of
-            'line_', 'fill_', 'hatch_' or 'text_') with added `prefix` will get
+            'line_', 'fill_', 'hatch_' or 'text_', possibly included with a
+            prefix, e.g. 'background_fill_') with added `prefix` will get
             popped, other keys will be ignored.
-            Keys take the form '[{prefix}][{feature}_]{trait}'. Only {feature}
-              must not contain underscores.
+            Keys take the form '[{prefix}][{feature}_]{trait}'.
             Keys of the form '{prefix}{trait}' work as lower precedence aliases
               for {trait} for all {features}, as long as the glyph has no
               property called {trait}. I.e. this won't apply to "width" in a
-              `rect` glyph.
+              `rect` glyph. The 'color' alias only applies to features that
+              aren't included with a prefix, e.g. not to 'background_fill'.
             Ex: {'fill_color': 'blue', 'selection_line_width': 0.5}
 
         prefix (str) :
@@ -202,15 +203,20 @@ def pop_visuals(glyphclass: type[Glyph], props: Attrs, *, prefix: str = "", defa
     prop_names = set(glyphclass.properties())
     visual_props = filter(_is_visual, prop_names)
     for name in visual_props:
-        _, trait = _split_feature_trait(name)
+        feature, trait = _split_feature_trait(name)
         assert trait is not None # guaranteed by _is_visual()
 
-        # e.g. "line_color", "selection_fill_alpha"
+        # A secondary visual, e.g. "background_fill_color" of the text's bounding
+        # box, shouldn't take the color of the primary visual or the default color.
+        is_secondary = feature not in _VISUAL_FEATURES
+        allows_alias = not (is_secondary and trait == "color")
+
+        # e.g. "line_color", "selection_fill_alpha", "hover_background_fill_color"
         if prefix+name in props:
             result[name] = props.pop(prefix+name)
 
         # e.g. "nonselection_alpha"
-        elif trait not in prop_names and prefix+trait in props:
+        elif allows_alias and trait not in prop_names and prefix+trait in props:
             result[name] = props[prefix+trait]
 
         # e.g. an alpha to use for non-selection if none is provided
@@ -222,7 +228,7 @@ def pop_visuals(glyphclass: type[Glyph], props: Attrs, *, prefix: str = "", defa
             result[name] = defaults[name]
 
         # e.g. not specified anywhere else
-        elif trait in trait_defaults:
+        elif allows_alias and trait in trait_defaults:
             result[name] = trait_defaults[trait]
 
         if trait not in prop_names:
@@ -328,8 +334,20 @@ def _process_sequence_literals(glyphclass: type[Glyph], kwargs: Attrs, source: I
 
     return incompatible_literal_spec_values
 
+_VISUAL_FEATURES = ("line", "fill", "hatch", "text", "global")
+
 def _split_feature_trait(ft: str) -> tuple[str, str | None]:
-    """Feature is up to first '_'. Ex. 'line_color' => ['line', 'color']"""
+    """Split a property name at its visual feature.
+
+    The feature may be included with a prefix, so it ends at the first visual
+    feature name. Ex. 'line_color' => ['line', 'color'], 'background_fill_color'
+    => ['background_fill', 'color'], 'text_line_height' => ['text', 'line_height'].
+    Names without a visual feature are split at the first '_'.
+    """
+    parts = ft.split("_")
+    for i, part in enumerate(parts[:-1]):
+        if part in _VISUAL_FEATURES:
+            return "_".join(parts[:i+1]), "_".join(parts[i+1:])
     match ft.split("_", 1):
         case [feature, trait]:
             return feature, trait
@@ -339,7 +357,7 @@ def _split_feature_trait(ft: str) -> tuple[str, str | None]:
 def _is_visual(ft: str) -> bool:
     """Whether a feature trait name is visual"""
     feature, trait = _split_feature_trait(ft)
-    return feature in ('line', 'fill', 'hatch', 'text', 'global') and trait is not None
+    return feature.split("_")[-1] in _VISUAL_FEATURES and trait is not None
 
 _GLYPH_SOURCE_MSG = """
 

@@ -23,6 +23,7 @@ from bokeh.models import (
     Line,
     MultiLine,
     Patches,
+    Text,
 )
 from bokeh.plotting import figure
 
@@ -89,6 +90,35 @@ class Test__pop_visuals:
         assert ca["fill_color"] == "white"
         assert set(ca) == { "fill_color", "hatch_color", "line_color", "fill_alpha", "hatch_alpha", "line_alpha" }
 
+    def test_prefixed_visuals(self) -> None:
+        kwargs = dict(background_fill_color="white", border_line_width=2, hover_background_fill_color="yellow")
+        glyph_visuals = bpr.pop_visuals(Text, kwargs)
+        assert glyph_visuals["background_fill_color"] == "white"
+        assert glyph_visuals["border_line_width"] == 2
+        hover_visuals = bpr.pop_visuals(Text, kwargs, prefix="hover_", defaults=glyph_visuals)
+        assert hover_visuals["background_fill_color"] == "yellow"
+        assert hover_visuals["border_line_width"] == 2
+        assert kwargs == {}
+
+    def test_prefixed_visuals_alpha_trait(self) -> None:
+        kwargs = dict(alpha=0.5, muted_alpha=0.3)
+        glyph_visuals = bpr.pop_visuals(Text, kwargs)
+        assert glyph_visuals["text_alpha"] == 0.5
+        assert glyph_visuals["background_fill_alpha"] == 0.5
+        assert glyph_visuals["border_line_alpha"] == 0.5
+        muted_visuals = bpr.pop_visuals(Text, kwargs, prefix="muted_", defaults=glyph_visuals, override_defaults={"alpha": 0.2})
+        assert muted_visuals["text_alpha"] == 0.3
+        assert muted_visuals["background_fill_alpha"] == 0.3
+        assert muted_visuals["border_line_alpha"] == 0.3
+
+    def test_prefixed_visuals_color_trait(self) -> None:
+        kwargs = dict(color="red")
+        ca = bpr.pop_visuals(Text, kwargs)
+        assert ca["text_color"] == "red"
+        assert "background_fill_color" not in ca
+        assert "background_hatch_color" not in ca
+        assert "border_line_color" not in ca
+
 class Test_make_glyph:
     def test_null_visuals(self) -> None:
         kwargs = dict(fill_alpha=0.7, line_alpha=0.8, line_color="red")
@@ -113,6 +143,41 @@ class Test_make_glyph:
         assert ca.line_alpha == 0.4
         assert ca.line_color == "blue"
         assert ca.fill_color == "blue"
+
+class Test_create_renderer:
+    def test_text_bounding_box_visuals(self) -> None:
+        p = figure()
+        r = p.text([1], [1], text=["a"], background_fill_color="white", border_line_color="black", hover_border_line_color="red")
+        assert r.glyph.background_fill_color == "white"
+        assert r.glyph.background_fill_alpha == 1.0
+        assert r.nonselection_glyph.background_fill_alpha == 0.1
+        assert r.nonselection_glyph.border_line_alpha == 0.1
+        assert r.muted_glyph.background_fill_alpha == 0.2
+        assert r.muted_glyph.border_line_alpha == 0.2
+        assert r.hover_glyph.background_fill_color == "white"
+        assert r.hover_glyph.border_line_color == "red"
+
+class Test__split_feature_trait:
+    @pytest.mark.parametrize("name, expected", [
+        ("line_color", ("line", "color")),
+        ("text_line_height", ("text", "line_height")),
+        ("background_fill_color", ("background_fill", "color")),
+        ("border_line_dash_offset", ("border_line", "dash_offset")),
+        ("x_offset", ("x", "offset")),
+        ("anchor", ("anchor", None)),
+    ])
+    def test_split(self, name: str, expected: tuple[str, str | None]) -> None:
+        assert bpr._split_feature_trait(name) == expected
+
+    @pytest.mark.parametrize("name, expected", [
+        ("line_color", True),
+        ("background_fill_color", True),
+        ("border_line_width", True),
+        ("x_offset", False),
+        ("fill", False),
+    ])
+    def test_is_visual(self, name: str, expected: bool) -> None:
+        assert bpr._is_visual(name) == expected
 
 class Test__process_sequence_literals:
     """Test that _process_sequence_literals handles line_dash sequences correctly"""

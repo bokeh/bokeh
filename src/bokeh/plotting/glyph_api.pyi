@@ -168,6 +168,66 @@ class TextVisuals(AuxTextVisuals, total=False):
     text_baseline: TextBaselineArg
     text_line_height: NumberArg
 
+class AuxBackgroundFillVisuals(TypedDict, total=False):
+    selection_background_fill_color: ColorArg
+    selection_background_fill_alpha: AlphaArg
+
+    nonselection_background_fill_color: ColorArg
+    nonselection_background_fill_alpha: AlphaArg
+
+    hover_background_fill_color: ColorArg
+    hover_background_fill_alpha: AlphaArg
+
+    muted_background_fill_color: ColorArg
+    muted_background_fill_alpha: AlphaArg
+
+class AuxBackgroundHatchVisuals(TypedDict, total=False):
+    selection_background_hatch_color: ColorArg
+    selection_background_hatch_alpha: AlphaArg
+
+    nonselection_background_hatch_color: ColorArg
+    nonselection_background_hatch_alpha: AlphaArg
+
+    hover_background_hatch_color: ColorArg
+    hover_background_hatch_alpha: AlphaArg
+
+    muted_background_hatch_color: ColorArg
+    muted_background_hatch_alpha: AlphaArg
+
+class AuxBorderLineVisuals(TypedDict, total=False):
+    selection_border_line_color: ColorArg
+    selection_border_line_alpha: AlphaArg
+
+    nonselection_border_line_color: ColorArg
+    nonselection_border_line_alpha: AlphaArg
+
+    hover_border_line_color: ColorArg
+    hover_border_line_alpha: AlphaArg
+
+    muted_border_line_color: ColorArg
+    muted_border_line_alpha: AlphaArg
+
+class BackgroundFillVisuals(AuxBackgroundFillVisuals, total=False):
+    background_fill_color: ColorArg
+    background_fill_alpha: AlphaArg
+
+class BackgroundHatchVisuals(AuxBackgroundHatchVisuals, total=False):
+    background_hatch_color: ColorArg
+    background_hatch_alpha: AlphaArg
+    background_hatch_scale: FloatArg
+    background_hatch_pattern: HatchPatternArg
+    background_hatch_weight: FloatArg
+    background_hatch_extra: dict[str, Texture]
+
+class BorderLineVisuals(AuxBorderLineVisuals, total=False):
+    border_line_color: ColorArg
+    border_line_alpha: AlphaArg
+    border_line_width: FloatArg
+    border_line_join: LineJoinArg
+    border_line_cap: LineCapArg
+    border_line_dash: DashPatternArg
+    border_line_dash_offset: IntArg
+
 class AuxGlyphArgs(TypedDict, total=False):
     # Model
     name: str | None
@@ -353,7 +413,7 @@ class MarkerArgs(GlyphArgs, LineVisuals, FillVisuals, HatchVisuals, total=False)
     # angle: AngleArg
     hit_dilation: NonNegative[float]
 
-class MathMLArgs(GlyphArgs, TextVisuals, total=False):
+class MathMLArgs(TextArgs, total=False):
     pass
 
 class MultiLineArgs(GlyphArgs, LineVisuals, total=False):
@@ -438,11 +498,11 @@ class StepArgs(GlyphArgs, LineVisuals, total=False):
     # y: NumberArg
     mode: StepMode
 
-class TeXArgs(GlyphArgs, TextVisuals, total=False):
+class TeXArgs(TextArgs, total=False):
     macros: dict[str, str | tuple[str, int]]
     display: TeXDisplay
 
-class TextArgs(GlyphArgs, TextVisuals, total=False):
+class TextArgs(GlyphArgs, TextVisuals, BackgroundFillVisuals, BackgroundHatchVisuals, BorderLineVisuals, total=False):
     # x: NumberArg
     # y: NumberArg
     # text: StringArg
