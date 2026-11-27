@@ -101,8 +101,8 @@ type Number3dVal = Sequence[Number2dVal]
 type Number3dSpec = DataSpec[Number3dVal]
 type Number3dArg = FieldName | Number3dVal | Number3dSpec | Sequence[Number3dVal] | Number3dArray
 
-type NumberOrFactorArg = NumberArg | FactorSeqType | StringArray
-type NumberOrFactor1dArg = Number1dArg | Sequence[FactorSeqType | StringArray]
+type PositionArg = NumberArg | FactorSeqType | StringArray
+type Position1dArg = Number1dArg | Sequence[FactorSeqType | StringArray]
 
 type Image2dVal = Number2dArray
 type Image2dSpec = DataSpec[Image2dVal]
