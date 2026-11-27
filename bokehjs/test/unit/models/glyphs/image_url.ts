@@ -1,7 +1,11 @@
+import * as sinon from "sinon"
 import {expect, expect_not_null} from "#framework/assertions"
+import {restorable} from "#framework/util"
 
-import {create_glyph_view} from "./_util"
+import {create_glyph_view, create_glyph_renderer_view} from "./_util"
+import {delay} from "@bokehjs/core/util/defer"
 import {ImageURL} from "@bokehjs/models/glyphs/image_url"
+import type {ImageURLView} from "@bokehjs/models/glyphs/image_url"
 import {ColumnDataSource} from "@bokehjs/models/sources"
 import {ScreenArray, Indices} from "@bokehjs/core/types"
 
@@ -126,6 +130,26 @@ describe("ImageURL module", () => {
 
       expect(image_url_view.sw).to.be.equal(new ScreenArray([NaN]))
       expect(image_url_view.sh).to.be.equal(new ScreenArray([NaN]))
+    })
+
+    it("should paint all images when some of them are selected", async () => {
+      const url = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+      const image_url = ImageURL.create({url: {field: "url"}, x: {field: "x"}, y: {field: "y"}, w: 10, h: 10})
+      const renderer_view = await create_glyph_renderer_view(image_url, {url: [url, url, url], x: [0, 20, 40], y: [0, 20, 40]})
+      renderer_view.model.data_source.selected.indices = [1]
+      await renderer_view.ready
+
+      const glyph = renderer_view.glyph as ImageURLView
+      for (let i = 0; i < 100 && !glyph.image.every((image) => image != null); i++) {
+        glyph.paint(glyph.canvas.create_layer().ctx, new Int32Array([0, 1, 2]))
+        await delay(10)
+      }
+      expect(glyph.image.every((image) => image != null)).to.be.true
+
+      const ctx = glyph.canvas.create_layer().ctx
+      using draw_image = restorable(sinon.spy(ctx, "drawImage"))
+      renderer_view.paint(ctx)
+      expect(draw_image.callCount).to.be.equal(3)
     })
   })
 })
