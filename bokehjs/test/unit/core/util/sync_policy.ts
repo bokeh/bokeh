@@ -4,6 +4,18 @@ import {delay} from "@bokehjs/core/util/defer"
 import {SyncPolicyQueue} from "@bokehjs/core/util/sync_policy"
 
 describe("core/util/sync_policy module", () => {
+  it("updates matching pending values without delivering them or changing their keys", () => {
+    const delivered: string[] = []
+    const queue = new SyncPolicyQueue<string>((value) => delivered.push(value))
+    queue.submit(["value", 1], ["committed", null], "one", true)
+    queue.submit(["value", 10], ["committed", null], "ten", true)
+    queue.update(["value", 1], value => `${value} updated`)
+    expect(delivered).to.be.equal([])
+    expect([...queue.keys()]).to.be.equal([["value", 1], ["value", 10]])
+    queue.flush()
+    expect(delivered).to.be.equal(["one updated", "ten"])
+  })
+
   it("should distinguish whole compound-key segments", async () => {
     const delivered: string[] = []
     const queue = new SyncPolicyQueue<string>((value) => delivered.push(value))

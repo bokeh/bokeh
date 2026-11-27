@@ -9,6 +9,7 @@ import * as ev from "@bokehjs/document/events"
 import {version as js_version} from "@bokehjs/version"
 import {register_models} from "@bokehjs/base"
 import type {HasProps} from "@bokehjs/core/has_props"
+import type {Data} from "@bokehjs/core/types"
 import {Model} from "@bokehjs/model"
 import * as logging from "@bokehjs/core/logging"
 import type * as p from "@bokehjs/core/properties"
@@ -1197,6 +1198,64 @@ describe("Document", () => {
       expect(events.filter((e) => e.sync).length).to.be.equal(0)
       expect(events.filter((e) => !e.sync).length).to.be.equal(1)
       expect(source.data).to.be.equal({col1: [4, 5, 6]})
+    })
+
+    it("when changing selected columns from an object", () => {
+      const doc = new Document()
+      const source = ColumnDataSource.create({data: {col0: [1, 2, 3], col1: [4, 5, 6]}})
+      doc.add_root(source)
+      const events: ev.DocumentEvent[] = []
+      doc.on_change(event => events.push(event))
+      const data = {col1: [7, 8, 9]}
+      const event = new ev.ColumnDataChangedEvent(doc, source, "data", data, ["col1"])
+
+      doc.apply_json_patch(doc.create_json_patch([event]))
+
+      expect(source.get_column("col0")).to.be.equal([1, 2, 3])
+      expect(source.get_column("col1")).to.be.equal([7, 8, 9])
+      expect(events.length).to.be.equal(1)
+      expect(events[0].sync).to.be.false
+    })
+
+    it("when changing selected columns from a Map", () => {
+      const doc = new Document()
+      const source = ColumnDataSource.create({data: {col0: [1, 2, 3], col1: [4, 5, 6]}})
+      doc.add_root(source)
+      const events: ev.DocumentEvent[] = []
+      doc.on_change(event => events.push(event))
+      const data = new Map([["col1", [7, 8, 9]]])
+      const event = new ev.ColumnDataChangedEvent(doc, source, "data", data, ["col1"])
+
+      doc.apply_json_patch(doc.create_json_patch([event]))
+
+      expect(source.get_column("col0")).to.be.equal([1, 2, 3])
+      expect(source.get_column("col1")).to.be.equal([7, 8, 9])
+      expect(events.length).to.be.equal(1)
+      expect(events[0].sync).to.be.false
+    })
+
+    it("when applying column events to a property named records on an ordinary model", () => {
+      class ColumnModel extends Model {
+        static {
+          this.define<{records: p.Property<Data | null>}>(({Nullable, Dict, Arrayable, Unknown}) => ({
+            records: [ Nullable(Dict(Arrayable(Unknown))), null ],
+          }))
+        }
+      }
+      const model = ColumnModel.create()
+      const doc = new Document({roots: [model]})
+      const events: ev.DocumentEvent[] = []
+      doc.on_change(event => events.push(event))
+      for (const event of [
+        new ev.ColumnDataChangedEvent(doc, model, "records", {v: [2, 3]}),
+        new ev.ColumnsStreamedEvent(doc, model, "records", {v: [4]}),
+        new ev.ColumnsPatchedEvent(doc, model, "records", {v: [[0, 5]]}),
+      ]) {
+        doc.apply_json_patch(doc.create_json_patch([event]))
+      }
+      expect(model.property("records").get_value()).to.be.equal({v: [5, 3, 4]})
+      expect(events.length).to.be.equal(3)
+      expect(events.every(event => !event.sync)).to.be.true
     })
 
     it("when streaming to a column", () => {

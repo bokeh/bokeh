@@ -1,11 +1,19 @@
-import {expect} from "#framework/assertions"
+import {expect, expect_instanceof} from "#framework/assertions"
 
 import {ClientSession} from "@bokehjs/client/session"
+import {default_resolver} from "@bokehjs/base"
+import {ModelResolver} from "@bokehjs/core/resolvers"
 import type {ClientConnection} from "@bokehjs/client/connection"
 import {Document} from "@bokehjs/document"
+import {ColumnDataChangedEvent, ColumnsPatchedEvent, ColumnsStreamedEvent} from "@bokehjs/document/events"
+import type {Decoded, DocumentChangedEvent} from "@bokehjs/document/events"
 import type {Patch} from "@bokehjs/document"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Selection} from "@bokehjs/models/selections/selection"
+import {GeometryDataSource} from "@bokehjs/models/sources/geometry_data_source"
+import {line_string} from "@bokehjs/geometry"
+import {RecordDataSource} from "@bokehjs/models/sources/record_data_source"
+import {Slice} from "@bokehjs/core/util/slice"
 import type {Model, CallbackPolicy} from "@bokehjs/model"
 import {Message} from "@bokehjs/protocol/message"
 import {delay} from "@bokehjs/core/util/defer"
@@ -21,6 +29,38 @@ class FakeConnection {
 
   close(): void {
     this.closed = true
+  }
+}
+
+// Protocol-only receiver for testing future row updates without adding public APIs.
+class TestRecordSource extends RecordDataSource {
+  private _publish(records: RecordDataSource["records"], event: DocumentChangedEvent): void {
+    this._clear_watchers()
+    this._with_selection_sync(false, () => {
+      this.properties.records.set_value(records)
+      this.properties.records.change.emit()
+    })
+    event.sync = false
+    this.document!._trigger_on_change(event)
+  }
+
+  override _apply_column_data_changed({attr, data}: Decoded.ColumnDataChanged): void {
+    this._publish(data as RecordDataSource["records"], new ColumnDataChangedEvent(this.document!, this, attr, data))
+  }
+
+  override _apply_columns_streamed({attr, data, rollover}: Decoded.ColumnsStreamed): void {
+    const records = [...this.records, ...data as RecordDataSource["records"]]
+    const start = Math.max(0, records.length - (rollover ?? records.length))
+    const retained = records.slice(start)
+    this._publish(retained, new ColumnsStreamedEvent(this.document!, this, attr, data, rollover))
+  }
+
+  override _apply_columns_patched({attr, patches}: Decoded.ColumnsPatched): void {
+    const records = [...this.records]
+    for (const [index, row] of patches as [number, RecordDataSource["records"][number]][]) {
+      records[index] = row
+    }
+    this._publish(records, new ColumnsPatchedEvent(this.document!, this, attr, patches))
   }
 }
 
@@ -61,7 +101,250 @@ function session_for(model: Model): {session: ClientSession, connection: FakeCon
   return {session, connection}
 }
 
+function replay_messages(connection: FakeConnection, receiver: Document): void {
+  for (const message of connection.messages) {
+    receiver.apply_json_patch(message.content, message.buffers)
+  }
+}
+
+function receive_update(session: ClientSession, receiver: Document, event: DocumentChangedEvent): void {
+  const incoming = event.document.create_json_patch([event])
+  receiver.apply_json_patch(incoming)
+  session.handle(Message.create("PATCH-DOC", incoming))
+}
+
+function arrange_row_assignments(policy: CallbackPolicy) {
+  const model = TestRecordSource.create({records: [{v: 0}], _subscribed_changes: new Map([["records", [policy]]])})
+  const {session, connection} = session_for(model)
+  const resolver = new ModelResolver(default_resolver, [TestRecordSource])
+  const receiver = Document.from_json(session.document.to_json(), {resolver})
+  const copy = receiver.get_model_by_id(model.id)!
+  expect_instanceof(copy, TestRecordSource)
+  model.document!.begin_sync_deferral(model, "records")
+  model.records = [{v: 1}, {v: 2}]
+  model.records = [{v: 3}, {v: 4}]
+  replay_messages(connection, receiver)
+  connection.messages.length = 0
+  return {model, session, connection, receiver, copy}
+}
+
+function expect_row_records(context: ReturnType<typeof arrange_row_assignments>, policy: CallbackPolicy, expected: number[]): void {
+  const {model, connection, copy} = context
+  for (const message of connection.messages) {
+    expect(changed_attr(message)).to.be.equal("records")
+    expect(callback_policy(message)).to.be.equal(policy)
+  }
+  expect(copy.records).to.be.equal(model.records)
+  expect(copy.get_field("v")).to.be.equal(expected)
+}
+
+function arrange_geometry_assignments(policy: CallbackPolicy) {
+  const model = GeometryDataSource.create({geometries: [null], data: {v: [0], b: [0]}, _subscribed_changes: new Map([["geometries", [policy]], ["data", [policy]]])})
+  const {session, connection} = session_for(model)
+  const receiver = Document.from_json(session.document.to_json())
+  model.document!.begin_sync_deferral(model, "geometries")
+  model.document!.begin_sync_deferral(model, "data")
+  model.data = {v: [1], c: [1]}
+  model.data = {v: [2], c: [2]}
+  model.geometries = [line_string([[1, 1], [2, 2]])]
+  model.geometries = [line_string([[3, 3], [4, 4]])]
+  return {model, session, connection, receiver}
+}
+
+function expect_geometry_records(model: GeometryDataSource, receiver: Document): void {
+  const copy = receiver.get_model_by_id(model.id)!
+  expect_instanceof(copy, GeometryDataSource)
+  expect(copy.geometries).to.be.equal(model.geometries)
+  expect(copy.data).to.be.equal(model.data)
+}
+
+function expect_flushed_assignments(connection: FakeConnection, policy: CallbackPolicy): void {
+  const assignments = connection.messages.slice(-3, -1)
+  expect(assignments.map(changed_attr)).to.be.equal(["geometries", "data"])
+  expect(assignments.map(callback_policy)).to.be.equal([policy, policy])
+}
+
+function arrange_pending_geometry_assignment(attr: "geometries" | "data", value: unknown) {
+  const policy: CallbackPolicy = ["debounce", 1000]
+  const model = GeometryDataSource.create({geometries: [line_string([[0, 0], [1, 1]])], data: {v: [0]}, _subscribed_changes: new Map([[attr, [policy]]])})
+  const {session, connection} = session_for(model)
+  const receiver = Document.from_json(session.document.to_json())
+  model.setv({[attr]: value})
+  return {model, session, connection, receiver}
+}
+
 describe("ClientSession property synchronization policies", () => {
+  for (const policy of [["debounce", 1000], ["throttle", 1000], ["committed", null]] as CallbackPolicy[]) {
+    it(`reconciles ${policy[0]} row assignments with incoming replace`, () => {
+      const context = arrange_row_assignments(policy)
+      const {session, connection, receiver, copy} = context
+      const event = new ColumnDataChangedEvent(receiver, copy, "records", [{v: 5}])
+
+      receive_update(session, receiver, event)
+      const received = connection.messages.length
+      session.close()
+      replay_messages(connection, receiver)
+
+      expect(received).to.be.equal(0)
+      expect(connection.messages.length).to.be.equal(0)
+      expect_row_records(context, policy, [5])
+    })
+
+    it(`reconciles ${policy[0]} row assignments with incoming stream`, () => {
+      const context = arrange_row_assignments(policy)
+      const {session, connection, receiver, copy} = context
+      const event = new ColumnsStreamedEvent(receiver, copy, "records", [{v: 5}], 2)
+
+      receive_update(session, receiver, event)
+      const received = connection.messages.length
+      session.close()
+      replay_messages(connection, receiver)
+
+      expect(received).to.be.equal(0)
+      expect(connection.messages.length).to.be.equal(1)
+      expect_row_records(context, policy, [4, 5])
+    })
+
+    it(`reconciles ${policy[0]} row assignments with incoming patch`, () => {
+      const context = arrange_row_assignments(policy)
+      const {session, connection, receiver, copy} = context
+      const event = new ColumnsPatchedEvent(receiver, copy, "records", [[0, {v: 5}]])
+
+      receive_update(session, receiver, event)
+      const received = connection.messages.length
+      session.close()
+      replay_messages(connection, receiver)
+
+      expect(received).to.be.equal(0)
+      expect(connection.messages.length).to.be.equal(1)
+      expect_row_records(context, policy, [5, 4])
+    })
+
+  }
+
+  for (const [policy, expected_sent] of [
+    [["debounce", 1000], 3], [["throttle", 1000], 5], [["committed", null], 3],
+  ] as [CallbackPolicy, number][]) {
+    it(`flushes ${policy[0]} geometry and attribute assignments before replace`, () => {
+      const {model, session, connection, receiver} = arrange_geometry_assignments(policy)
+
+      model.replace({geometries: [null], data: {v: [1], c: [1]}})
+      const sent = connection.messages.length
+      replay_messages(connection, receiver)
+      session.close()
+
+      expect(sent).to.be.equal(expected_sent)
+      expect_flushed_assignments(connection, policy)
+      expect_geometry_records(model, receiver)
+      expect(connection.messages.length).to.be.equal(sent)
+    })
+
+    it(`flushes ${policy[0]} geometry and attribute assignments before stream`, () => {
+      const {model, session, connection, receiver} = arrange_geometry_assignments(policy)
+
+      model.stream({geometries: [null], data: {v: [1], c: [1]}})
+      const sent = connection.messages.length
+      replay_messages(connection, receiver)
+      session.close()
+
+      expect(sent).to.be.equal(expected_sent)
+      expect_flushed_assignments(connection, policy)
+      expect_geometry_records(model, receiver)
+      expect(connection.messages.length).to.be.equal(sent)
+    })
+
+    it(`flushes ${policy[0]} geometry and attribute assignments before patch`, () => {
+      const {model, session, connection, receiver} = arrange_geometry_assignments(policy)
+
+      model.patch({geometry: [[[0, new Slice({start: 2, stop: 2})], [[5, 5]]]], c: [[0, 9]]})
+      const sent = connection.messages.length
+      replay_messages(connection, receiver)
+      session.close()
+
+      expect(sent).to.be.equal(expected_sent)
+      expect_flushed_assignments(connection, policy)
+      expect_geometry_records(model, receiver)
+      expect(connection.messages.length).to.be.equal(sent)
+    })
+
+  }
+
+  for (const [attr, value] of [
+    ["geometries", [line_string([[3, 3], [4, 4]])]],
+    ["data", {v: [3]}],
+  ] as const) {
+    it(`reconciles pending ${attr} assignments with incoming replace records`, () => {
+      const {model, session, connection, receiver} = arrange_pending_geometry_assignment(attr, value)
+      const event = new ColumnDataChangedEvent(session.document, model, "records", {geometries: [null], data: {v: [1]}})
+
+      receive_update(session, receiver, event)
+      const received = connection.messages.length
+      session.close()
+      replay_messages(connection, receiver)
+
+      expect(received).to.be.equal(0)
+      expect(connection.messages.length).to.be.equal(0)
+      expect_geometry_records(model, receiver)
+    })
+
+    it(`reconciles pending ${attr} assignments with incoming stream records`, () => {
+      const {model, session, connection, receiver} = arrange_pending_geometry_assignment(attr, value)
+      const event = new ColumnsStreamedEvent(session.document, model, "records", {geometries: [null], data: {v: [1]}})
+
+      receive_update(session, receiver, event)
+      const received = connection.messages.length
+      session.close()
+      replay_messages(connection, receiver)
+
+      expect(received).to.be.equal(0)
+      expect(connection.messages.length).to.be.equal(1)
+      expect_geometry_records(model, receiver)
+    })
+
+    it(`reconciles pending ${attr} assignments with incoming geometry records`, () => {
+      const {model, session, connection, receiver} = arrange_pending_geometry_assignment(attr, value)
+      const event = new ColumnsPatchedEvent(session.document, model, "records", {geometry: [[0, null]]})
+
+      receive_update(session, receiver, event)
+      const received = connection.messages.length
+      session.close()
+      replay_messages(connection, receiver)
+
+      expect(received).to.be.equal(0)
+      expect(connection.messages.length).to.be.equal(1)
+      expect_geometry_records(model, receiver)
+    })
+
+    it(`reconciles pending ${attr} assignments with incoming vertices records`, () => {
+      const {model, session, connection, receiver} = arrange_pending_geometry_assignment(attr, value)
+      const event = new ColumnsPatchedEvent(session.document, model, "records", {geometry: [[[0, new Slice({start: 2, stop: 2})], [[5, 5]]]]})
+
+      receive_update(session, receiver, event)
+      const received = connection.messages.length
+      session.close()
+      replay_messages(connection, receiver)
+
+      expect(received).to.be.equal(0)
+      expect(connection.messages.length).to.be.equal(1)
+      expect_geometry_records(model, receiver)
+    })
+
+    it(`reconciles pending ${attr} assignments with incoming attributes records`, () => {
+      const {model, session, connection, receiver} = arrange_pending_geometry_assignment(attr, value)
+      const event = new ColumnsPatchedEvent(session.document, model, "records", {v: [[0, 9]]})
+
+      receive_update(session, receiver, event)
+      const received = connection.messages.length
+      session.close()
+      replay_messages(connection, receiver)
+
+      expect(received).to.be.equal(0)
+      expect(connection.messages.length).to.be.equal(1)
+      expect_geometry_records(model, receiver)
+    })
+
+  }
+
   for (const attr of ["indices", "line_indices", "multiline_indices"] as const) {
     for (const policy of [["immediate", null], ["debounce", 1000]] as CallbackPolicy[]) {
       const [kind] = policy

@@ -1021,9 +1021,12 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
                     self.document.models.invalidate()
         # chain up to invoke callbacks
         super().trigger(descriptor.name, old, new, hint=hint, setter=setter)
+        self._update_callback_policy_values(descriptor.name, new)
+
+    def _update_callback_policy_values(self, attr: str, new: Any) -> None:
         if self._incoming_callback_policy is None:
-            for _, policy in self._callback_policies.get(descriptor.name, []):
-                self._callback_policy_values[(descriptor.name, policy)] = new
+            for _, policy in self._callback_policies.get(attr, []):
+                self._callback_policy_values[(attr, policy)] = new
 
     def _attach_document(self, doc: Document) -> None:
         ''' Attach a model to a Bokeh |Document|.

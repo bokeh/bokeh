@@ -1,4 +1,4 @@
-import {DocumentEventBatch, ModelChangedEvent} from "document"
+import {ColumnDataChangedEvent, ColumnsPatchedEvent, ColumnsStreamedEvent, DocumentEventBatch, ModelChangedEvent} from "document"
 import type {Patch, Document, DocumentEvent, DocumentChangedEvent, SyncFlush} from "document"
 import {Message} from "protocol/message"
 import {Model} from "model"
@@ -154,10 +154,36 @@ export class ClientSession {
   }
 
   protected _cancel_superseded_sync(event: DocumentChangedEvent): void {
-    if (!(event instanceof ModelChangedEvent) || !(event.model instanceof Model)) {
+    // Property assignments supersede queued updates of the same attribute.
+    if (event instanceof ModelChangedEvent && event.model instanceof Model) {
+      this._cancel_sync(event.model, event.attr)
       return
     }
-    this._cancel_sync(event.model, event.attr)
+
+    if (!(event instanceof ColumnDataChangedEvent || event instanceof ColumnsStreamedEvent || event instanceof ColumnsPatchedEvent)) {
+      return
+    }
+    if (!(event.model instanceof Model)) {
+      return
+    }
+
+    // Data events can affect multiple properties. Let the model identify their queued assignments.
+    const attrs = event.model._data_event_attributes(event.attr)
+    if (event instanceof ColumnDataChangedEvent) {
+      for (const attr of attrs) {
+        this._cancel_sync(event.model, attr)
+      }
+      return
+    }
+
+    // Refresh merged values without resetting their delivery policies.
+    for (const attr of attrs) {
+      this._sync_queue.update([event.model.id, attr], (pending) => {
+        const {model, attr, callback_policy} = pending
+        const value = model.property(attr).get_value()
+        return model._create_change_event(attr, value, callback_policy)
+      })
+    }
   }
 
   protected _send_patch(events: DocumentChangedEvent[]): void {

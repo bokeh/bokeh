@@ -12,12 +12,12 @@ import type {Property} from "./properties"
 import {assert} from "./util/assert"
 import {unique_id} from "./util/string"
 import {keys, values, entries, extend, dict} from "./util/object"
-import {isObject, isIterable, isPlainObject, isArray, isFunction, isPrimitive} from "./util/types"
+import {isObject, isIterable, isPlainObject, isArray, isFunction, isPrimitive, isDict} from "./util/types"
 import type {Serializable, Serializer, ObjectRep, ObjectRefRep, AnyVal} from "./serialization"
 import {serialize} from "./serialization"
 import type {Document} from "../document/document"
 import type {CallbackPolicy} from "../model"
-import type {DocumentEvent} from "../document/events"
+import type {Decoded, DocumentEvent} from "../document/events"
 import {DocumentEventBatch, ModelChangedEvent, ColumnsPatchedEvent, ColumnsStreamedEvent} from "../document/events"
 import type {Equatable} from "./util/eq"
 import {equals, Comparator} from "./util/eq"
@@ -885,6 +885,44 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   private _resolve_properties(properties: string | Property<unknown> | readonly (string | Property<unknown>)[]): Property<unknown>[] {
     const items = isArray(properties) ? properties as (string | Property<unknown>)[] : [properties as string | Property<unknown>]
     return items.map((property) => typeof property == "string" ? this.property(property) : property)
+  }
+
+  // Map a data-event target to the properties whose queued assignments it affects.
+  _data_event_attributes(attr: string): readonly string[] {
+    return [attr]
+  }
+
+  // Subclasses can apply data events that target more than one property.
+  _apply_column_data_changed({attr, data, cols}: Decoded.ColumnDataChanged): void {
+    const prop = this.property(attr)
+    if (cols != null) {
+      const new_data = dict(data as Data)
+      const current_data = dict(this._column_data_property(attr).get_value())
+      for (const [name, column] of current_data) {
+        if (!new_data.has(name)) {
+          new_data.set(name, column)
+        }
+      }
+    }
+    this.setv({[prop.attr]: data}, {sync: false, check_eq: false})
+  }
+
+  _apply_columns_streamed({attr, data, rollover}: Decoded.ColumnsStreamed): void {
+    const prop = this._column_data_property(attr)
+    this.stream_to(prop, data as Data, rollover, {sync: false})
+  }
+
+  _apply_columns_patched({attr, patches}: Decoded.ColumnsPatched): void {
+    const prop = this._column_data_property(attr)
+    this.patch_to(prop, patches as PatchSet<unknown>, {sync: false})
+  }
+
+  protected _column_data_property(attr: string): Property<Data> {
+    const prop = this.property(attr)
+    if (!isDict(prop.get_value())) {
+      throw new Error(`expected a column-data dictionary for ${this.type}.${attr}`)
+    }
+    return prop as Property<Data>
   }
 
   stream_to(prop: Property<Data>, new_data: Data, rollover?: number, {sync}: {sync?: boolean} = {}): void {

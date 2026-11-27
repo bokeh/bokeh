@@ -248,6 +248,19 @@ class TestColumnDataChangedEvent:
         )
         assert s.buffers == []
 
+    @pytest.mark.parametrize("cols, expected", [
+        (None, MapRep(type="map", entries=[("col0", [1]), ("col1", None)])),
+        ([], MapRep(type="map")),
+        (["missing", "col1", "col0"], MapRep(type="map", entries=[("col0", [1])])),
+    ])
+    def test_to_serializable_column_selection(self, cols, expected) -> None:
+        doc = Document()
+        model = SomeModel(data={"col0": [1], "col1": None})
+        event = bde.ColumnDataChangedEvent(doc, model, "data", cols=cols)
+        encoded = Serializer().encode(event)
+        assert encoded["data"] == expected
+        assert encoded["cols"] == cols
+
     def test_dispatch(self) -> None:
         doc = Document()
         m = SomeModel()

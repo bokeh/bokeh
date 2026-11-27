@@ -2,10 +2,40 @@ import {expect} from "#framework/assertions"
 import {async_trap} from "#framework/util"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {Document} from "@bokehjs/document/document"
-import {ColumnDataChangedEvent, ModelChangedEvent} from "@bokehjs/document/events"
+import {ColumnDataChangedEvent, ColumnsPatchedEvent, ColumnsStreamedEvent, ModelChangedEvent} from "@bokehjs/document/events"
 import {GeometryDataSource} from "@bokehjs/models/sources/geometry_data_source"
 
 describe("GeometryDataSource", () => {
+  for (const signal of ["streaming", "data_changed"] as const) {
+    it(`publishes a stream before a patch from its ${signal} callback`, () => {
+      const source = GeometryDataSource.create({geometries: [null], data: {label: ["A"]}})
+      const doc = new Document()
+      doc.add_root(source)
+      const peer = Document.from_json(doc.to_json())
+      const events: string[] = []
+      doc.on_change((event) => {
+        if (event instanceof ColumnsStreamedEvent || event instanceof ColumnsPatchedEvent) {
+          events.push(event instanceof ColumnsStreamedEvent ? "stream" : "patch")
+          peer.apply_json_patch(doc.create_json_patch([event]))
+        }
+      })
+
+      let patched = false
+      source[signal].connect(() => {
+        if (!patched) {
+          patched = true
+          expect(source.get_field("label")).to.be.equal(["A", "B"])
+          source.patch({label: [[1, "edited"]]})
+        }
+      })
+      source.stream({geometries: [null], data: {label: ["B"]}})
+
+      expect(events).to.be.equal(["stream", "patch"])
+      expect(source.get_field("label")).to.be.equal(["A", "edited"])
+      expect((peer.roots()[0] as GeometryDataSource).get_field("label")).to.be.equal(["A", "edited"])
+    })
+  }
+
   it("reports misaligned updates and accepts an aligned document patch", async () => {
     const source = GeometryDataSource.create({geometries: [null], data: {name: ["first"], ["__proto__"]: ["p"]}})
     const doc = new Document()

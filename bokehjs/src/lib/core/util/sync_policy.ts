@@ -103,6 +103,14 @@ export class SyncPolicyQueue<T, K extends SyncPolicyQueueKey = SyncPolicyQueueKe
     }
   }
 
+  update(prefix: SyncPolicyQueueKey, refresh: (value: T) => T): void {
+    for (const pending of this._pending.values()) {
+      if (has_prefix(pending.key, prefix) && pending.value != undefined) {
+        pending.value = refresh(pending.value)
+      }
+    }
+  }
+
   drain(): T[] {
     const values: T[] = []
     for (const pending of this._pending.values()) {

@@ -146,3 +146,82 @@ a higher level API and some additional user friendly options.
 .. _Google API Key: https://developers.google.com/maps/documentation/javascript/get-api-key
 .. _Discourse: https://discourse.bokeh.org
 .. _xyzservices: https://xyzservices.readthedocs.org
+
+Updating geometry records
+-------------------------
+
+``GeometryDataSource.replace()`` replaces geometry records and their attribute
+columns together. It accepts the same GeoJSON and ``__geo_interface__`` inputs as
+the constructor. ``stream()`` appends features, with an optional ``rollover``
+limit. Existing attribute fields must be supplied for each new feature. Fields
+introduced by a stream are backfilled with nulls for earlier features.
+
+``patch()`` changes attributes, complete geometries, or individual vertices.
+Integer indices identify features. Vertex paths start with a feature index,
+followed by the coordinate path within that feature. LineString paths are
+``(feature, vertex)``. Polygon paths are
+``(feature, ring, vertex)`` and MultiPolygon paths are
+``(feature, part, ring, vertex)``. A final slice replaces or appends vertices
+within one ring. Part and ring boundaries and extra coordinate dimensions are
+retained. When changing a closed ring, update both its first and last positions
+if they must remain equal.
+
+The :mod:`bokeh.geometry` module provides typed GeoJSON mappings and convenience
+constructors for each geometry type. The constructors return ordinary
+dictionaries and preserve the supplied coordinates. They do not validate
+topology or close rings.
+
+In this example, each LineString is a delivery route. Its attributes give the
+destination and estimated travel time in minutes:
+
+.. code-block:: python
+
+    from bokeh.geometry import line_string
+    from bokeh.models import GeometryDataSource
+
+    source = GeometryDataSource(
+        geometries=[line_string([[0, 0], [1, 0], [1, 1]])],
+        data={"destination": ["Library"], "minutes": [8]},
+    )
+
+    # Move route 0's second point from [1, 0] to [2, 0] and update its travel time.
+    source.patch({"geometry": [((0, 1), [2, 0])], "minutes": [(0, 10)]})
+
+    # Add a second route, with its own destination and travel time.
+    source.stream({
+        "geometries": [line_string([[0, 0], [0, 2], [2, 2]])],
+        "data": {"destination": ["Market"], "minutes": [12]},
+    }, rollover=10)
+
+    # Reroute the Market delivery around a road closure and update its travel time.
+    source.patch({
+        "geometry": [(1, line_string([[0, 0], [0, 3], [2, 3], [2, 2]]))],
+        "minutes": [(1, 14)],
+    })
+
+    # source.geometries == [
+    #     {"type": "LineString", "coordinates": [[0, 0], [2, 0], [1, 1]]},
+    #     {"type": "LineString", "coordinates": [[0, 0], [0, 3], [2, 3], [2, 2]]},
+    # ]
+    # source.data == {"destination": ["Library", "Market"], "minutes": [10, 14]}
+
+BokehJS provides the same constructors through ``Bokeh.geometry``, for example
+``Bokeh.geometry.line_string([[0, 0], [1, 1]])``.
+Helper results can be passed directly to ``stream()`` for sources without
+attribute columns, or used as complete geometry values in ``patch()``.
+Vertex patches take coordinate sequences instead.
+
+Invalid update batches leave records unchanged and emit no change events.
+Writable Python attribute columns and list-based vertices are patched in place.
+Read-only columns and shaped geometry coordinates can require materialization.
+Incremental ``stream()`` and ``patch()`` callbacks receive
+:data:`~bokeh.util.callback_manager.OldValueUnavailable` as ``old`` and the current
+source values as ``new``. Document holds defer these callbacks without retaining
+per-update snapshots. Complete replacements retain their ordinary ``old`` and
+``new`` values. Server applications synchronize all three operations through
+the document protocol, including updates made in JavaScript.
+
+Python callback policies such as ``Throttle`` and ``Debounce`` apply to browser
+property assignments and do not delay record updates. A record update made in
+JavaScript synchronizes any earlier queued assignments to ``geometries`` or
+``data`` first.

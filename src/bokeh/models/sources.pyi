@@ -26,7 +26,9 @@ if TYPE_CHECKING:
 
 from .._types import JSON
 from ..core.has_props import Setter
+from ..core.property.container import Seq
 from ..core.types import PathLike
+from ..geometry import SupportsGeoInterface
 from ..model.model import Model, _ModelInit
 from .callbacks import CustomJS
 from .filters import Filter
@@ -140,10 +142,11 @@ class ColumnDataSource(ColumnarDataSource):
     def patch(self, patches: Patches, setter: Setter | None = ...) -> None: ...
 
 Geometry = dict[str, Any]
+type _GeometryInput = Mapping[str, Any] | SupportsGeoInterface
 GeometryData = DataDict
 
 class _GeometryDataSourceInit(_IndexedDataSourceInit, total=False):
-    geometries: Sequence[Geometry | None]
+    geometries: Sequence[_GeometryInput | None]
     data: GeometryData
     crs: str | None
 
@@ -153,7 +156,8 @@ class GeometryDataSource(IndexedDataSource):
     @overload
     def __init__(self, data: Any, /, **kwargs: Unpack[_GeometryDataSourceInit]) -> None: ...
 
-    geometries: Sequence[Geometry | None] = ...
+    # Ingestion normalizes interface objects to mappings before they are read.
+    geometries: Seq[Geometry | None, _GeometryInput | None] = ...
     data: GeometryData = ...
     crs: str | None = ...
 
@@ -167,6 +171,11 @@ class GeometryDataSource(IndexedDataSource):
     def length(self) -> int: ...
 
     def add(self, data: Sequence[Any] | npt.NDArray[Any], name: str) -> str: ...
+    def replace(self, data: Any, *, setter: Setter | None = None) -> None: ...
+    def stream(self, new_data: Any, rollover: int | None = None, setter: Setter | None = None) -> None: ...
+    def _stream(self, new_data: Any, rollover: int | None = None, setter: Setter | None = None) -> None: ...
+    def patch(self, patches: Patches, setter: Setter | None = None) -> None: ...
+
 
 type GraphNodes = IndexedDataSource | DataDictLike | Mapping[Any, Any] | Sequence[Any]
 type GraphEdges = IndexedDataSource | DataDictLike | Mapping[str, Sequence[Any]] | Sequence[Any]

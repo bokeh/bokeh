@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 import weakref
-from collections import defaultdict
+from collections import defaultdict, deque
 from functools import wraps
 from typing import (
     TYPE_CHECKING,
@@ -41,6 +41,9 @@ from ..events import (
 from ..models.callbacks import Callback as JSEventCallback
 from ..util.callback_manager import _check_callback
 from .events import (
+    ColumnDataChangedEvent,
+    ColumnsPatchedEvent,
+    ColumnsStreamedEvent,
     MessageSentEvent,
     ModelChangedEvent,
     RootAddedEvent,
@@ -82,6 +85,12 @@ __all__ = (
     'TitleChangedEvent',
 )
 
+_DATA_EVENTS = (ColumnDataChangedEvent, ColumnsStreamedEvent, ColumnsPatchedEvent)
+
+
+def _is_record_event(event: DocumentChangedEvent) -> bool:
+    return isinstance(event, _DATA_EVENTS) and event.attr == "records"
+
 
 Callback = Callable[[], None | Awaitable[None]]
 Originator = Callable[..., Any]
@@ -115,6 +124,7 @@ class DocumentCallbackManager:
 
     _hold: HoldPolicyType | None = None
     _held_events: list[DocumentChangedEvent]
+    _ordered_event_queue: deque[tuple[DocumentChangedEvent, bool]] | None = None
 
     def __init__(self, document: Document):
         '''
@@ -427,13 +437,60 @@ class DocumentCallbackManager:
             _combine_document_events(event, self._held_events)
             return
 
+        queue = self._ordered_event_queue
+        if queue is not None:
+            # Invoke model callbacks synchronously, but publish their changes after
+            # the record operation (and any held operations) they depend on.
+            queue.append((event, False))
+            self._invoke_model_callbacks(doc, event)
+        elif _is_record_event(event):
+            self._dispatch_ordered(doc, [event])
+        else:
+            self._invoke_model_callbacks(doc, event)
+            self._invoke_change_callbacks(doc, event)
+
+    @staticmethod
+    def _invoke_model_callbacks(doc: Document, event: DocumentChangedEvent) -> None:
         if event.callback_invoker is not None:
             invoke_with_curdoc(doc, event.callback_invoker)
 
+    def _invoke_change_callbacks(self, doc: Document, event: DocumentChangedEvent) -> None:
         def invoke_callbacks() -> None:
             for cb in self.change_callbacks():
                 cb(event)
         invoke_with_curdoc(doc, invoke_callbacks)
+
+    def _dispatch_ordered(self, doc: Document, events: list[DocumentChangedEvent]) -> None:
+        queue = self._ordered_event_queue
+        if queue is not None:
+            queue.extend((event, False) for event in events)
+            for event in events:
+                self._invoke_model_callbacks(doc, event)
+            return
+
+        # Reserve all held changes before invoking callbacks. The first callback
+        # can already see the state after the last held change.
+        queue = deque((event, True) for event in events)
+        self._ordered_event_queue = queue
+        try:
+            while queue:
+                if self._hold is not None:
+                    # A callback started a new hold. All reserved events precede
+                    # changes collected by that hold, even if their model callbacks
+                    # already ran. Transfer them as a group without recombining them.
+                    deferred = []
+                    for event, invoke_model_callbacks in queue:
+                        if not invoke_model_callbacks:
+                            event.callback_invoker = None
+                        deferred.append(event)
+                    self._held_events[:0] = deferred
+                    break
+                event, invoke_model_callbacks = queue.popleft()
+                if invoke_model_callbacks:
+                    self._invoke_model_callbacks(doc, event)
+                self._invoke_change_callbacks(doc, event)
+        finally:
+            self._ordered_event_queue = None
 
     def unhold(self) -> None:
         ''' Turn off any active document hold and apply any collected events.
@@ -450,8 +507,12 @@ class DocumentCallbackManager:
         events = list(self._held_events)
         self._held_events = []
 
-        for event in events:
-            self.trigger_on_change(event)
+        doc = self._document()
+        if doc is not None and (self._ordered_event_queue is not None or any(map(_is_record_event, events))):
+            self._dispatch_ordered(doc, events)
+        else:
+            for event in events:
+                self.trigger_on_change(event)
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -492,9 +553,20 @@ def _combine_document_events(new_event: DocumentChangedEvent, old_events: list[D
         None
 
     '''
+    new_is_data = isinstance(new_event, _DATA_EVENTS)
+    new_records = new_is_data and getattr(new_event, "attr", None) == "records"
+    new_model = getattr(new_event, "model", None)
+    new_eligible = new_is_data or isinstance(new_event, ModelChangedEvent)
     for event in reversed(old_events):
         if event.combine(new_event):
             return
+        # Composite geometry edits must retain their order relative to property replacements.
+        # A ModelChanged event for "records" is an ordinary property update.
+        if new_eligible and getattr(event, "model", None) is new_model:
+            if new_records and isinstance(event, ModelChangedEvent):
+                break
+            if isinstance(event, _DATA_EVENTS) and (new_records or event.attr == "records"):
+                break
 
     # no combination was possible
     old_events.append(new_event)
