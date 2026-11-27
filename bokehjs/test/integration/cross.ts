@@ -9,7 +9,7 @@ import type {DocJson} from "@bokehjs/document"
 import {Document} from "@bokehjs/document"
 import {DataModel} from "@bokehjs/model"
 import {Column, GlyphRenderer} from "@bokehjs/models"
-import {PlotView} from "@bokehjs/models/plots/plot"
+import {XYPlotView} from "@bokehjs/models/plots/xy_plot_canvas"
 import {GridPlotView} from "@bokehjs/models/plots/grid_plot"
 import {DataTableView} from "@bokehjs/models/widgets/tables/data_table"
 
@@ -66,7 +66,7 @@ describe("Bug", () => {
       const gb = gp.grid_box_view
 
       for (const pv of gb.child_views) {
-        expect_instanceof(pv, PlotView)
+        expect_instanceof(pv, XYPlotView)
 
         await actions(pv).pan(xy(0.5, 0.5), xy(1.5, 1.5))
         await pv.ready

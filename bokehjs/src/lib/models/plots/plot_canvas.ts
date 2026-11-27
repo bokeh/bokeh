@@ -1,12 +1,11 @@
+import type {FrameView} from "../canvas/frame"
 import {Frame} from "../canvas/frame"
 import type {CoordinateTransform} from "../coordinates/coordinate_transform"
-import {CartesianFrame} from "../canvas/cartesian_frame"
 import {CanvasPanel} from "../canvas/canvas_panel"
-import type {CartesianFrameView} from "../canvas/cartesian_frame"
 import type {CanvasView} from "../canvas/canvas"
 import {Canvas} from "../canvas/canvas"
-import type {Renderer} from "../renderers/renderer"
 import {RendererView} from "../renderers/renderer"
+import type {Renderer} from "../renderers/renderer"
 import {CompositeRendererView} from "../renderers/composite_renderer"
 import type {DataRenderer} from "../renderers/data_renderer"
 import type {Range} from "../ranges/range"
@@ -14,31 +13,29 @@ import type {Tool} from "../tools/tool"
 import {ToolProxy} from "../tools/tool_proxy"
 import {ToolMenu} from "../tools/tool_menu"
 import type {Selection} from "../selections/selection"
-import type {DOMBoxSizing} from "../layouts/layout_dom"
-import type {LayoutDOM} from "../layouts/layout_dom"
 import {LayoutDOMView} from "../layouts/layout_dom"
+import type {LayoutDOM, DOMBoxSizing} from "../layouts/layout_dom"
 import type {Plot} from "./plot"
-import type {XYPlot} from "./xy_plot"
 import {Annotation, AnnotationView} from "../annotations/annotation"
 import {Title} from "../annotations/title"
-import {Axis} from "../axes/axis"
-import {AxisView} from "../axes/axis"
-import type {ToolbarPanelView} from "../annotations/toolbar_panel"
+import {AxisView, Axis} from "../axes/axis"
 import {ToolbarPanel} from "../annotations/toolbar_panel"
-import type {AutoRanged} from "../ranges/data_range1d"
+import type {ToolbarPanelView} from "../annotations/toolbar_panel"
 import {is_auto_ranged} from "../ranges/data_range1d"
+import type {AutoRanged} from "../ranges/data_range1d"
 import type {Menu} from "../ui/menus/menu"
 import type {ElementLike} from "../ui/pane"
 import {Panel} from "../ui/panel"
 import {Div} from "../dom/elements"
 
+import type {Property} from "core/properties"
 import {Reset} from "core/bokeh_events"
+import type {RangesUpdate} from "core/bokeh_events"
 import type {ViewStorage, ChildView, View, ViewOf, BuildResult} from "core/build_views"
 import {build_views} from "core/build_views"
 import type {Paintable} from "core/visuals"
 import {Visuals} from "core/visuals"
 import {logger} from "core/logging"
-import {RangesUpdate} from "core/bokeh_events"
 import type {Side, RenderLevel} from "core/enums"
 import {Signal0} from "core/signaling"
 import {throttle} from "core/util/throttle"
@@ -57,12 +54,11 @@ import {BBox} from "core/util/bbox"
 import type {XY} from "core/util/bbox"
 import {parse_css_font_size} from "core/util/text"
 import type {RangeInfo, RangeOptions} from "./range_manager"
-import {RangeManager} from "./range_manager"
 import type {StateInfo} from "./state_manager"
 import {StateManager} from "./state_manager"
 import {settings} from "core/settings"
-import type {StyleSheetLike} from "core/dom"
 import {InlineStyleSheet, px, div} from "core/dom"
+import type {StyleSheetLike} from "core/dom"
 import type {XY as XY_} from "../coordinates/xy"
 import type {Indexed} from "../coordinates/indexed"
 import {Node} from "../coordinates/node"
@@ -86,12 +82,20 @@ type LayoutPanels = {
   inner_right: Panels
 }
 
-export class PlotView extends LayoutDOMView implements Paintable {
-  declare model: XYPlot
-  get_coordinates(renderer: RendererView): CoordinateTransform {
-    const {x_range_name, y_range_name} = renderer.model
-    return this.model.coordinate_system.get_transform(this.frame, x_range_name, y_range_name)
-  }
+export abstract class PlotView extends LayoutDOMView implements Paintable {
+  declare model: Plot
+
+  abstract get_coordinates(renderer?: RendererView): CoordinateTransform
+
+  abstract get coordinate_source_properties(): readonly Property[]
+
+  abstract update_range(range_info: RangeInfo, options?: Partial<RangeOptions>): void
+
+  abstract reset_range(): void
+
+  abstract trigger_ranges_update_event(extra_ranges?: Range[]): void
+
+  abstract ranges_update_event(): RangesUpdate
 
   visuals: Plot.Visuals
 
@@ -117,9 +121,9 @@ export class PlotView extends LayoutDOMView implements Paintable {
   inner_left_panel: ViewOf<CanvasPanel>
   inner_right_panel: ViewOf<CanvasPanel>
 
-  private _frame: CartesianFrame
-  frame_view: CartesianFrameView
-  get frame(): CartesianFrameView {
+  protected _frame: Frame
+  frame_view: FrameView
+  get frame(): FrameView {
     return this.frame_view
   }
 
@@ -154,15 +158,12 @@ export class PlotView extends LayoutDOMView implements Paintable {
   protected _invalidate_all: boolean = true
 
   protected _state_manager: StateManager
-  protected _range_manager: RangeManager
 
   get state(): StateManager {
     return this._state_manager
   }
 
-  set invalidate_dataranges(value: boolean) {
-    this._range_manager.invalidate_dataranges = value
-  }
+  abstract set invalidate_dataranges(value: boolean)
 
   protected lod_started: boolean
 
@@ -306,6 +307,16 @@ export class PlotView extends LayoutDOMView implements Paintable {
     return super.get_context_menu(xy)
   }
 
+  protected abstract _create_frame(): Frame
+
+  protected abstract _initialize_coordinates(): void
+
+  protected abstract _update_coordinate_ranges(): boolean
+
+  protected abstract _after_coordinate_layout(): void
+
+  protected abstract _capture_initial_ranges(): void
+
   override initialize(): void {
     this.pause()
 
@@ -328,21 +339,8 @@ export class PlotView extends LayoutDOMView implements Paintable {
     this._inner_left_panel = CanvasPanel.create({place: "left", inner: true})
     this._inner_right_panel = CanvasPanel.create({place: "right", inner: true})
 
-    this._frame = CartesianFrame.create({
-      place: "center",
-      x_scale: this.model.x_scale,
-      y_scale: this.model.y_scale,
-      x_range: this.model.x_range,
-      y_range: this.model.y_range,
-      extra_x_ranges: this.model.extra_x_ranges,
-      extra_y_ranges: this.model.extra_y_ranges,
-      extra_x_scales: this.model.extra_x_scales,
-      extra_y_scales: this.model.extra_y_scales,
-      aspect_scale: this.model.aspect_scale,
-      match_aspect: this.model.match_aspect,
-    })
-
-    this._range_manager = new RangeManager(this)
+    this._frame = this._create_frame()
+    this._initialize_coordinates()
     this._state_manager = new StateManager(this, this._initial_state)
 
     this.throttled_paint = throttle(() => {
@@ -426,7 +424,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
     this.canvas_view = this._element_views.get(this._canvas)! as CanvasView
     this.canvas_view.plot_views = [this]
 
-    this.frame_view = this._element_views.get(this._frame)! as CartesianFrameView
+    this.frame_view = this._element_views.get(this._frame)! as FrameView
 
     this.top_panel = this._element_views.get(this._top_panel)! as ViewOf<CanvasPanel>
     this.bottom_panel = this._element_views.get(this._bottom_panel)! as ViewOf<CanvasPanel>
@@ -441,7 +439,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
     await this.build_tool_views()
     await this.build_renderer_views()
 
-    this._range_manager.update_dataranges()
+    this._update_coordinate_ranges()
     this._update_touch_action() // active_changed emits too early, so update manually the first time
   }
 
@@ -807,37 +805,6 @@ export class PlotView extends LayoutDOMView implements Paintable {
     return views
   }
 
-  update_range(range_info: RangeInfo, options?: Partial<RangeOptions>): void {
-    this.pause()
-    this._range_manager.update(range_info, options)
-    this.unpause()
-  }
-
-  reset_range(): void {
-    this.pause()
-    this._range_manager.reset()
-    this.unpause()
-    this.trigger_ranges_update_event()
-  }
-
-  trigger_ranges_update_event(extra_ranges: Range[] = []): void {
-    /**
-     * Emits `RangesUpdate` event on all plots linked by all
-     * ranges managed by this plot's range manager and linked
-     * by additional context dependent ranges (`extra_ranges`).
-     */
-    const {x_ranges, y_ranges} = this._range_manager.ranges()
-    const ranges = [...x_ranges, ...y_ranges, ...extra_ranges]
-
-    const linked_plots = new Set(ranges.flatMap((r) => [...r.linked_plots]))
-
-    for (const plot_view of linked_plots) {
-      const {x_range, y_range} = plot_view.model
-      const event = new RangesUpdate(x_range.start, x_range.end, y_range.start, y_range.end)
-      plot_view.model.trigger_event(event)
-    }
-  }
-
   get_selection(): Map<DataRenderer, Selection> {
     const selection = new Map<DataRenderer, Selection>()
     for (const renderer of this.model.data_renderers) {
@@ -965,38 +932,6 @@ export class PlotView extends LayoutDOMView implements Paintable {
   override connect_signals(): void {
     super.connect_signals()
 
-    const {
-      x_range, y_range,
-      x_scale, y_scale,
-      extra_x_ranges, extra_y_ranges,
-      extra_x_scales, extra_y_scales,
-      aspect_scale, match_aspect,
-    } = this.model.properties
-
-    this.on_change([
-      x_range, y_range,
-      x_scale, y_scale,
-      extra_x_ranges, extra_y_ranges,
-      extra_x_scales, extra_y_scales,
-      aspect_scale, match_aspect,
-    ], () => {
-      const {
-        x_range, y_range,
-        x_scale, y_scale,
-        extra_x_ranges, extra_y_ranges,
-        extra_x_scales, extra_y_scales,
-        aspect_scale, match_aspect,
-      } = this.model
-
-      this._frame.setv({
-        x_range, y_range,
-        x_scale, y_scale,
-        extra_x_ranges, extra_y_ranges,
-        extra_x_scales, extra_y_scales,
-        aspect_scale, match_aspect,
-      })
-    })
-
     const {above, below, left, right, center, renderers} = this.model.properties
     this.on_change([above, below, left, right, center, renderers], async () => {
       await this._update_renderers()
@@ -1017,39 +952,6 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
     const {min_border, min_border_top, min_border_bottom, min_border_left, min_border_right} = this.model.properties
     this.on_change([min_border, min_border_top, min_border_bottom, min_border_left, min_border_right], () => this.invalidate_layout())
-
-    const range_connections = new Map<Range, () => void>()
-    const repaint = () => this.request_repaint()
-    const update_range_connections = () => {
-      const {ranges} = this.frame
-      const changed = ranges.size != range_connections.size || [...ranges].some((range) => !range_connections.has(range))
-      if (changed && range_connections.size != 0) {
-        this._initial_state.range = undefined
-        this.state.clear()
-      }
-      for (const [range, constrain] of range_connections) {
-        if (!ranges.has(range)) {
-          this.disconnect(range.change, repaint)
-          this.disconnect(range.properties.min_interval.change, constrain)
-          this.disconnect(range.properties.max_interval.change, constrain)
-          range_connections.delete(range)
-        }
-      }
-      for (const range of ranges) {
-        if (!range_connections.has(range)) {
-          const constrain = () => this._constrain_range_interval(range)
-          this.connect(range.change, repaint)
-          this.connect(range.properties.min_interval.change, constrain)
-          this.connect(range.properties.max_interval.change, constrain)
-          range_connections.set(range, constrain)
-        }
-      }
-    }
-    update_range_connections()
-    this.connect(this._frame.change, () => {
-      update_range_connections()
-      this.invalidate_dataranges = true
-    })
 
     this.connect(this.model.change, () => this.request_repaint())
     this.connect(this.model.reset, () => this.reset())
@@ -1091,13 +993,6 @@ export class PlotView extends LayoutDOMView implements Paintable {
           this.request_repaint()
         }
       }, {signal: this.abort_signal})
-    }
-  }
-
-  protected _constrain_range_interval(range: Range): void {
-    const range_info = this._range_manager.constrain_interval(range)
-    if (range_info != null) {
-      this.update_range(range_info)
     }
   }
 
@@ -1190,11 +1085,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
       outer_height: Math.round(this.bbox.height),
     }, {no_change: true})
 
-    if (this.model.match_aspect) {
-      this.pause()
-      this._range_manager.update_dataranges()
-      this.unpause(true)
-    }
+    this._after_coordinate_layout()
 
     if (this.canvas_view.update_bbox()) {
       this._invalidate_all = true
@@ -1271,8 +1162,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
       }
     }
 
-    if (this._range_manager.invalidate_dataranges || this.model.window_axis != "none") {
-      this._range_manager.update_dataranges()
+    if (this._update_coordinate_ranges()) {
       this._invalidate_layout_if_needed()
     }
 
@@ -1312,9 +1202,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
       overlays.finish()
     }
 
-    if (this._initial_state.range == null) {
-      this._initial_state.range = this._range_manager.compute_initial() ?? undefined
-    }
+    this._capture_initial_ranges()
 
     for (const element_view of this.element_views) {
       element_view.reposition()
@@ -1503,8 +1391,7 @@ export class PlotView extends LayoutDOMView implements Paintable {
 
   override resolve_xy(coord: XY_): XY {
     const {x, y} = coord
-    const sx = this.frame.x_scale.compute(x)
-    const sy = this.frame.y_scale.compute(y)
+    const [sx, sy] = this.get_coordinates().compute(x, y)
     if (this.frame.bbox.contains(sx, sy)) {
       return {x: sx, y: sy}
     } else {

@@ -7,7 +7,7 @@ import {expect_pixel} from "#framework/pixels"
 import {restorable} from "#framework/util"
 import {PlotActions, actions, xy, line, tap, mouse_click, scroll_up, scroll_down, show_context_menu} from "#framework/interactive"
 import {convert_to_uint32_palette} from "@bokehjs/models/mappers/color_mapper"
-import type {PlotView} from "@bokehjs/models/plots/plot"
+import type {XYPlotView} from "@bokehjs/models/plots/xy_plot_canvas"
 import type {ViewOf} from "@bokehjs/core/build_views"
 import {build_view} from "@bokehjs/core/build_views"
 
@@ -2038,11 +2038,11 @@ ${view.host_selector} {
   })
 
   describe("in issue #14869", () => {
-    function get_cursor(plot_view: PlotView): string {
+    function get_cursor(plot_view: XYPlotView): string {
       return getComputedStyle(plot_view.canvas_view.events_el).cursor
     }
 
-    async function has_cursor_at(plot_view: PlotView, point: XY, cursor: string) {
+    async function has_cursor_at(plot_view: XYPlotView, point: XY, cursor: string) {
       const ac = actions(plot_view, {units: "data"})
       await ac.hover(point)
       expect(get_cursor(plot_view)).to.be.equal(cursor)
@@ -2218,7 +2218,7 @@ ${view.host_selector} {
       return {p, r2, source}
     }
 
-    async function toggle_line2(view: PlotView, legend: Legend): Promise<void> {
+    async function toggle_line2(view: XYPlotView, legend: Legend): Promise<void> {
       const legend_view = view.views.get_one(legend)
       await tap(legend_view.shadow_el.querySelectorAll(".bk-item")[1])
       await view.ready
@@ -2329,17 +2329,17 @@ ${view.host_selector} {
       return {view, plots, views, canvas: webgl.canvas}
     }
 
-    function paint(plot_view: PlotView): void {
+    function paint(plot_view: XYPlotView): void {
       plot_view.invalidate_painters()
       plot_view.paint()
     }
 
-    function pixels(plot_view: PlotView): Uint8Array {
+    function pixels(plot_view: XYPlotView): Uint8Array {
       const {ctx, canvas: {width, height}} = plot_view.canvas_view.primary
       return new Uint8Array(ctx.getImageData(0, 0, width, height).data.buffer)
     }
 
-    function expect_pixels(plot_view: PlotView, expected: Uint8Array): void {
+    function expect_pixels(plot_view: XYPlotView, expected: Uint8Array): void {
       const actual = pixels(plot_view)
       const {width, height} = plot_view.canvas_view.primary.canvas
       expect(actual.length).to.be.equal(expected.length)

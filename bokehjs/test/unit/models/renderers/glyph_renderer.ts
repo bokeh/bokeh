@@ -27,7 +27,7 @@ import type {TextBox} from "@bokehjs/core/graphics"
 import {logger} from "@bokehjs/core/logging"
 import {figure, show} from "@bokehjs/api/plotting"
 import {IndexedSubset} from "@bokehjs/models/sources/indexed_subset"
-import {PlotView} from "@bokehjs/models/plots/plot_canvas"
+import {XYPlotView} from "@bokehjs/models/plots/xy_plot_canvas"
 import {Indices} from "@bokehjs/core/types"
 import type {GlyphView} from "@bokehjs/models/glyphs/glyph"
 import {GlyphAttachment, GlyphAttachmentView} from "@bokehjs/models/renderers/glyph_attachment"
@@ -235,7 +235,7 @@ describe("GlyphRendererView", () => {
       width: 300, height: 300, renderers, x_range,
       y_range: Range1d.create({start: -1, end: 1}),
     })
-    using paints = restorable(sinon.spy(PlotView.prototype, "paint"))
+    using paints = restorable(sinon.spy(XYPlotView.prototype, "paint"))
     const el = document.createElement("div")
     document.body.append(el)
     const mounted = show(plot, el)
@@ -291,7 +291,7 @@ describe("GlyphRendererView", () => {
 
   // Mount a plot and return helpers that read canvas pixels and wait, with bounds, for painting to stop.
   async function mount_bounded(plot: XYPlot) {
-    const paints = sinon.spy(PlotView.prototype, "paint")
+    const paints = sinon.spy(XYPlotView.prototype, "paint")
     const el = document.createElement("div")
     document.body.append(el)
     const mounted = show(plot, el)

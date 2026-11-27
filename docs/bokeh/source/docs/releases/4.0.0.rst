@@ -76,7 +76,9 @@ Removals
 * ``Plot`` is now an abstract shared base. Replace direct ``Plot(...)``
   construction with :class:`~bokeh.models.XYPlot`. Custom Cartesian
   plot subclasses should inherit from ``XYPlot`` in Python and
-  BokehJS. ``figure`` remains a subclass of ``Plot`` through ``XYPlot``.
+  BokehJS. Custom Cartesian views should extend ``XYPlotView`` instead of
+  ``PlotView``, which now provides the shared plot-view contract.
+  ``figure`` remains a subclass of ``Plot`` through ``XYPlot``.
   Ranges, scales, named extra ranges and scales, windowed autoranging, and
   data aspect configuration belong to ``XYPlot``. Their property
   callbacks, links, sharing, and serialization remain available.

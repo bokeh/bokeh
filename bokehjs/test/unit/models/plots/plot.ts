@@ -5,9 +5,10 @@ import {display, fig, row} from "#framework/layouts"
 
 import {Document} from "@bokehjs/document"
 import {RootAddedEvent, ModelChangedEvent} from "@bokehjs/document/events"
+import {PlotView} from "@bokehjs/models/plots/plot_canvas"
 import {Plot} from "@bokehjs/models/plots/plot"
 import {XYPlot} from "@bokehjs/models/plots/xy_plot"
-import type {PlotView} from "@bokehjs/models/plots/plot"
+import {XYPlotView} from "@bokehjs/models/plots/xy_plot_canvas"
 import {CartesianMapping} from "@bokehjs/models/coordinates/cartesian_mapping"
 import {CustomJS} from "@bokehjs/models/callbacks/customjs"
 import {poll} from "@bokehjs/core/util/defer"
@@ -31,7 +32,7 @@ import {Rect, Scatter, MultiLine} from "@bokehjs/models/glyphs"
 import {ColumnDataSource} from "@bokehjs/models/sources"
 import {StaticLayoutProvider} from "@bokehjs/models/graphs"
 
-async function new_plot_view(attrs: Partial<XYPlot.Attrs> = {}): Promise<PlotView> {
+async function new_plot_view(attrs: Partial<XYPlot.Attrs> = {}): Promise<XYPlotView> {
   const plot = XYPlot.create({
     x_range: Range1d.create({start: 0, end: 10}),
     y_range: Range1d.create({start: 0, end: 10}),
@@ -135,7 +136,7 @@ describe("Plot module", () => {
     })
   })
 
-  describe("PlotView", () => {
+  describe("XYPlotView", () => {
     it("should allow to resolve child renderers of its composite renderers", async () => {
       const graph = GraphRenderer.create({
         layout_provider: StaticLayoutProvider.create(),
@@ -360,7 +361,7 @@ describe("Plot module", () => {
       expect(x_range.end).to.be.equal(10)
     })
 
-    describe("PlotView.pause()", () => {
+    describe("XYPlotView.pause()", () => {
 
       it("should start unpaused", async () => {
         const view = await new_plot_view()
@@ -458,6 +459,14 @@ describe("XYPlot coordinate mapping", () => {
       new ModelChangedEvent(source, p, "coordinate_system", replacement),
     ]))).to.throw(Error, /initialization/)
     expect(restored.coordinate_system.id).to.be.equal(p.coordinate_system.id)
+  })
+
+  it("pairs shared and Cartesian model/view contracts", async () => {
+    const p = XYPlot.create()
+    const {view} = await display(p)
+    expect(view).to.be.instanceof(PlotView)
+    expect(view).to.be.instanceof(XYPlotView)
+    expect(view.model).to.be.identical(p)
   })
 
   it("rebinds renderer transforms to replacement ranges and scales", async () => {

@@ -3,11 +3,11 @@ import {OnOffButton} from "../on_off_button"
 import type {PlotView} from "../../plots/plot"
 import type * as p from "core/properties"
 
-export abstract class InspectToolView extends ToolView {
+export abstract class InspectToolView<P extends PlotView = PlotView> extends ToolView {
   declare model: InspectTool
-  declare readonly parent: PlotView
+  declare readonly parent: P
 
-  get plot_view(): PlotView {
+  get plot_view(): P {
     return this.parent
   }
 }

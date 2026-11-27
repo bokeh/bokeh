@@ -1,3 +1,4 @@
+import type {XYPlotView} from "../../plots/xy_plot_canvas"
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import {Modifiers, satisfies_modifiers, print_modifiers} from "./common"
 import {DataRenderer} from "../../renderers/data_renderer"
@@ -21,7 +22,7 @@ type ZoomTogether = Infer<typeof ZoomTogether>
 const Renderers = Or(List(Ref(DataRenderer)), Auto)
 type Renderers = Infer<typeof Renderers>
 
-export class WheelZoomToolView extends GestureToolView {
+export class WheelZoomToolView extends GestureToolView<XYPlotView> {
   declare model: WheelZoomTool
 
   override _scroll(ev: ScrollEvent): boolean {

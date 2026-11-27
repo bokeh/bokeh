@@ -11,7 +11,7 @@ import {LogAxis} from "@bokehjs/models/axes/log_axis"
 import {IndexedStackColorMapper} from "@bokehjs/models/mappers/indexed_stack_color_mapper"
 import {LinearColorMapper} from "@bokehjs/models/mappers/linear_color_mapper"
 import {LogColorMapper} from "@bokehjs/models/mappers/log_color_mapper"
-import type {PlotView} from "@bokehjs/models/plots/plot"
+import type {XYPlotView} from "@bokehjs/models/plots/xy_plot_canvas"
 import type {Range1d} from "@bokehjs/models/ranges/range1d"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {LogScale} from "@bokehjs/models/scales/log_scale"
@@ -297,7 +297,7 @@ describe("IndexedStackColorMapper module", () => {
       const renderer = p.image_stack({image: [stack()], x: 0, y: 0, dw: 1, dh: 1, color_mapper})
       p.add_layout(color_bar, "right")
 
-      let view!: PlotView
+      let view!: XYPlotView
       const out = await async_trap(async () => {
         view = (await display(p)).view
       })

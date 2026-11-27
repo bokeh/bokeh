@@ -3,7 +3,7 @@
 .. bokeh-example-metadata::
     :title: Custom
     :keywords: custom, models
-    :apis: bokeh.models.Callback, bokeh.models.Circle, bokeh.models.ColumnDataSource, bokeh.models.LinearAxis, bokeh.models.PanTool, bokeh.models.Plot
+    :apis: bokeh.models.Callback, bokeh.models.Circle, bokeh.models.ColumnDataSource, bokeh.models.LinearAxis, bokeh.models.PanTool, bokeh.models.XYPlot
 '''
 
 from bokeh.core.properties import Color, Float, List, Override, String
@@ -36,11 +36,11 @@ class MyPlot(XYPlot):
 
     __implementation__ = TypeScript("""
 import {XYPlot} from "models/plots/xy_plot"
-import {PlotView} from "models/plots/plot"
+import {XYPlotView} from "models/plots/xy_plot"
 import * as p from "core/properties"
 import "./custom.less"
 
-export class MyPlotView extends PlotView {
+export class MyPlotView extends XYPlotView {
   declare model: MyPlot
 
   render(): void {

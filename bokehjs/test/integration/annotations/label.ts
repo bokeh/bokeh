@@ -4,7 +4,7 @@ import {PlotActions, xy} from "#framework/interactive"
 import {tex} from "./_text_utils"
 
 import {Label, HTMLLabel} from "@bokehjs/models/annotations"
-import type {PlotView} from "@bokehjs/models/plots/plot"
+import type {XYPlotView} from "@bokehjs/models/plots/xy_plot_canvas"
 import type {HasPropsFactory} from "@bokehjs/core/has_props"
 import type {OutputBackend, Anchor} from "@bokehjs/core/enums"
 
@@ -360,7 +360,7 @@ describe("Label annotation", () => {
   })
 
   describe("should support rotation by dragging", async () => {
-    async function pan(view: PlotView, xy0: Point, xy1: Point) {
+    async function pan(view: XYPlotView, xy0: Point, xy1: Point) {
       const actions = new PlotActions(view)
       await actions.pan_along({type: "line", xy0, xy1})
     }

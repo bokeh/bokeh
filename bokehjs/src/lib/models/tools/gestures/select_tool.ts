@@ -1,3 +1,4 @@
+import type {XYPlotView} from "../../plots/xy_plot_canvas"
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GraphRenderer} from "../../renderers/graph_renderer"
@@ -16,7 +17,7 @@ import {unreachable} from "core/util/assert"
 import {uniq} from "core/util/array"
 import * as icons from "styles/icons.css"
 
-export abstract class SelectToolView extends GestureToolView {
+export abstract class SelectToolView extends GestureToolView<XYPlotView> {
   declare model: SelectTool
 
   override connect_signals(): void {

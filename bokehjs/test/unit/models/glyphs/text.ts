@@ -6,7 +6,7 @@ import type {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import type {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import type {Text} from "@bokehjs/models/glyphs/text"
 import type {GlyphRendererView} from "@bokehjs/models/renderers/glyph_renderer"
-import type {PlotView} from "@bokehjs/models/plots/plot"
+import type {XYPlotView} from "@bokehjs/models/plots/xy_plot_canvas"
 import {Selection} from "@bokehjs/models/selections/selection"
 import {bounding_box} from "@bokehjs/core/dom"
 import {BBox} from "@bokehjs/core/util/bbox"
@@ -16,7 +16,7 @@ const {min, max} = Math
 
 describe("Text glyph", () => {
   describe("should mirror canvas labels with DOM text nodes", () => {
-    async function setup(attrs: {angle?: number} = {}): Promise<{view: PlotView, renderer: GlyphRenderer<Text, Text, Text, Text, Text, ColumnDataSource>, renderer_view: GlyphRendererView}> {
+    async function setup(attrs: {angle?: number} = {}): Promise<{view: XYPlotView, renderer: GlyphRenderer<Text, Text, Text, Text, Text, ColumnDataSource>, renderer_view: GlyphRendererView}> {
       const p = fig([300, 300], {x_range: [0, 10], y_range: [0, 10]})
       const renderer = p.text({
         x: [1, 5, 9], y: [1, 5, 9], text: ["first", "second\nline", "third"],

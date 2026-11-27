@@ -3,7 +3,7 @@ import type {PlotActions} from "#framework/interactive"
 import {actions, xy} from "#framework/interactive"
 import {display} from "#framework/layouts"
 
-import type {PlotView} from "@bokehjs/models/plots/plot"
+import type {XYPlotView} from "@bokehjs/models/plots/xy_plot_canvas"
 import {Range1d, LinearAxis, BoxAnnotation, XYPlot} from "@bokehjs/models"
 import {Node} from "@bokehjs/models/coordinates/node"
 import {no_repeated} from "@bokehjs/core/util/iterator"
@@ -14,7 +14,7 @@ const {min, max} = Math
 
 describe("BoxAnnotation", () => {
 
-  async function mkplot(box: BoxAnnotation, {x_range}: {x_range?: Range1d} = {}): Promise<PlotView> {
+  async function mkplot(box: BoxAnnotation, {x_range}: {x_range?: Range1d} = {}): Promise<XYPlotView> {
     const plot = XYPlot.create({
       width: 400,
       height: 400,
@@ -29,7 +29,7 @@ describe("BoxAnnotation", () => {
     return view
   }
 
-  function get_cursor(plot_view: PlotView): string {
+  function get_cursor(plot_view: XYPlotView): string {
     return getComputedStyle(plot_view.canvas_view.events_el).cursor
   }
 

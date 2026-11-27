@@ -6,7 +6,7 @@ import {default_resolver} from "@bokehjs/base"
 import {ClientConnection} from "@bokehjs/client/connection"
 import {ClientSession} from "@bokehjs/client/session"
 import {Document, documents} from "@bokehjs/document"
-import {PlotView} from "@bokehjs/models/plots/plot"
+import {XYPlotView} from "@bokehjs/models/plots/xy_plot_canvas"
 import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 
 const default_options = {url: "ws://127.0.0.1:5877/ws", token: btoa(JSON.stringify({session_id: "mount-test"}))}
@@ -229,7 +229,7 @@ describe("connect_session()", () => {
   })
 
   it("keeps rendering failure separate from connection ownership", async () => {
-    class FailingView extends PlotView {
+    class FailingView extends XYPlotView {
       override async lazy_initialize(): Promise<void> {
         await super.lazy_initialize()
         throw new Error("render failed")

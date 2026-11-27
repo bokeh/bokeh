@@ -5,7 +5,7 @@ import {Signal0} from "core/signaling"
 import {div} from "core/dom"
 import {wgs84_mercator} from "core/util/projections"
 import type {GMapPlot} from "./gmap_plot"
-import {PlotView} from "./plot_canvas"
+import {XYPlotView} from "./xy_plot_canvas"
 import type {RangeInfo, RangeOptions} from "./range_manager"
 
 type GMapRangeInfo = RangeInfo & {
@@ -35,7 +35,7 @@ const load_google_api = function(api_key: string, api_version: string): void {
   document.body.appendChild(script)
 }
 
-export class GMapPlotView extends PlotView {
+export class GMapPlotView extends XYPlotView {
   declare model: GMapPlot
 
   protected _tiles_loaded: boolean

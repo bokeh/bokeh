@@ -1,3 +1,4 @@
+import {XYPlotView} from "../plots/xy_plot_canvas"
 import {Annotation, AnnotationView} from "./annotation"
 import {Dimensional, MetricLength} from "./dimensional"
 import {Range} from "../ranges/range"
@@ -52,6 +53,13 @@ type LengthSizing = Infer<typeof LengthSizing>
 
 export class ScaleBarView extends AnnotationView {
   declare model: ScaleBar
+
+  override get plot_view(): XYPlotView {
+    const view = super.plot_view
+    assert(view instanceof XYPlotView, "ScaleBar requires a Cartesian plot context")
+    return view
+  }
+
   declare visuals: ScaleBar.Visuals
 
   protected _bbox: BBox = new BBox()

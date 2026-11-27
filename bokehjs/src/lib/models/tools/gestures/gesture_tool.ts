@@ -4,11 +4,11 @@ import type {PlotView} from "../../plots/plot"
 import type {EventType} from "core/ui_events"
 import type * as p from "core/properties"
 
-export abstract class GestureToolView extends ToolView {
+export abstract class GestureToolView<P extends PlotView = PlotView> extends ToolView {
   declare model: GestureTool
-  declare readonly parent: PlotView
+  declare readonly parent: P
 
-  get plot_view(): PlotView {
+  get plot_view(): P {
     return this.parent
   }
 }

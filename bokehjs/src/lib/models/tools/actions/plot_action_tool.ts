@@ -2,11 +2,11 @@ import {ActionTool, ActionToolView} from "./action_tool"
 import type {PlotView} from "../../plots/plot_canvas"
 import type * as p from "core/properties"
 
-export abstract class PlotActionToolView extends ActionToolView {
+export abstract class PlotActionToolView<P extends PlotView = PlotView> extends ActionToolView {
   declare model: PlotActionTool
-  declare readonly parent: PlotView
+  declare readonly parent: P
 
-  get plot_view(): PlotView {
+  get plot_view(): P {
     return this.parent
   }
 }

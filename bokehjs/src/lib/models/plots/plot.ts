@@ -30,7 +30,7 @@ import {Tool} from "../tools/tool"
 import "../tools/aliases"
 import {StyledElement} from "../ui/styled_element"
 
-import type {LayoutDOMView} from "../layouts/layout_dom"
+import type {PlotView} from "./plot_canvas"
 export {PlotView} from "./plot_canvas"
 import type {PlotMapping} from "../coordinates/plot_mapping"
 
@@ -107,7 +107,7 @@ export interface Plot extends Plot.Attrs {}
 
 export abstract class Plot extends LayoutDOM {
   declare properties: Plot.Props
-  declare __view_type__: LayoutDOMView
+  declare __view_type__: PlotView
 
   readonly use_map: boolean = false
 

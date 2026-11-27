@@ -1,3 +1,4 @@
+import type {XYPlotView} from "../../plots/xy_plot_canvas"
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import {Modifiers, satisfies_modifiers, print_modifiers} from "./common"
 import type {RangeState} from "../../plots/range_manager"
@@ -8,7 +9,7 @@ import {clamp} from "core/util/math"
 import {tool_icon_wheel_pan} from "styles/icons.css"
 import {update_ranges} from "./pan_tool"
 
-export class WheelPanToolView extends GestureToolView {
+export class WheelPanToolView extends GestureToolView<XYPlotView> {
   declare model: WheelPanTool
 
   override _scroll(ev: ScrollEvent): boolean {

@@ -1,6 +1,7 @@
+import type {PlotView} from "../../plots/plot_canvas"
+import type {XYPlotView} from "../../plots/xy_plot_canvas"
 import {GestureTool, GestureToolView} from "../gestures/gesture_tool"
 import {OnOffButton} from "../on_off_button"
-import type {PlotView} from "../../plots/plot"
 import {BoxAnnotation} from "../../annotations/box_annotation"
 import {Range} from "../../ranges/range"
 import type {RangeState} from "../../plots/range_manager"
@@ -20,9 +21,9 @@ import type {Infer} from "core/kinds"
 const StartGesture = Enum("pan", "tap", "none")
 type StartGesture = Infer<typeof StartGesture>
 
-export class RangeToolView extends GestureToolView {
+export class RangeToolView extends GestureToolView<XYPlotView> {
   declare model: RangeTool
-  declare readonly parent: PlotView
+  declare readonly parent: XYPlotView
 
   override get overlays() {
     return [...super.overlays, this.model.overlay]

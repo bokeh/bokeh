@@ -3,7 +3,7 @@ import type {Bounds} from "../ranges/data_range1d"
 import {DataRange1d} from "../ranges/data_range1d"
 import type {CartesianFrameView} from "../canvas/cartesian_frame"
 import type {CoordinateMapping} from "../coordinates/coordinate_mapping"
-import type {PlotView} from "./plot_canvas"
+import type {XYPlotView} from "./xy_plot_canvas"
 import type {Interval} from "core/types"
 import {logger} from "core/logging"
 import {clamp} from "core/util/math"
@@ -22,7 +22,7 @@ export type RangeOptions = {
 }
 
 export class RangeManager {
-  constructor(readonly parent: PlotView) {}
+  constructor(readonly parent: XYPlotView) {}
 
   get frame(): CartesianFrameView {
     return this.parent.frame

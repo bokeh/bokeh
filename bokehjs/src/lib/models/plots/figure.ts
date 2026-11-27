@@ -1,8 +1,8 @@
 import {XYPlot} from "./xy_plot"
-import {PlotView} from "./plot_canvas"
+import {XYPlotView} from "./xy_plot_canvas"
 import type * as p from "core/properties"
 
-export class FigureView extends PlotView {
+export class FigureView extends XYPlotView {
   declare model: Figure
 }
 

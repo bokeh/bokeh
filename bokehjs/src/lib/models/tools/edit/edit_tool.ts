@@ -1,3 +1,4 @@
+import type {XYPlotView} from "../../plots/xy_plot_canvas"
 import type * as p from "core/properties"
 import {isField} from "core/vectorization"
 import type {PointGeometry} from "core/geometry"
@@ -14,7 +15,7 @@ import {ColumnarDataSource} from "../../sources/columnar_data_source"
 import type {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GestureTool, GestureToolView} from "../gestures/gesture_tool"
 
-export abstract class EditToolView extends GestureToolView {
+export abstract class EditToolView extends GestureToolView<XYPlotView> {
   declare model: EditTool
 
   _basepoint: [number, number] | null

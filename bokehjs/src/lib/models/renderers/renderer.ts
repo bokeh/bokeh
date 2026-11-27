@@ -102,13 +102,7 @@ export abstract class RendererView extends StyledElementView implements visuals.
     if (this._custom_coordinates != null) {
       return this._custom_coordinates
     }
-    const {coordinates} = this.model
-    const {frame} = this.plot_view
-    if (coordinates != null) {
-      return coordinates.get_transform(frame)
-    } else {
-      return this.plot_view.get_coordinates(this)
-    }
+    return this.plot_view.get_coordinates(this)
   }
 
   /** The plot this renderer paints in and is laid out by. */

@@ -21,6 +21,14 @@ export class CoordinateTransform {
     this.scales = [this.x_scale, this.y_scale]
   }
 
+  compute(x: number, y: number): [number, number] {
+    return [this.x_scale.compute(x), this.y_scale.compute(y)]
+  }
+
+  invert(sx: number, sy: number): [number, number] {
+    return [this.x_scale.invert(sx), this.y_scale.invert(sy)]
+  }
+
   map_to_screen(xs: Arrayable<number>, ys: Arrayable<number>): [ScreenArray, ScreenArray] {
     const sxs = this.x_scale.v_compute(xs)
     const sys = this.y_scale.v_compute(ys)

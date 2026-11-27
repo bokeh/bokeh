@@ -1,4 +1,4 @@
-import type {PlotView} from "@bokehjs/models/plots/plot_canvas"
+import type {XYPlotView} from "@bokehjs/models/plots/xy_plot_canvas"
 import type {UIElementView} from "@bokehjs/models/ui/ui_element"
 import type {MenuView} from "@bokehjs/models/ui/menus/menu"
 import {MouseButton, offset_bbox} from "@bokehjs/core/dom"
@@ -147,14 +147,14 @@ type EventKeys = {
   altKey?: boolean
 }
 
-export function actions(target: PlotView, options: Partial<Options> = {}): PlotActions {
+export function actions(target: XYPlotView, options: Partial<Options> = {}): PlotActions {
   return new PlotActions(target, options)
 }
 
 export class PlotActions {
   readonly options: Options
 
-  constructor(readonly target: PlotView, options: Partial<Options> = {}) {
+  constructor(readonly target: XYPlotView, options: Partial<Options> = {}) {
     // The default pause between emitted events is longer than the
     // throttling threshold. This allows for predictable number of
     // paints and thus predictable and repeatable images.

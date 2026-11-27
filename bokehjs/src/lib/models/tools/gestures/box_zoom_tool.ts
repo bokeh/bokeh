@@ -1,3 +1,4 @@
+import type {XYPlotView} from "../../plots/xy_plot_canvas"
 import type {EventRole} from "../tool"
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import {BoxAnnotation} from "../../annotations/box_annotation"
@@ -13,7 +14,7 @@ import * as icons from "styles/icons.css"
 
 type Point = [number, number]
 
-export class BoxZoomToolView extends GestureToolView {
+export class BoxZoomToolView extends GestureToolView<XYPlotView> {
   declare model: BoxZoomTool
 
   override get overlays() {

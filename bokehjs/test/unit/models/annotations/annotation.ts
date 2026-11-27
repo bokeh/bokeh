@@ -3,7 +3,7 @@ import {restorable} from "#framework/util"
 import {spy} from "sinon"
 
 import {DataAnnotation, DataAnnotationView} from "@bokehjs/models/annotations/data_annotation"
-import type {PlotView} from "@bokehjs/models/plots/plot"
+import type {XYPlotView} from "@bokehjs/models/plots/xy_plot_canvas"
 import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {ndarray} from "@bokehjs/core/util/ndarray"
@@ -76,7 +76,7 @@ class SubclassWithDistanceSpec extends DataAnnotation {
 }
 
 describe("AnnotationView", () => {
-  async function plot(): Promise<PlotView> {
+  async function plot(): Promise<XYPlotView> {
     return await build_view(XYPlot.create())
   }
 

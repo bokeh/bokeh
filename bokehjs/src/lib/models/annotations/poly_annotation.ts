@@ -154,7 +154,7 @@ export class PolyAnnotationView extends AnnotationView implements Pannable, Move
 
     const overlay = this.model
     const {frame, canvas} = this.plot_view
-    const {x_scale, y_scale} = frame
+    const {x_scale, y_scale} = this.coordinates
     const {x_view, y_view} = frame.bbox
     const {x_screen, y_screen} = canvas.bbox
 

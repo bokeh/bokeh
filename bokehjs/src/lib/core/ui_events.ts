@@ -661,8 +661,7 @@ export class UIEventBus {
   /*protected*/ _trigger_bokeh_event(plot_view: PlotView, ev: UIEvent): void {
     const bokeh_event = (() => {
       const {sx, sy, modifiers} = ev
-      const x = plot_view.frame.x_scale.invert(sx)
-      const y = plot_view.frame.y_scale.invert(sy)
+      const [x, y] = plot_view.get_coordinates().invert(sx, sy)
 
       switch (ev.type) {
         case "wheel":        return new events.MouseWheel(sx, sy, x, y, ev.delta, modifiers)

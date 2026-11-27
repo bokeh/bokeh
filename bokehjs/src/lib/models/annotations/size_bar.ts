@@ -19,7 +19,7 @@ import {isString} from "core/util/types"
 import type {Align, Orientation} from "core/enums"
 import {Title} from "../annotations/title"
 import {XYPlot} from "../plots/xy_plot"
-import {PlotView} from "../plots/plot_canvas"
+import {XYPlotView} from "../plots/xy_plot_canvas"
 import type {TickFormatter} from "../formatters/tick_formatter"
 import {BasicTickFormatter} from "../formatters/basic_tick_formatter"
 import type {Ticker} from "../tickers/ticker"
@@ -44,7 +44,7 @@ class InternalBorderLayout extends BorderLayout {
   }
 }
 
-class InternalPlotView extends PlotView {
+class InternalPlotView extends XYPlotView {
   declare model: InternalPlot
   declare layout: InternalBorderLayout
 

@@ -4,7 +4,7 @@ import {actions, xy} from "#framework/interactive"
 
 import {BoxAnnotation, Node} from "@bokehjs/models"
 import type {OutputBackend} from "@bokehjs/core/enums"
-import type {PlotView} from "@bokehjs/models/plots/plot"
+import type {XYPlotView} from "@bokehjs/models/plots/xy_plot_canvas"
 import {gridplot} from "@bokehjs/api/gridplot"
 import {entries} from "@bokehjs/core/util/object"
 
@@ -127,7 +127,7 @@ describe("BoxAnnotation annotation", () => {
     await display(p)
   })
 
-  async function pan(pv: PlotView, xy0: Point, xy1: Point) {
+  async function pan(pv: XYPlotView, xy0: Point, xy1: Point) {
     await actions(pv).pan_along({type: "line", xy0, xy1})
   }
 

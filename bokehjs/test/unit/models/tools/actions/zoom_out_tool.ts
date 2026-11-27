@@ -4,7 +4,7 @@ import {display} from "#framework/layouts"
 import type {Tool} from "@bokehjs/models/tools/tool"
 import {ZoomOutTool} from "@bokehjs/models/tools/actions/zoom_out_tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
-import type {PlotView} from "@bokehjs/models/plots/plot"
+import type {XYPlotView} from "@bokehjs/models/plots/xy_plot_canvas"
 import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 
 describe("ZoomOutTool", () => {
@@ -34,7 +34,7 @@ describe("ZoomOutTool", () => {
 
   describe("View", () => {
     // range values chosen to complement zoom_in test as inverse
-    async function mkplot(tool: Tool): Promise<PlotView> {
+    async function mkplot(tool: Tool): Promise<XYPlotView> {
       const plot = XYPlot.create({
         x_range: Range1d.create({start: -0.9, end: 0.9}),
         y_range: Range1d.create({start: -0.9, end: 0.9}),

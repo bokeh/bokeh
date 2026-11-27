@@ -1,5 +1,6 @@
 import {Plot} from "./plot"
-import {PlotView} from "./plot_canvas"
+import {XYPlotView} from "./xy_plot_canvas"
+export {XYPlotView}
 import {CartesianMapping} from "../coordinates/cartesian_mapping"
 import {Range} from "../ranges/range"
 import {DataRange1d} from "../ranges/data_range1d"
@@ -35,12 +36,12 @@ export namespace XYPlot {
 export interface XYPlot extends XYPlot.Attrs {}
 
 export class XYPlot extends Plot {
-  declare __view_type__: PlotView
+  declare __view_type__: XYPlotView
   declare properties: XYPlot.Props
   declare coordinate_system: CartesianMapping
 
   static {
-    this.prototype.default_view = PlotView
+    this.prototype.default_view = XYPlotView
 
     this.define<XYPlot.Props>(({Bool, Float, Dict, Ref}) => ({
       coordinate_system: [ Ref(CartesianMapping), () => CartesianMapping.create(), {once: true} ],
