@@ -37,10 +37,9 @@ Run `node make` commands in this directory, inside the pixi environment (`pixi s
 
 ## TypeScript conventions
 
-- Double quotes for strings, template literals for interpolation.
-- No `for...in` loops.
-- No semicolons at the end of statements. Follow the style of the surrounding file and let `node make lint --fix` decide.
-- Prefer `const`. Do not add type annotations that the compiler infers, and do not add a cast without a comment that says why it is safe.
+- Lint decides style. The rules are in `.oxlintrc.jsonc` (TypeScript) and `stylelint.config.mjs` (LESS). Run `node make build lint --fix` and follow its output.
+- No `any` type unless there is a good technical reason. Use `unknown` otherwise.
+- Do not add a cast without a comment that says why it is safe.
 - Connect event listeners and signals in `connect_signals()`, not in constructors or render methods.
 - Do not add dependencies to `package.json` without asking the contributor. The license check in `tests/codebase/test_js_license_set.py` will fail.
 
