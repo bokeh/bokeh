@@ -764,6 +764,40 @@ def test_held_incremental_callbacks_observe_current_records(policy):
     assert seen == ["geometries", "data", "geometries", "data"]
 
 
+@pytest.mark.parametrize("policy", [None, "collect", "combine"])
+def test_callback_patch_follows_record_streams(policy):
+    source = GeometryDataSource(geometries=[None], data={"label": ["A"]})
+    document = Document()
+    document.add_root(source)
+    peer = Document.from_json(document.to_json())
+    events = []
+    seen = []
+    document.on_change(events.append)
+
+    def patch_new_row(attr, old, new):
+        if not seen:
+            seen.append(list(new["label"]))
+            source.patch({"label": [(1, "edited")]})
+
+    source.on_change("data", patch_new_row)
+    if policy is not None:
+        document.hold(policy)
+    incoming = ["B"] if policy is None else ["B", "C"]
+    for label in incoming:
+        source.stream({"geometries": [None], "data": {"label": [label]}}, rollover=2)
+    if policy is not None:
+        assert not seen and not events
+        document.unhold()
+
+    original, added = ("A", "B") if policy is None else ("B", "C")
+    assert seen == [[original, added]]
+    assert [event.kind for event in events] == ["ColumnsStreamed"] * len(incoming) + ["ColumnsPatched"]
+    assert [event.data["data"]["label"] for event in events[:-1]] == [[label] for label in incoming]
+    for event in events:
+        apply_patch(patch_doc([event]), peer)
+    assert peer.roots[0].data["label"] == source.data["label"] == [original, "edited"]
+
+
 def test_list_attribute_patch_reuses_storage_and_rolls_back_failed_batches():
     values = [1., 2.]
     data = GeometryDataSource(geometries=[None, None], data={"v": values})

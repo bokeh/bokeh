@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 import weakref
-from collections import defaultdict
+from collections import defaultdict, deque
 from functools import wraps
 from typing import (
     TYPE_CHECKING,
@@ -88,6 +88,10 @@ __all__ = (
 _DATA_EVENTS = (ColumnDataChangedEvent, ColumnsStreamedEvent, ColumnsPatchedEvent)
 
 
+def _is_record_event(event: DocumentChangedEvent) -> bool:
+    return isinstance(event, _DATA_EVENTS) and event.attr == "records"
+
+
 Callback = Callable[[], None | Awaitable[None]]
 Originator = Callable[..., Any]
 
@@ -120,6 +124,7 @@ class DocumentCallbackManager:
 
     _hold: HoldPolicyType | None = None
     _held_events: list[DocumentChangedEvent]
+    _ordered_event_queue: deque[tuple[DocumentChangedEvent, bool]] | None = None
 
     def __init__(self, document: Document):
         '''
@@ -432,13 +437,52 @@ class DocumentCallbackManager:
             _combine_document_events(event, self._held_events)
             return
 
+        queue = self._ordered_event_queue
+        if queue is not None:
+            # Invoke model callbacks synchronously, but publish their changes after
+            # the record operation (and any held operations) they depend on.
+            queue.append((event, False))
+            self._invoke_model_callbacks(doc, event)
+        elif _is_record_event(event):
+            self._dispatch_ordered(doc, [event])
+        else:
+            self._invoke_model_callbacks(doc, event)
+            self._invoke_change_callbacks(doc, event)
+
+    @staticmethod
+    def _invoke_model_callbacks(doc: Document, event: DocumentChangedEvent) -> None:
         if event.callback_invoker is not None:
             invoke_with_curdoc(doc, event.callback_invoker)
 
+    def _invoke_change_callbacks(self, doc: Document, event: DocumentChangedEvent) -> None:
         def invoke_callbacks() -> None:
             for cb in self.change_callbacks():
                 cb(event)
         invoke_with_curdoc(doc, invoke_callbacks)
+
+    def _dispatch_ordered(self, doc: Document, events: list[DocumentChangedEvent]) -> None:
+        queue = self._ordered_event_queue
+        if queue is not None:
+            queue.extend((event, False) for event in events)
+            for event in events:
+                self._invoke_model_callbacks(doc, event)
+            return
+
+        # Reserve all held changes before invoking callbacks. The first callback
+        # can already see the state after the last held change.
+        queue = deque((event, True) for event in events)
+        self._ordered_event_queue = queue
+        try:
+            while queue:
+                event, invoke_model_callbacks = queue.popleft()
+                if invoke_model_callbacks:
+                    if self._hold is not None:
+                        self.trigger_on_change(event)
+                        continue
+                    self._invoke_model_callbacks(doc, event)
+                self._invoke_change_callbacks(doc, event)
+        finally:
+            self._ordered_event_queue = None
 
     def unhold(self) -> None:
         ''' Turn off any active document hold and apply any collected events.
@@ -455,8 +499,12 @@ class DocumentCallbackManager:
         events = list(self._held_events)
         self._held_events = []
 
-        for event in events:
-            self.trigger_on_change(event)
+        doc = self._document()
+        if doc is not None and (self._ordered_event_queue is not None or any(map(_is_record_event, events))):
+            self._dispatch_ordered(doc, events)
+        else:
+            for event in events:
+                self.trigger_on_change(event)
 
 #-----------------------------------------------------------------------------
 # Dev API

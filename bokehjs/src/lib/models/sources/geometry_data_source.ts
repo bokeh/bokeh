@@ -533,6 +533,11 @@ export class GeometryDataSource extends IndexedDataSource {
     this.properties.data.validate(records.data)
     this._flush_record_assignments(sync)
     this._set_records(records.geometries, records.data, sync)
+    if (this.document != null) {
+      const event = new ColumnDataChangedEvent(this.document, this, "records", records)
+      event.sync = sync ?? true
+      this.document._trigger_on_change(event)
+    }
     this._publishing_records = true
     try {
       this.properties.geometries.change.emit()
@@ -541,11 +546,6 @@ export class GeometryDataSource extends IndexedDataSource {
       this._publishing_records = false
     }
     this._with_selection_sync(sync, () => this.data_changed.emit({structural: true}))
-    if (this.document != null) {
-      const event = new ColumnDataChangedEvent(this.document, this, "records", records)
-      event.sync = sync ?? true
-      this.document._trigger_on_change(event)
-    }
   }
 
   private _stream_records(incoming: GeometryRecords, rollover?: number): GeometryRecords {
@@ -577,13 +577,13 @@ export class GeometryDataSource extends IndexedDataSource {
     const {geometries, data} = this._stream_records(incoming, rollover)
     this._flush_record_assignments(sync)
     this._set_records(geometries, data, sync)
-    this.streaming.emit()
-    this._with_selection_sync(sync, () => this.data_changed.emit({structural: true}))
     if (this.document != null) {
       const event = new ColumnsStreamedEvent(this.document, this, "records", incoming, rollover)
       event.sync = sync ?? true
       this.document._trigger_on_change(event)
     }
+    this.streaming.emit()
+    this._with_selection_sync(sync, () => this.data_changed.emit({structural: true}))
   }
 
   private _normalize_patches(patches: GeometryPatchSet): GeometryPatchSet {
@@ -649,13 +649,13 @@ export class GeometryDataSource extends IndexedDataSource {
     this._flush_record_assignments(sync)
     const indices = this._patch_records(geometries, data, normalized)
     this._set_records(geometries, data, sync)
-    this.patching.emit([...indices])
-    this._with_selection_sync(sync, () => this.data_changed.emit({indices: [...indices], structural: false}))
     if (this.document != null) {
       const event = new ColumnsPatchedEvent(this.document, this, "records", normalized)
       event.sync = sync ?? true
       this.document._trigger_on_change(event)
     }
+    this.patching.emit([...indices])
+    this._with_selection_sync(sync, () => this.data_changed.emit({indices: [...indices], structural: false}))
   }
 
   private _coordinate_field(name: string): Arrayable {
