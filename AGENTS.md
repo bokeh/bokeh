@@ -20,6 +20,8 @@ pixi run check-formatting               # whitespace and line endings, fixes fil
 
 - Run the tests for what you changed first, not whole suites.
 - Leave `BOKEH_RESOURCES` and `BOKEH_DEV` unset when you run tests or build the docs.
+- If `git` or `pixi` is missing, ask the contributor before you install it, then follow "Install or update Git" or "Install or update Pixi" in `docs/bokeh/source/docs/dev_guide/setup.rst`. Do not fall back to the system Python, `pip`, or `npm`.
+- If `gh` is missing or not logged in, ask the contributor to check the issue for you and suggest installing and authenticating it.
 - Do not report a check as passed unless you ran it and saw it pass. Do not call a failure pre-existing unless you saw it fail without your change.
 
 ## Nested instructions
