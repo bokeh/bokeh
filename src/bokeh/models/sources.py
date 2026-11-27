@@ -916,12 +916,16 @@ class ColumnDataSource(ColumnarDataSource):
                         if ind_0.stop is not None and ind_0.stop > col_len:
                             raise ValueError(f"Out-of bounds initial slice sub-index stop ({ind_0.stop}) in patch for column: {name}")
 
-                    # Note: bounds of sub-indices after the first are not checked!
-                    for subind in ind[1:]:
+                    item_shape = self.data[name][ind_0].shape
+                    for dim, subind in enumerate(ind[1:]):
                         if not isinstance(subind, (int, np.integer, slice)):
                             raise ValueError(f"Invalid patch sub-index: {subind}")
                         if isinstance(subind, slice):
                             _check_slice(subind)
+                            if subind.stop is not None and subind.stop > item_shape[dim]:
+                                raise ValueError(f"Out-of bounds sub-index stop ({subind.stop}) in patch for column: {name}")
+                        elif not (0 <= subind < item_shape[dim]):
+                            raise ValueError(f"Out-of bounds sub-index ({subind}) in patch for column: {name}")
 
                 else:
                     raise ValueError(f"Invalid patch index: {ind}")

@@ -555,6 +555,34 @@ class TestColumnDataSource:
         assert (ds.data["a"][0] == np.zeros((2, 2))).all()
         assert (ds.data["a"][1] == np.zeros((2, 2))).all()
 
+    def test_patch_bad_sub_index(self) -> None:
+        ds = ColumnDataSource(data=dict(a=[np.zeros((2, 2)), np.zeros((2, 2))]))
+        with pytest.raises(ValueError, match=r"Out-of bounds sub-index \(2\) in patch for column: a"):
+            ds.patch(dict(a=[((0, 2, 0), 5)]))
+        with pytest.raises(ValueError, match=r"Out-of bounds sub-index \(-1\) in patch for column: a"):
+            ds.patch(dict(a=[((0, 0, -1), 5)]))
+        with pytest.raises(ValueError, match=r"Out-of bounds sub-index stop \(3\) in patch for column: a"):
+            ds.patch(dict(a=[((0, slice(0, 3), 0), [5, 6])]))
+        assert (ds.data["a"][0] == np.zeros((2, 2))).all()
+        assert (ds.data["a"][1] == np.zeros((2, 2))).all()
+
+    def test_patch_bad_sub_index_leaves_all_columns_unchanged(self) -> None:
+        ds = ColumnDataSource(data=dict(
+            a=[np.zeros((2, 2)), np.zeros((2, 2))],
+            b=[np.zeros((2, 2)), np.zeros((2, 2))],
+            img=[np.zeros(2), np.zeros(2)],
+        ))
+        with pytest.raises(ValueError, match=r"Out-of bounds sub-index \(5\) in patch for column: img"):
+            ds.patch(dict(
+                a=[((0, 0, 0), 1)],
+                b=[((0, 1, 1), 2)],
+                img=[((1, 5), 3)],
+            ))
+        assert (ds.data["a"][0] == np.zeros((2, 2))).all()
+        assert (ds.data["b"][0] == np.zeros((2, 2))).all()
+        assert (ds.data["img"][0] == np.zeros(2)).all()
+        assert (ds.data["img"][1] == np.zeros(2)).all()
+
     def test_patch_good_slice_indices(self) -> None:
         ds = bms.ColumnDataSource(data=dict(a=[10, 11, 12, 13, 14, 15], b=[20, 21, 22, 23, 24, 25]))
         ds._document = "doc"
