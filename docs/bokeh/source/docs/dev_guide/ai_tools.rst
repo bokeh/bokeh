@@ -68,7 +68,7 @@ which tool you used and what it did. For example:
     AI disclosure: I used Claude Code to draft the fix and the tests. I
     reviewed and tested the changes myself.
 
-See the `AI Contribution Guidelines`_for details.
+See the `AI Contribution Guidelines`_ for details.
 
 .. _contributor_guide_ai_tools_maintenance:
 
