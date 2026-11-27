@@ -352,3 +352,4 @@ Bug fixes
   restored to its state from before the drag instead.
 * Fixed a ``Dialog`` becoming unmovable after the browser cancelled the
   pointer while moving or resizing it.
+* Fixed ``varying_alpha_palette`` raising ``ZeroDivisionError`` for palettes shorter than two colors; it now raises a more informative ``ValueError`` (:bokeh-pull:`15665`).

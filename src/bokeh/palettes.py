@@ -1609,10 +1609,15 @@ def varying_alpha_palette(color: str, n: int | None = None, start_alpha: int = 0
 
     Raises:
         ValueError if ``color`` is not recognizable as a string name or hex
-            RGB(A) string, or if ``start_alpha`` or ``end_alpha`` are outside
-            the range 0 to 255 inclusive.
+            RGB(A) string, if ``start_alpha`` or ``end_alpha`` are outside
+            the range 0 to 255 inclusive, if ``n`` is less than two, or if the
+            palette length implied by ``start_alpha`` and ``end_alpha`` is
+            less than two.
 
     """
+
+    if n is not None and n < 2:
+        raise ValueError(f"n must be at least 2, got {n}")
 
     if not (0 <= start_alpha <= 255):
         raise ValueError(f"start_alpha {start_alpha} must be in the range 0 to 255")
@@ -1627,10 +1632,16 @@ def varying_alpha_palette(color: str, n: int | None = None, start_alpha: int = 0
         start_alpha = round(start_alpha*rgba.a)
         end_alpha = round(end_alpha*rgba.a)
 
-    if n is None or n < 1:
+    if n is None:
         nn = int(abs(end_alpha - start_alpha)) + 1
     else:
         nn = n
+
+    if nn < 2:
+        raise ValueError(
+            f"start_alpha {start_alpha} and end_alpha {end_alpha} would generate "
+            f"a palette of length {nn}, but a palette must have at least 2 colors",
+        )
 
     # Convert alpha to range 0 to 1.
     norm_start_alpha = start_alpha / 255.0
