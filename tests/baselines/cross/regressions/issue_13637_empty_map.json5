@@ -1,7 +1,7 @@
 {
   config: {
     $type: "DocumentConfig",
-    $id: "p1015",
+    $id: "p1016",
     name: null,
     tags: [],
     _js_event_callbacks: {
@@ -24,7 +24,7 @@
     notify_connection_status: true,
     notifications: {
       $type: "Notifications",
-      $id: "p1016",
+      $id: "p1017",
       name: null,
       tags: [],
       _js_event_callbacks: {
@@ -62,7 +62,7 @@
   },
   roots: [
     {
-      $type: "Plot",
+      $type: "XYPlot",
       $id: "p1014",
       name: null,
       tags: [],
@@ -112,148 +112,9 @@
       sizing_mode: null,
       align: "auto",
       resizable: false,
-      x_range: {
-        $type: "DataRange1d",
-        $id: "p1017",
-        name: null,
-        tags: [],
-        _js_event_callbacks: {
-          type: "map",
-        },
-        _js_property_callbacks: {
-          type: "map",
-        },
-        _js_property_callback_policies: {
-          type: "map",
-        },
-        _subscribed_events: {
-          type: "set",
-        },
-        _subscribed_changes: {
-          type: "map",
-        },
-        syncable: true,
-        start: {
-          type: "number",
-          value: "nan",
-        },
-        end: {
-          type: "number",
-          value: "nan",
-        },
-        renderers: [],
-        range_padding: 0.1,
-        range_padding_units: "percent",
-        bounds: null,
-        min_interval: null,
-        max_interval: null,
-        flipped: false,
-        follow: null,
-        follow_interval: null,
-        default_span: 2.0,
-        only_visible: false,
-      },
-      y_range: {
-        $type: "DataRange1d",
-        $id: "p1018",
-        name: null,
-        tags: [],
-        _js_event_callbacks: {
-          type: "map",
-        },
-        _js_property_callbacks: {
-          type: "map",
-        },
-        _js_property_callback_policies: {
-          type: "map",
-        },
-        _subscribed_events: {
-          type: "set",
-        },
-        _subscribed_changes: {
-          type: "map",
-        },
-        syncable: true,
-        start: {
-          type: "number",
-          value: "nan",
-        },
-        end: {
-          type: "number",
-          value: "nan",
-        },
-        renderers: [],
-        range_padding: 0.1,
-        range_padding_units: "percent",
-        bounds: null,
-        min_interval: null,
-        max_interval: null,
-        flipped: false,
-        follow: null,
-        follow_interval: null,
-        default_span: 2.0,
-        only_visible: false,
-      },
-      x_scale: {
-        $type: "LinearScale",
-        $id: "p1019",
-        name: null,
-        tags: [],
-        _js_event_callbacks: {
-          type: "map",
-        },
-        _js_property_callbacks: {
-          type: "map",
-        },
-        _js_property_callback_policies: {
-          type: "map",
-        },
-        _subscribed_events: {
-          type: "set",
-        },
-        _subscribed_changes: {
-          type: "map",
-        },
-        syncable: true,
-      },
-      y_scale: {
-        $type: "LinearScale",
-        $id: "p1020",
-        name: null,
-        tags: [],
-        _js_event_callbacks: {
-          type: "map",
-        },
-        _js_property_callbacks: {
-          type: "map",
-        },
-        _js_property_callback_policies: {
-          type: "map",
-        },
-        _subscribed_events: {
-          type: "set",
-        },
-        _subscribed_changes: {
-          type: "map",
-        },
-        syncable: true,
-      },
-      extra_x_ranges: {
-        type: "map",
-      },
-      extra_y_ranges: {
-        type: "map",
-      },
-      extra_x_scales: {
-        type: "map",
-      },
-      extra_y_scales: {
-        type: "map",
-      },
-      window_axis: "none",
       title: {
         $type: "Title",
-        $id: "p1021",
+        $id: "p1018",
         name: null,
         tags: [],
         _js_event_callbacks: {
@@ -403,7 +264,7 @@
             syncable: true,
             selected: {
               $type: "Selection",
-              $id: "p1025",
+              $id: "p1026",
               name: null,
               tags: [],
               _js_event_callbacks: {
@@ -431,7 +292,7 @@
             },
             selection_policy: {
               $type: "UnionRenderers",
-              $id: "p1026",
+              $id: "p1027",
               name: null,
               tags: [],
               _js_event_callbacks: {
@@ -460,7 +321,7 @@
           },
           view: {
             $type: "IndexedSubset",
-            $id: "p1023",
+            $id: "p1024",
             name: null,
             tags: [],
             _js_event_callbacks: {
@@ -481,7 +342,7 @@
             syncable: true,
             filter: {
               $type: "AllIndices",
-              $id: "p1027",
+              $id: "p1028",
               name: null,
               tags: [],
               _js_event_callbacks: {
@@ -704,7 +565,7 @@
             },
             selection_policy: {
               $type: "UnionRenderers",
-              $id: "p1028",
+              $id: "p1029",
               name: null,
               tags: [],
               _js_event_callbacks: {
@@ -733,7 +594,7 @@
           },
           view: {
             $type: "IndexedSubset",
-            $id: "p1024",
+            $id: "p1025",
             name: null,
             tags: [],
             _js_event_callbacks: {
@@ -754,7 +615,7 @@
             syncable: true,
             filter: {
               $type: "AllIndices",
-              $id: "p1029",
+              $id: "p1030",
               name: null,
               tags: [],
               _js_event_callbacks: {
@@ -851,7 +712,7 @@
       ],
       toolbar: {
         $type: "Toolbar",
-        $id: "p1022",
+        $id: "p1019",
         name: null,
         tags: [],
         _js_event_callbacks: {
@@ -945,11 +806,172 @@
       lod_interval: 300,
       lod_timeout: 500,
       output_backend: "canvas",
-      match_aspect: false,
-      aspect_scale: 1,
       reset_policy: "standard",
       hold_render: false,
       attribution: [],
+      coordinate_system: {
+        $type: "CartesianMapping",
+        $id: "p1015",
+        name: null,
+        tags: [],
+        _js_event_callbacks: {
+          type: "map",
+        },
+        _js_property_callbacks: {
+          type: "map",
+        },
+        _js_property_callback_policies: {
+          type: "map",
+        },
+        _subscribed_events: {
+          type: "set",
+        },
+        _subscribed_changes: {
+          type: "map",
+        },
+        syncable: true,
+      },
+      x_range: {
+        $type: "DataRange1d",
+        $id: "p1020",
+        name: null,
+        tags: [],
+        _js_event_callbacks: {
+          type: "map",
+        },
+        _js_property_callbacks: {
+          type: "map",
+        },
+        _js_property_callback_policies: {
+          type: "map",
+        },
+        _subscribed_events: {
+          type: "set",
+        },
+        _subscribed_changes: {
+          type: "map",
+        },
+        syncable: true,
+        start: {
+          type: "number",
+          value: "nan",
+        },
+        end: {
+          type: "number",
+          value: "nan",
+        },
+        renderers: [],
+        range_padding: 0.1,
+        range_padding_units: "percent",
+        bounds: null,
+        min_interval: null,
+        max_interval: null,
+        flipped: false,
+        follow: null,
+        follow_interval: null,
+        default_span: 2.0,
+        only_visible: false,
+      },
+      y_range: {
+        $type: "DataRange1d",
+        $id: "p1021",
+        name: null,
+        tags: [],
+        _js_event_callbacks: {
+          type: "map",
+        },
+        _js_property_callbacks: {
+          type: "map",
+        },
+        _js_property_callback_policies: {
+          type: "map",
+        },
+        _subscribed_events: {
+          type: "set",
+        },
+        _subscribed_changes: {
+          type: "map",
+        },
+        syncable: true,
+        start: {
+          type: "number",
+          value: "nan",
+        },
+        end: {
+          type: "number",
+          value: "nan",
+        },
+        renderers: [],
+        range_padding: 0.1,
+        range_padding_units: "percent",
+        bounds: null,
+        min_interval: null,
+        max_interval: null,
+        flipped: false,
+        follow: null,
+        follow_interval: null,
+        default_span: 2.0,
+        only_visible: false,
+      },
+      x_scale: {
+        $type: "LinearScale",
+        $id: "p1022",
+        name: null,
+        tags: [],
+        _js_event_callbacks: {
+          type: "map",
+        },
+        _js_property_callbacks: {
+          type: "map",
+        },
+        _js_property_callback_policies: {
+          type: "map",
+        },
+        _subscribed_events: {
+          type: "set",
+        },
+        _subscribed_changes: {
+          type: "map",
+        },
+        syncable: true,
+      },
+      y_scale: {
+        $type: "LinearScale",
+        $id: "p1023",
+        name: null,
+        tags: [],
+        _js_event_callbacks: {
+          type: "map",
+        },
+        _js_property_callbacks: {
+          type: "map",
+        },
+        _js_property_callback_policies: {
+          type: "map",
+        },
+        _subscribed_events: {
+          type: "set",
+        },
+        _subscribed_changes: {
+          type: "map",
+        },
+        syncable: true,
+      },
+      extra_x_ranges: {
+        type: "map",
+      },
+      extra_y_ranges: {
+        type: "map",
+      },
+      extra_x_scales: {
+        type: "map",
+      },
+      extra_y_scales: {
+        type: "map",
+      },
+      window_axis: "none",
+      match_aspect: false,
+      aspect_scale: 1,
     },
   ],
 }

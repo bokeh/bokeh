@@ -47,7 +47,7 @@ from ..models.glyphs import (
     VBar,
 )
 from ..models.graphs import LayoutProvider
-from ..models.plots import Plot, _PlotInit
+from ..models.plots import XYPlot, _XYPlotInit
 from ..models.ranges import Range
 from ..models.renderers import ContourRenderer, GlyphRenderer, GraphRenderer
 from ..models.scales import Scale
@@ -71,7 +71,7 @@ from .glyph_api import (
 type EagerDataFrame = IntoDataFrame
 type EagerSeries = IntoSeries
 
-class BaseFigureOptions(_PlotInit, total=False):
+class BaseFigureOptions(_XYPlotInit, total=False):
     tools: str | Sequence[str | Tool] | None
     x_minor_ticks: Auto | int
     y_minor_ticks: Auto | int
@@ -101,13 +101,13 @@ type AxisType = Auto | Literal["linear", "log", "datetime", "timedelta", "mercat
 DEFAULT_TOOLS: str
 
 class FigureOptions(BaseFigureOptions, total=False):
-    # Widening Plot's ``Range`` is safe, because these options are only consumed.
+    # Widening XYPlot's ``Range`` is safe, because these options are only consumed.
     x_range: RangeLike  # type: ignore[misc]
     y_range: RangeLike  # type: ignore[misc]
     x_axis_type: AxisType
     y_axis_type: AxisType
 
-class figure(Plot, GlyphAPI):
+class figure(XYPlot, GlyphAPI):
     def __init__(self, **kwargs: Unpack[FigureOptions]) -> None: ...
 
     def subplot(self,

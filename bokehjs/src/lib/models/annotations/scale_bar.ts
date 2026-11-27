@@ -1,3 +1,4 @@
+import {XYPlotView} from "../plots/xy_plot_canvas"
 import {Annotation, AnnotationView} from "./annotation"
 import {Dimensional, MetricLength} from "./dimensional"
 import {Range} from "../ranges/range"
@@ -22,7 +23,7 @@ import {FixedTicker} from "../tickers/fixed_ticker"
 import type {Scale} from "../scales/scale"
 import {LinearScale} from "../scales/linear_scale"
 import {CategoricalScale} from "../scales/categorical_scale"
-import {CoordinateTransform} from "../coordinates/coordinate_mapping"
+import {CoordinateTransform} from "../coordinates/coordinate_transform"
 import {build_view} from "core/build_views"
 import type {ChildView} from "core/build_views"
 import {clamp} from "core/util/math"
@@ -52,6 +53,13 @@ type LengthSizing = Infer<typeof LengthSizing>
 
 export class ScaleBarView extends AnnotationView {
   declare model: ScaleBar
+
+  override get plot_view(): XYPlotView {
+    const view = super.plot_view
+    assert(view instanceof XYPlotView, "ScaleBar requires a Cartesian plot context")
+    return view
+  }
+
   declare visuals: ScaleBar.Visuals
 
   protected _bbox: BBox = new BBox()

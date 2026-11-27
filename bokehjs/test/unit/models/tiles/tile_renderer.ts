@@ -7,7 +7,7 @@ import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import type {Range} from "@bokehjs/models/ranges/range"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {DataRange1d} from "@bokehjs/models/ranges/data_range1d"
-import type {PlotView} from "@bokehjs/models/plots/plot"
+import type {XYPlotView} from "@bokehjs/models/plots/xy_plot_canvas"
 import {TileRenderer} from "@bokehjs/models/tiles/tile_renderer"
 import {TileSource} from "@bokehjs/models/tiles/tile_source"
 import {MercatorTileSource} from "@bokehjs/models/tiles/mercator_tile_source"
@@ -541,7 +541,7 @@ describe("tile renderer", () => {
     return WMTSTileSource.create({url: "/assets/tiles/osm/{Z}_{X}_{Y}.png", max_zoom: 2})
   }
 
-  function relative_aspect_error(view: PlotView, x_range: Range, y_range: Range): number {
+  function relative_aspect_error(view: XYPlotView, x_range: Range, y_range: Range): number {
     const {width, height} = view.frame.bbox
     const x_resolution = (x_range.end - x_range.start)/width
     const y_resolution = (y_range.end - y_range.start)/height

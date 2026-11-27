@@ -3,7 +3,7 @@ import type {Bounds} from "../ranges/data_range1d"
 import {DataRange1d} from "../ranges/data_range1d"
 import type {CartesianFrameView} from "../canvas/cartesian_frame"
 import type {CoordinateMapping} from "../coordinates/coordinate_mapping"
-import type {PlotView} from "./plot_canvas"
+import type {XYPlotView} from "./xy_plot_canvas"
 import type {Interval} from "core/types"
 import {logger} from "core/logging"
 import {clamp} from "core/util/math"
@@ -22,7 +22,7 @@ export type RangeOptions = {
 }
 
 export class RangeManager {
-  constructor(readonly parent: PlotView) {}
+  constructor(readonly parent: XYPlotView) {}
 
   get frame(): CartesianFrameView {
     return this.parent.frame
@@ -197,7 +197,7 @@ export class RangeManager {
     return {xrs, yrs}
   }
 
-  compute_initial(): RangeInfo | null {
+  compute_initial(warn: boolean = this.warn_initial_ranges): RangeInfo | null {
     // check for good values for ranges before setting initial range
     let good_vals = true
     const {x_ranges, y_ranges} = this.frame
@@ -224,7 +224,7 @@ export class RangeManager {
     if (good_vals) {
       return {xrs, yrs}
     } else {
-      if (this.warn_initial_ranges) {
+      if (warn) {
         logger.warn("could not set initial ranges")
       }
       return null

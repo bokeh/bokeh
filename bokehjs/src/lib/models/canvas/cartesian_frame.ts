@@ -1,24 +1,21 @@
-import {CanvasPanel, CanvasPanelView} from "./canvas_panel"
+import {Frame, FrameView} from "./frame"
 import {CategoricalScale} from "../scales/categorical_scale"
 import {LogScale} from "../scales/log_scale"
 import {Scale} from "../scales/scale"
 import {LinearScale} from "../scales/linear_scale"
 import {Range} from "../ranges/range"
-import {Range1d} from "../ranges/range1d"
 import {DataRange1d} from "../ranges/data_range1d"
 import {FactorRange} from "../ranges/factor_range"
 import type {BBox} from "core/util/bbox"
 import {entries} from "core/util/object"
 import {assert} from "core/util/assert"
 import type {Dict} from "core/types"
-import type {StyleSheetLike} from "core/dom"
 import type * as p from "core/properties"
-import * as css from "styles/cartesian_frame.css"
 
 type Ranges = Dict<Range>
 type Scales = Dict<Scale>
 
-export class CartesianFrameView extends CanvasPanelView {
+export class CartesianFrameView extends FrameView {
   declare model: CartesianFrame
 
   override initialize(): void {
@@ -31,10 +28,6 @@ export class CartesianFrameView extends CanvasPanelView {
     super.remove()
   }
 
-  override stylesheets(): StyleSheetLike[] {
-    return [...super.stylesheets(), css.default]
-  }
-
   override connect_signals(): void {
     super.connect_signals()
     const {x_range, y_range, x_scale, y_scale, extra_x_ranges, extra_y_ranges, extra_x_scales, extra_y_scales} = this.model.properties
@@ -42,9 +35,6 @@ export class CartesianFrameView extends CanvasPanelView {
       this._configure_scales()
     })
   }
-
-  protected _x_target: Range1d
-  protected _y_target: Range1d
 
   protected _x_ranges: Map<string, Range> = new Map()
   protected _y_ranges: Map<string, Range> = new Map()
@@ -84,21 +74,12 @@ export class CartesianFrameView extends CanvasPanelView {
     return scales
   }
 
-  protected _configure_ranges(): void {
-    // data to/from screen space transform (left-bottom <-> left-top origin)
-    const {bbox} = this
-    this._x_target = Range1d.create({start: bbox.left, end: bbox.right})
-    this._y_target = Range1d.create({start: bbox.bottom, end: bbox.top})
-  }
-
   protected _configure_scales(): void {
     const {x_range, y_range, extra_x_ranges, extra_y_ranges} = this.model
     const {x_scale, y_scale, extra_x_scales, extra_y_scales} = this.model
 
     assert(x_scale.properties.source_range.is_unset && x_scale.properties.target_range.is_unset)
     assert(y_scale.properties.source_range.is_unset && y_scale.properties.target_range.is_unset)
-
-    this._configure_ranges()
 
     this._unregister_frame()
     this._x_ranges = this._get_ranges(x_range, extra_x_ranges)
@@ -115,8 +96,6 @@ export class CartesianFrameView extends CanvasPanelView {
   }
 
   protected _update_scales(): void {
-    this._configure_ranges()
-
     for (const [, scale] of this._x_scales) {
       scale.target_range = this._x_target
     }
@@ -152,14 +131,6 @@ export class CartesianFrameView extends CanvasPanelView {
 
   get y_range(): Range {
     return this.model.y_range
-  }
-
-  get x_target(): Range1d {
-    return this._x_target
-  }
-
-  get y_target(): Range1d {
-    return this._y_target
   }
 
   get x_ranges(): Map<string, Range> {
@@ -198,7 +169,7 @@ export class CartesianFrameView extends CanvasPanelView {
 export namespace CartesianFrame {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = CanvasPanel.Props & {
+  export type Props = Frame.Props & {
     x_range: p.Property<Range>
     y_range: p.Property<Range>
 
@@ -218,7 +189,7 @@ export namespace CartesianFrame {
 
 export interface CartesianFrame extends CartesianFrame.Attrs {}
 
-export class CartesianFrame extends CanvasPanel {
+export class CartesianFrame extends Frame {
   declare properties: CartesianFrame.Props
   declare __view_type__: CartesianFrameView
 

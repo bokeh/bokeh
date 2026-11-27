@@ -7,7 +7,7 @@ import {expect_pixel} from "#framework/pixels"
 import {restorable} from "#framework/util"
 import {PlotActions, actions, xy, line, tap, mouse_click, scroll_up, scroll_down, show_context_menu} from "#framework/interactive"
 import {convert_to_uint32_palette} from "@bokehjs/models/mappers/color_mapper"
-import type {PlotView} from "@bokehjs/models/plots/plot"
+import type {XYPlotView} from "@bokehjs/models/plots/xy_plot_canvas"
 import type {ViewOf} from "@bokehjs/core/build_views"
 import {build_view} from "@bokehjs/core/build_views"
 
@@ -44,7 +44,6 @@ import {
   PanTool,
   Pane,
   Patches,
-  Plot,
   Range1d,
   RangeTool,
   Rect,
@@ -58,6 +57,7 @@ import {
   Toolbar,
   WMTSTileSource,
   WheelZoomTool,
+  XYPlot,
 } from "@bokehjs/models"
 import {MenuView} from "@bokehjs/models/ui/menus/menu"
 
@@ -325,7 +325,7 @@ describe("Bug", () => {
       const doc_json: DocJson = {
         defs: [],
         roots: [{
-          $type: "Plot",
+          $type: "XYPlot",
           $id: "1002",
           renderers: [{
             $type: "GlyphRenderer",
@@ -750,7 +750,7 @@ describe("Bug", () => {
 
   describe("in issue #12078", () => {
     it("doesn't allow to correctly hit test Marker and Scatter glyphs", async () => {
-      const p = Plot.create()
+      const p = XYPlot.create()
       const source = ColumnDataSource.create({
         data: {
           x: [0, 1, 3, 4],
@@ -814,7 +814,7 @@ describe("Bug", () => {
 
   describe("in issue #13217", () => {
     it("doesn't allow to bind this in non-module CustomJS", async () => {
-      const obj = Plot.create()
+      const obj = XYPlot.create()
       const cb = CustomJS.create({args: {arg0: "abc"}, code: "return [this, arg0, cb_obj, cb_data.data0]"})
       const result = await cb.execute(obj, {data0: 123})
       expect(result).to.be.equal([obj, "abc", obj, 123])
@@ -1880,7 +1880,7 @@ describe("Bug", () => {
     it("doesn't allow render a plot with Patches glyph and an empty data source", async () => {
       const data_source = ColumnDataSource.create({data: {}})
 
-      const plot = Plot.create()
+      const plot = XYPlot.create()
       const glyph = Patches.create({xs: {field: "xs"}, ys: {field: "ys"}})
       const renderer = GlyphRenderer.create({data_source, glyph})
       plot.renderers.push(renderer)
@@ -2038,11 +2038,11 @@ ${view.host_selector} {
   })
 
   describe("in issue #14869", () => {
-    function get_cursor(plot_view: PlotView): string {
+    function get_cursor(plot_view: XYPlotView): string {
       return getComputedStyle(plot_view.canvas_view.events_el).cursor
     }
 
-    async function has_cursor_at(plot_view: PlotView, point: XY, cursor: string) {
+    async function has_cursor_at(plot_view: XYPlotView, point: XY, cursor: string) {
       const ac = actions(plot_view, {units: "data"})
       await ac.hover(point)
       expect(get_cursor(plot_view)).to.be.equal(cursor)
@@ -2086,7 +2086,7 @@ ${view.host_selector} {
 
   describe("in issue #15080", () => {
     it("doesn't allow to change frame width, height and align of a Plot", async () => {
-      const p = Plot.create({frame_width: 100, frame_height: 200})
+      const p = XYPlot.create({frame_width: 100, frame_height: 200})
       const {view} = await display(p, [300, 300])
 
       expect(view.frame.bbox.width).to.be.equal(100)
@@ -2218,7 +2218,7 @@ ${view.host_selector} {
       return {p, r2, source}
     }
 
-    async function toggle_line2(view: PlotView, legend: Legend): Promise<void> {
+    async function toggle_line2(view: XYPlotView, legend: Legend): Promise<void> {
       const legend_view = view.views.get_one(legend)
       await tap(legend_view.shadow_el.querySelectorAll(".bk-item")[1])
       await view.ready
@@ -2329,17 +2329,17 @@ ${view.host_selector} {
       return {view, plots, views, canvas: webgl.canvas}
     }
 
-    function paint(plot_view: PlotView): void {
+    function paint(plot_view: XYPlotView): void {
       plot_view.invalidate_painters()
       plot_view.paint()
     }
 
-    function pixels(plot_view: PlotView): Uint8Array {
+    function pixels(plot_view: XYPlotView): Uint8Array {
       const {ctx, canvas: {width, height}} = plot_view.canvas_view.primary
       return new Uint8Array(ctx.getImageData(0, 0, width, height).data.buffer)
     }
 
-    function expect_pixels(plot_view: PlotView, expected: Uint8Array): void {
+    function expect_pixels(plot_view: XYPlotView, expected: Uint8Array): void {
       const actual = pixels(plot_view)
       const {width, height} = plot_view.canvas_view.primary.canvas
       expect(actual.length).to.be.equal(expected.length)

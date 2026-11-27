@@ -1,3 +1,4 @@
+import type {XYPlotView} from "../../plots/xy_plot_canvas"
 import {PlotActionTool, PlotActionToolView} from "./plot_action_tool"
 import {update_ranges} from "../gestures/pan_tool"
 import type {IconLike} from "../../common/kinds"
@@ -6,7 +7,7 @@ import {PanDirection} from "core/enums"
 import type * as p from "core/properties"
 import * as icons from "styles/icons.css"
 
-export class ClickPanToolView extends PlotActionToolView {
+export class ClickPanToolView extends PlotActionToolView<XYPlotView> {
   declare model: ClickPanTool
 
   doit(): void {

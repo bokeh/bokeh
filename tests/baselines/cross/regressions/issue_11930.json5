@@ -1,37 +1,21 @@
 {
   config: {
     $type: "DocumentConfig",
-    $id: "p1016",
+    $id: "p1017",
     notifications: {
       $type: "Notifications",
-      $id: "p1017",
+      $id: "p1018",
     },
   },
   roots: [
     {
-      $type: "Plot",
+      $type: "XYPlot",
       $id: "p1009",
       width: 200,
       height: 200,
-      x_range: {
-        $type: "DataRange1d",
-        $id: "p1018",
-      },
-      y_range: {
-        $type: "DataRange1d",
-        $id: "p1019",
-      },
-      x_scale: {
-        $type: "LinearScale",
-        $id: "p1020",
-      },
-      y_scale: {
-        $type: "LinearScale",
-        $id: "p1021",
-      },
       title: {
         $type: "Title",
-        $id: "p1022",
+        $id: "p1019",
       },
       renderers: [
         {
@@ -42,11 +26,11 @@
             $id: "p1006",
             selected: {
               $type: "Selection",
-              $id: "p1029",
+              $id: "p1030",
             },
             selection_policy: {
               $type: "UnionRenderers",
-              $id: "p1030",
+              $id: "p1031",
             },
             data: {
               type: "map",
@@ -72,10 +56,10 @@
           },
           view: {
             $type: "IndexedSubset",
-            $id: "p1024",
+            $id: "p1025",
             filter: {
               $type: "AllIndices",
-              $id: "p1031",
+              $id: "p1032",
             },
           },
           glyph: {
@@ -86,15 +70,15 @@
       ],
       toolbar: {
         $type: "Toolbar",
-        $id: "p1023",
+        $id: "p1020",
       },
       below: [
         {
           $type: "LinearAxis",
-          $id: "p1011",
+          $id: "p1012",
           ticker: {
             $type: "FixedTicker",
-            $id: "p1010",
+            $id: "p1011",
             ticks: [
               1,
               2,
@@ -103,7 +87,7 @@
           },
           formatter: {
             $type: "BasicTickFormatter",
-            $id: "p1025",
+            $id: "p1026",
           },
           axis_label: "int overrides",
           major_label_overrides: {
@@ -121,15 +105,15 @@
           },
           major_label_policy: {
             $type: "AllLabels",
-            $id: "p1026",
+            $id: "p1027",
           },
         },
         {
           $type: "LinearAxis",
-          $id: "p1014",
+          $id: "p1015",
           ticker: {
             $type: "FixedTicker",
-            $id: "p1013",
+            $id: "p1014",
             ticks: [
               1,
               2,
@@ -138,7 +122,7 @@
           },
           formatter: {
             $type: "BasicTickFormatter",
-            $id: "p1027",
+            $id: "p1028",
           },
           axis_label: "float overrides",
           major_label_overrides: {
@@ -156,10 +140,30 @@
           },
           major_label_policy: {
             $type: "AllLabels",
-            $id: "p1028",
+            $id: "p1029",
           },
         },
       ],
+      coordinate_system: {
+        $type: "CartesianMapping",
+        $id: "p1010",
+      },
+      x_range: {
+        $type: "DataRange1d",
+        $id: "p1021",
+      },
+      y_range: {
+        $type: "DataRange1d",
+        $id: "p1022",
+      },
+      x_scale: {
+        $type: "LinearScale",
+        $id: "p1023",
+      },
+      y_scale: {
+        $type: "LinearScale",
+        $id: "p1024",
+      },
     },
   ],
 }

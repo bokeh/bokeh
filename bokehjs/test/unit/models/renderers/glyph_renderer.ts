@@ -14,7 +14,7 @@ import {GlyphRenderer, GlyphRendererView} from "@bokehjs/models/renderers/glyph_
 import {Arc, Circle, MultiLine, Rect, Scatter, Segment} from "@bokehjs/models/glyphs"
 import {NormalHead, OpenHead} from "@bokehjs/models/annotations/arrow_head"
 import {build_view} from "@bokehjs/core/build_views"
-import {Plot} from "@bokehjs/models/plots"
+import {XYPlot} from "@bokehjs/models/plots"
 import {FactorRange, Range1d} from "@bokehjs/models/ranges"
 import {CategoricalScale} from "@bokehjs/models/scales"
 import {IndexFilter} from "@bokehjs/models/filters/index_filter"
@@ -27,7 +27,7 @@ import type {TextBox} from "@bokehjs/core/graphics"
 import {logger} from "@bokehjs/core/logging"
 import {figure, show} from "@bokehjs/api/plotting"
 import {IndexedSubset} from "@bokehjs/models/sources/indexed_subset"
-import {PlotView} from "@bokehjs/models/plots/plot_canvas"
+import {XYPlotView} from "@bokehjs/models/plots/xy_plot_canvas"
 import {Indices} from "@bokehjs/core/types"
 import type {GlyphView} from "@bokehjs/models/glyphs/glyph"
 import {GlyphAttachment, GlyphAttachmentView} from "@bokehjs/models/renderers/glyph_attachment"
@@ -202,7 +202,7 @@ describe("GlyphRendererView", () => {
       view: IndexedSubset.create({filter: IndexFilter.create({indices: [1, 2]})}),
       attachments: [TestAttachment.create()],
     })
-    const {view} = await display(Plot.create({
+    const {view} = await display(XYPlot.create({
       renderers: [renderer],
       x_range: Range1d.create({start: -1, end: 1}),
       y_range: Range1d.create({start: -1, end: 1}),
@@ -231,11 +231,11 @@ describe("GlyphRendererView", () => {
       data_source: source, view: shared,
     }))
     const x_range = Range1d.create({start: -1, end: 1})
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       width: 300, height: 300, renderers, x_range,
       y_range: Range1d.create({start: -1, end: 1}),
     })
-    using paints = restorable(sinon.spy(PlotView.prototype, "paint"))
+    using paints = restorable(sinon.spy(XYPlotView.prototype, "paint"))
     const el = document.createElement("div")
     document.body.append(el)
     const mounted = show(plot, el)
@@ -290,8 +290,8 @@ describe("GlyphRendererView", () => {
   }
 
   // Mount a plot and return helpers that read canvas pixels and wait, with bounds, for painting to stop.
-  async function mount_bounded(plot: Plot) {
-    const paints = sinon.spy(PlotView.prototype, "paint")
+  async function mount_bounded(plot: XYPlot) {
+    const paints = sinon.spy(XYPlotView.prototype, "paint")
     const el = document.createElement("div")
     document.body.append(el)
     const mounted = show(plot, el)
@@ -333,7 +333,7 @@ describe("GlyphRendererView", () => {
       data_source: source, view: indexed_subset,
     })
     const x_range = Range1d.create({start: -1, end: 11})
-    const plot = Plot.create({width: 300, height: 300, renderers: [renderer], x_range, y_range: Range1d.create({start: -1, end: 1})})
+    const plot = XYPlot.create({width: 300, height: 300, renderers: [renderer], x_range, y_range: Range1d.create({start: -1, end: 1})})
     const {view, paints, settle, pixel, dispose} = await mount_bounded(plot)
     try {
       const glyph = view.owner.get_one(renderer).glyph as ScatterView
@@ -380,7 +380,7 @@ describe("GlyphRendererView", () => {
       data_source: source, view: shared,
     }))
     const x_range = Range1d.create({start: -1, end: 1})
-    const plot = Plot.create({width: 300, height: 300, renderers, x_range, y_range: Range1d.create({start: -1, end: 1})})
+    const plot = XYPlot.create({width: 300, height: 300, renderers, x_range, y_range: Range1d.create({start: -1, end: 1})})
     const {view, paints, settle, pixel, dispose} = await mount_bounded(plot)
     try {
       const glyphs = renderers.map((renderer) => view.owner.get_one(renderer).glyph as ScatterView)
@@ -408,7 +408,7 @@ describe("GlyphRendererView", () => {
   describe("serializes lazy visual hooks of immediate masked updates", () => {
     async function setup() {
       const renderer = mkrenderer(Scatter.create({x: {field: "x"}, y: {field: "y"}}))
-      const {view} = await display(Plot.create({renderers: [renderer]}))
+      const {view} = await display(XYPlot.create({renderers: [renderer]}))
       const grv = view.owner.get_one(renderer)
       let release!: () => void
       let fail!: (error: Error) => void
@@ -501,7 +501,7 @@ describe("GlyphRendererView", () => {
 
   it("defers a reentrant masked notification during immediate visual application", async () => {
     const renderer = mkrenderer(Scatter.create())
-    const {view} = await display(Plot.create({renderers: [renderer]}))
+    const {view} = await display(XYPlot.create({renderers: [renderer]}))
     const grv = view.owner.get_one(renderer)
     const {masked} = renderer.view.properties
     const set_visuals = grv.glyph.set_visuals.bind(grv.glyph)
@@ -521,7 +521,7 @@ describe("GlyphRendererView", () => {
 
   it("reports a coalesced failure once and recovers on the next source update", async () => {
     const renderer = mkrenderer(Scatter.create({x: {field: "x"}, y: {field: "y"}}))
-    const {view} = await display(Plot.create({renderers: [renderer]}))
+    const {view} = await display(XYPlot.create({renderers: [renderer]}))
     const grv = view.owner.get_one(renderer)
     const error = new Error("coalesced failure")
     const set_data = grv._set_data.bind(grv)
@@ -542,7 +542,7 @@ describe("GlyphRendererView", () => {
 
   it("serializes masked visual updates behind active data preparation without feedback", async () => {
     const renderer = mkrenderer(Scatter.create())
-    const {view} = await display(Plot.create({renderers: [renderer]}))
+    const {view} = await display(XYPlot.create({renderers: [renderer]}))
     const grv = view.owner.get_one(renderer)
     const set_data = grv._set_data.bind(grv)
     let release!: () => void
@@ -568,7 +568,7 @@ describe("GlyphRendererView", () => {
 
   it("promotes queued visuals to a data pass and deduplicates patch indices", async () => {
     const renderer = mkrenderer(Scatter.create())
-    const {view} = await display(Plot.create({renderers: [renderer]}))
+    const {view} = await display(XYPlot.create({renderers: [renderer]}))
     const grv = view.owner.get_one(renderer)
     using stub = restorable(sinon.stub(grv, "_set_data").resolves())
     using visuals = restorable(sinon.spy(grv, "_set_visuals"))
@@ -605,7 +605,7 @@ describe("GlyphRendererView", () => {
       glyph: DelayedText.create({x: {field: "x"}, y: {field: "y"}, text: {field: "text"}}),
       data_source: source,
     })
-    const {view} = await display(Plot.create({renderers: [renderer]}))
+    const {view} = await display(XYPlot.create({renderers: [renderer]}))
     const grv = view.owner.get_one(renderer)
     using spy = restorable(sinon.spy(grv, "_set_data"))
     source.patch({text: [[0, "old"]]})
@@ -629,7 +629,7 @@ describe("GlyphRendererView", () => {
   it("updates transformed coordinates after consecutive patches and data replacement", async () => {
     const transform = CustomJSTransform.create({v_func: "return xs.map((x) => 2*x)"})
     const renderer = mkrenderer(Scatter.create({x: {field: "x", transform}, y: {field: "y"}}))
-    const {view} = await display(Plot.create({renderers: [renderer]}))
+    const {view} = await display(XYPlot.create({renderers: [renderer]}))
     const grv = view.owner.get_one(renderer)
     using spy = restorable(sinon.spy(grv, "_set_data"))
     renderer.data_source.patch({x: [[0, 11]]})
@@ -650,7 +650,7 @@ describe("GlyphRendererView", () => {
     const renderer = mkrenderer(Scatter.create({x: {field: "x"}, y: {field: "y"}}))
     const filter = IndexFilter.create({indices: [0, 2]})
     renderer.view.filter = filter
-    const {view} = await display(Plot.create({renderers: [renderer]}))
+    const {view} = await display(XYPlot.create({renderers: [renderer]}))
     const grv = view.owner.get_one(renderer)
     using spy = restorable(sinon.spy(grv, "_set_data"))
     const source = renderer.data_source
@@ -668,7 +668,7 @@ describe("GlyphRendererView", () => {
   })
 
   it("merges partial indices and gives full updates precedence", async () => {
-    const {view} = await display(Plot.create({renderers: [mkrenderer(Scatter.create())]}))
+    const {view} = await display(XYPlot.create({renderers: [mkrenderer(Scatter.create())]}))
     const grv = view.owner.get_one(view.model.renderers[0] as GlyphRenderer)
     using stub = restorable(sinon.stub(grv, "_set_data").resolves())
     grv.update_data([0])
@@ -687,7 +687,7 @@ describe("GlyphRendererView", () => {
 
   it("completes a queued source update after its active predecessor fails", async () => {
     const renderer = mkrenderer(Scatter.create({x: {field: "x"}, y: {field: "y"}}))
-    const {view} = await display(Plot.create({renderers: [renderer]}))
+    const {view} = await display(XYPlot.create({renderers: [renderer]}))
     const grv = view.owner.get_one(renderer)
     const set_data = grv._set_data.bind(grv)
     const error = new Error("first failure")
@@ -708,7 +708,7 @@ describe("GlyphRendererView", () => {
 
   it("drops ready tracking and skips queued work when removed behind a failing active pass", async () => {
     const renderer = mkrenderer(Scatter.create())
-    const {view} = await display(Plot.create({renderers: [renderer]}))
+    const {view} = await display(XYPlot.create({renderers: [renderer]}))
     const grv = view.owner.get_one(renderer)
     let fail!: () => void
     using stub = restorable(sinon.stub(grv, "_set_data"))
@@ -730,7 +730,7 @@ describe("GlyphRendererView", () => {
 
   it("skips queued data work after removal", async () => {
     const renderer = mkrenderer(Scatter.create())
-    const {view} = await display(Plot.create({renderers: [renderer]}))
+    const {view} = await display(XYPlot.create({renderers: [renderer]}))
     const grv = view.owner.get_one(renderer)
     using spy = restorable(sinon.spy(grv, "_set_data"))
     grv.update_data()
@@ -741,7 +741,7 @@ describe("GlyphRendererView", () => {
 
   it("does not request paint when removed during an active data pass", async () => {
     const renderer = mkrenderer(Scatter.create({x: {field: "x"}, y: {field: "y"}}))
-    const {view} = await display(Plot.create({renderers: [renderer]}))
+    const {view} = await display(XYPlot.create({renderers: [renderer]}))
     const grv = view.owner.get_one(renderer)
     const set_data = grv._set_data.bind(grv)
     let release!: () => void
@@ -775,7 +775,7 @@ describe("GlyphRendererView", () => {
       return xs.map((x) => 2*x)
     `})
     const renderer = mkrenderer(Scatter.create({x: {field: "x", transform}, y: {field: "y"}}))
-    const {view} = await display(Plot.create({renderers: [renderer]}))
+    const {view} = await display(XYPlot.create({renderers: [renderer]}))
     const grv = view.owner.get_one(renderer)
     const set_data = grv._set_data.bind(grv)
     let release!: () => void
@@ -821,7 +821,7 @@ describe("GlyphRendererView", () => {
     const glyph_renderer = mkrenderer(basic_circle)
     const grv = await build_view(
       glyph_renderer,
-      {parent: await build_view(Plot.create())},
+      {parent: await build_view(XYPlot.create())},
     )
     return grv
   }
@@ -882,7 +882,7 @@ describe("GlyphRendererView", () => {
   it("should paint overlapping selected glyphs in data order after nonselected glyphs", async () => {
     const data_source = ColumnDataSource.create({data: {x: [0, 0, 0], y: [0, 0, 0], color: ["red", "green", "blue"]}})
     const gr = GlyphRenderer.create({glyph: Scatter.create({size: 20, fill_color: {field: "color"}}), data_source})
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       width: 200, height: 200, renderers: [gr],
       x_range: Range1d.create({start: -1, end: 1}),
       y_range: Range1d.create({start: -1, end: 1}),
@@ -920,7 +920,7 @@ describe("GlyphRendererView", () => {
     const gr = GlyphRenderer.create({glyph: Circle.create({radius: 0.5}), data_source})
 
     const bare = {toolbar_location: null, title: null, min_border: 0}
-    const p = Plot.create({width: 300, height: 300, x_range, y_range, x_scale, y_scale, renderers: [gr], ...bare})
+    const p = XYPlot.create({width: 300, height: 300, x_range, y_range, x_scale, y_scale, renderers: [gr], ...bare})
 
     using spy = restorable(sinon.spy(GlyphRendererView.prototype, "_set_data"))
     const {view} = await display(p)

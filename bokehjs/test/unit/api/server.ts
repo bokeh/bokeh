@@ -10,7 +10,7 @@ import {defer, poll} from "@bokehjs/core/util/defer"
 import {Document, documents} from "@bokehjs/document"
 import {BokehMount, MountError} from "@bokehjs/embed/mount"
 import {resource_loader} from "@bokehjs/embed/resources"
-import {Plot} from "@bokehjs/models/plots/plot"
+import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 import {Div, DivView} from "@bokehjs/models/widgets/div"
 import {version as js_version} from "@bokehjs/version"
 
@@ -153,18 +153,18 @@ describe("server_document()", () => {
 
   it("makes built-in models available before connecting without replacing application registrations", async () => {
     const target = create_target()
-    const original_plot = default_resolver.get("Plot")
+    const original_plot = default_resolver.get("XYPlot")
     expect_not_null(original_plot)
-    class ApplicationPlot extends Plot {}
-    ApplicationPlot.__qualified__ = "Plot"
+    class ApplicationPlot extends XYPlot {}
+    ApplicationPlot.__qualified__ = "XYPlot"
     default_resolver.register(ApplicationPlot, true)
     const sandbox = sinon.createSandbox()
     sandbox.stub(globalThis, "fetch").callsFake(async () => bootstrap())
     const connect = sandbox.stub(ClientConnection.prototype, "connect").callsFake(async function(this: ClientConnection) {
-      for (const name of ["Plot", "Slider", "DataTable"]) {
+      for (const name of ["XYPlot", "Slider", "DataTable"]) {
         expect_not_null(default_resolver.get(name))
       }
-      expect(default_resolver.get("Plot")).to.be.equal(ApplicationPlot)
+      expect(default_resolver.get("XYPlot")).to.be.equal(ApplicationPlot)
       return this.session = new ClientSession(this, new Document())
     })
     let mounted: BokehMount | undefined
@@ -172,7 +172,7 @@ describe("server_document()", () => {
       mounted = server_document("/app", target)
       await mounted.ready
       expect(connect.calledOnce).to.be.true
-      expect(default_resolver.get("Plot")).to.be.equal(ApplicationPlot)
+      expect(default_resolver.get("XYPlot")).to.be.equal(ApplicationPlot)
     } finally {
       await mounted?.dispose()
       sandbox.restore()

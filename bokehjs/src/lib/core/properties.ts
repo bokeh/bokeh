@@ -131,6 +131,8 @@ type DefaultFn<T> = (obj: HasProps) => T
 export type PropertyOptions<T, HP extends HasProps> = {
   internal?: boolean
   readonly?: boolean
+  /** Fixed after property initialization and included in serialization. */
+  once?: boolean
   convert?(value: T, obj: HP): T | undefined
   on_update?(value: T, obj: HP): void
 }
@@ -213,7 +215,17 @@ export abstract class Property<T = unknown> {
     }
   }
 
+  assert_writable(value: T): void {
+    if (this.once && this.initialized && !Object.is(value, this._value)) {
+      throw new Error(`${this} can only be set during initialization`)
+    }
+  }
+
   set_value(val: T): void {
+    this.assert_writable(val)
+    if (this.once && this.initialized) {
+      return
+    }
     if (!this._initialized) {
       this.initialize(val)
     } else {
@@ -252,6 +264,7 @@ export abstract class Property<T = unknown> {
 
   /*readonly*/ internal: boolean
   readonly: boolean
+  readonly once: boolean
 
   convert?(value: T, obj: HasProps): T | undefined
   on_update?(value: T, obj: HasProps): void
@@ -264,6 +277,7 @@ export abstract class Property<T = unknown> {
     this.change = new Signal0(this.obj, "change")
     this.internal = options.internal ?? false
     this.readonly = options.readonly ?? false
+    this.once = options.once ?? false
     this.convert = options.convert
     this.on_update = options.on_update
     this.may_have_refs = kind.may_have_refs()

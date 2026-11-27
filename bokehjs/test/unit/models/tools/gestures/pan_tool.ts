@@ -8,14 +8,14 @@ import {restorable} from "#framework/util"
 
 import type {Tool} from "@bokehjs/models/tools/tool"
 import {PanTool} from "@bokehjs/models/tools/gestures/pan_tool"
-import type {PlotView} from "@bokehjs/models/plots/plot"
-import {Plot, Range1d, LinearAxis} from "@bokehjs/models"
+import type {XYPlotView} from "@bokehjs/models/plots/xy_plot_canvas"
+import {Range1d, LinearAxis, XYPlot} from "@bokehjs/models"
 import {no_repeated} from "@bokehjs/core/util/iterator"
 
 describe("PanTool", () => {
 
-  async function mkplot(tool: Tool): Promise<PlotView> {
-    const plot = Plot.create({
+  async function mkplot(tool: Tool): Promise<XYPlotView> {
+    const plot = XYPlot.create({
       width: 400,
       height: 400,
       min_border: 0,
@@ -29,7 +29,7 @@ describe("PanTool", () => {
     return view
   }
 
-  async function expect_cursor(plot_view: PlotView, xy0: XY, xy1: XY, cursor: string): Promise<void> {
+  async function expect_cursor(plot_view: XYPlotView, xy0: XY, xy1: XY, cursor: string): Promise<void> {
     const ac = actions(plot_view, {units: "screen"})
     const {ui_event_bus} = plot_view.canvas_view
 

@@ -25,8 +25,8 @@ from bokeh.models import (
     Legend,
     LegendItem,
     LinearAxis,
-    Plot,
     TextInput,
+    XYPlot,
 )
 from bokeh.models.widgets.inputs import ClearInput
 
@@ -78,7 +78,7 @@ def test_common_decode_json() -> None:
         elif issubclass(event_cls, ClearInput):
             model = FileInput()
         else:
-            model = Plot()
+            model = XYPlot()
 
         entries = []
         if issubclass(event_cls, events.ModelEvent):
@@ -108,7 +108,7 @@ def test_pointevent_subclass_decode_json() -> None:
         if event_cls.event_name is None:
             continue # Skip abstract base class
 
-        model = Plot()
+        model = XYPlot()
 
         decoder = Deserializer(references=[model])
         event = decoder.decode(dict(
@@ -133,7 +133,7 @@ def test_pointevent_subclass_decode_json() -> None:
         assert event.y == 100
 
 def test_panevent_decode_json() -> None:
-    model = Plot()
+    model = XYPlot()
 
     decoder = Deserializer(references=[model])
     event = decoder.decode(dict(
@@ -163,7 +163,7 @@ def test_panevent_decode_json() -> None:
 
 def test_mousewheelevent_decode_json() -> None:
     """
-    model = Plot()
+    model = XYPlot()
 
     decoder = Deserializer(references=[model])
     event = decoder.decode(dict(
@@ -178,7 +178,7 @@ def test_mousewheelevent_decode_json() -> None:
     ))
     """
 
-    model = Plot()
+    model = XYPlot()
 
     decoder = Deserializer(references=[model])
     event = decoder.decode(dict(
@@ -205,7 +205,7 @@ def test_mousewheelevent_decode_json() -> None:
     assert event.y == 100
 
 def test_pinchevent_decode_json() -> None:
-    model = Plot()
+    model = XYPlot()
 
     decoder = Deserializer(references=[model])
     event = decoder.decode(dict(
@@ -242,7 +242,7 @@ def test_event_constructor_div() -> None:
     assert event.model == model
 
 def test_event_constructor_plot() -> None:
-    model = Plot()
+    model = XYPlot()
     event = events.ModelEvent(model)
     assert event.model == model
 
@@ -257,7 +257,7 @@ def test_buttonclick_constructor_div() -> None:
 
 def test_buttonclick_constructor_plot() -> None:
     with pytest.raises(ValueError):
-        events.ButtonClick(Plot())
+        events.ButtonClick(XYPlot())
 
 def test_lodstart_constructor_button() -> None:
     with pytest.raises(ValueError):
@@ -268,7 +268,7 @@ def test_lodstart_constructor_div() -> None:
         events.LODStart(Div())
 
 def test_lodstart_constructor_plot() -> None:
-    model = Plot()
+    model = XYPlot()
     event = events.LODStart(model)
     assert event.model == model
 
@@ -281,7 +281,7 @@ def test_lodend_constructor_div() -> None:
         events.LODEnd(Div())
 
 def test_lodend_constructor_plot() -> None:
-    model = Plot()
+    model = XYPlot()
     event = events.LODEnd(model)
     assert event.model == model
 
@@ -295,12 +295,12 @@ def test_plotevent_constructor_div() -> None:
         events.PlotEvent(Div())
 
 def test_plotevent_constructor_plot() -> None:
-    model = Plot()
+    model = XYPlot()
     event = events.PlotEvent(model)
     assert event.model == model
 
 def test_pointEvent_constructor_plot() -> None:
-    model = Plot()
+    model = XYPlot()
     event = events.PointEvent(model, sx=3, sy=-2, x=10, y=100)
     assert event.model == model
     assert event.sx == 3
@@ -317,7 +317,7 @@ def test_pointevent_constructor_div() -> None:
         events.PointEvent(Div(), sx=3, sy=-2, x=10, y=100)
 
 def test_pointevent_subclass_constructor_plot() -> None:
-    model = Plot()
+    model = XYPlot()
     for subcls in point_events:
         event = subcls(model, sx=3, sy=-2, x=10, y=100)
         assert event.model == model
@@ -349,7 +349,7 @@ def test_buttonclick_event_callbacks() -> None:
     assert test_callback.event_name == events.ButtonClick.event_name
 
 def test_atomic_plot_event_callbacks() -> None:
-    plot = Plot()
+    plot = XYPlot()
     for event_cls in [events.LODStart, events.LODEnd]:
         test_callback = EventCallback()
         plot.on_event(event_cls, test_callback)
@@ -359,7 +359,7 @@ def test_atomic_plot_event_callbacks() -> None:
 
 
 def test_pointevent_callbacks() -> None:
-    plot = Plot()
+    plot = XYPlot()
     payload = dict(sx=3, sy=-2, x=10, y=100)
     for event_cls in point_events:
         test_callback = EventCallback(['sx','sy','x','y'])
@@ -370,7 +370,7 @@ def test_pointevent_callbacks() -> None:
         assert test_callback.payload == payload
 
 def test_mousewheel_callbacks() -> None:
-    plot = Plot()
+    plot = XYPlot()
     payload = dict(sx=3, sy=-2, x=10, y=100, delta=5)
     test_callback = EventCallback(['sx','sy','x','y', 'delta'])
     plot.on_event(events.MouseWheel, test_callback)
@@ -380,7 +380,7 @@ def test_mousewheel_callbacks() -> None:
     assert test_callback.payload == payload
 
 def test_pan_callbacks() -> None:
-    plot = Plot()
+    plot = XYPlot()
     payload = dict(sx=3, sy=-2, x=10, y=100, delta_x=2, delta_y=3.2)
     test_callback = EventCallback(['sx','sy','x','y', 'delta_x', 'delta_y'])
     plot.on_event(events.Pan, test_callback)
@@ -390,7 +390,7 @@ def test_pan_callbacks() -> None:
     assert test_callback.payload == payload
 
 def test_pinch_callbacks() -> None:
-    plot = Plot()
+    plot = XYPlot()
     payload = dict(sx=3, sy=-2, x=10, y=100, scale=42)
     test_callback = EventCallback(['sx','sy','x','y', 'scale'])
     plot.on_event(events.Pinch, test_callback)

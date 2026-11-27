@@ -11,7 +11,13 @@ import numpy as np
 
 from bokeh.core.enums import MarkerType
 from bokeh.io import curdoc, show
-from bokeh.models import ColumnDataSource, Grid, LinearAxis, Plot, Scatter
+from bokeh.models import (
+    ColumnDataSource,
+    Grid,
+    LinearAxis,
+    Scatter,
+    XYPlot,
+)
 
 N = len(MarkerType)
 x = np.linspace(-2, 2, N)
@@ -20,7 +26,7 @@ markers = list(MarkerType)
 
 source = ColumnDataSource(dict(x=x, y=y, markers=markers))
 
-plot = Plot(
+plot = XYPlot(
     title=None, width=300, height=300,
     min_border=0, toolbar_location=None)
 

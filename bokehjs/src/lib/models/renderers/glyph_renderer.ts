@@ -376,19 +376,12 @@ export class GlyphRendererView extends DataRendererView {
     })
     this.connect(this.model.properties.visible.change, () => this.plot_view.invalidate_dataranges = true)
 
-    const {x_ranges, y_ranges} = this.plot_view.frame
-
-    for (const [, range] of x_ranges) {
-      if (range instanceof FactorRange) {
-        this.connect(range.invalidate_synthetic, update)
-      }
+    for (const property of this.plot_view.coordinate_source_properties) {
+      this.on_transitive_change(property, update, {
+        signals: (range) => range instanceof FactorRange ? [range.invalidate_synthetic] : [],
+      })
     }
-
-    for (const [, range] of y_ranges) {
-      if (range instanceof FactorRange) {
-        this.connect(range.invalidate_synthetic, update)
-      }
-    }
+    this.on_change([this.model.properties.x_range_name, this.model.properties.y_range_name], update)
 
     const {transformchange, exprchange} = this.model.glyph
     this.connect(transformchange, update)

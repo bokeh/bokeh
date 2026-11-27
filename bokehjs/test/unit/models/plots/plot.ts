@@ -3,10 +3,23 @@ import * as sinon from "sinon"
 import {expect, expect_not_null} from "#framework/assertions"
 import {display, fig, row} from "#framework/layouts"
 
+import {Document} from "@bokehjs/document"
+import {RootAddedEvent, ModelChangedEvent} from "@bokehjs/document/events"
+import {PlotView} from "@bokehjs/models/plots/plot_canvas"
 import {Plot} from "@bokehjs/models/plots/plot"
-import type {PlotView} from "@bokehjs/models/plots/plot"
+import {XYPlot} from "@bokehjs/models/plots/xy_plot"
+import {XYPlotView} from "@bokehjs/models/plots/xy_plot_canvas"
+import {CartesianMapping} from "@bokehjs/models/coordinates/cartesian_mapping"
+import {CustomJS} from "@bokehjs/models/callbacks/customjs"
+import {poll} from "@bokehjs/core/util/defer"
+import {LogScale} from "@bokehjs/models/scales/log_scale"
+import {Serializer} from "@bokehjs/core/serialization"
+import {Deserializer} from "@bokehjs/core/serialization/deserializer"
+import {default_resolver} from "@bokehjs/base"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {DataRange1d} from "@bokehjs/models/ranges/data_range1d"
+import {FactorRange} from "@bokehjs/models/ranges/factor_range"
+import {CategoricalScale} from "@bokehjs/models/scales/categorical_scale"
 import {Row} from "@bokehjs/models/layouts/row"
 import {Label, LabelView} from "@bokehjs/models/annotations/label"
 import {Div} from "@bokehjs/models/widgets/div"
@@ -19,8 +32,8 @@ import {Rect, Scatter, MultiLine} from "@bokehjs/models/glyphs"
 import {ColumnDataSource} from "@bokehjs/models/sources"
 import {StaticLayoutProvider} from "@bokehjs/models/graphs"
 
-async function new_plot_view(attrs: Partial<Plot.Attrs> = {}): Promise<PlotView> {
-  const plot = Plot.create({
+async function new_plot_view(attrs: Partial<XYPlot.Attrs> = {}): Promise<XYPlotView> {
+  const plot = XYPlot.create({
     x_range: Range1d.create({start: 0, end: 10}),
     y_range: Range1d.create({start: 0, end: 10}),
     ...attrs,
@@ -38,7 +51,7 @@ interface PlotWithTools {
 function new_plot_with_tools(): PlotWithTools {
   const reset = ResetTool.create()
   const pan = PanTool.create()
-  const plot = Plot.create({toolbar: Toolbar.create({tools: [reset, pan]})})
+  const plot = XYPlot.create({toolbar: Toolbar.create({tools: [reset, pan]})})
   return {plot, reset, pan}
 }
 
@@ -81,7 +94,7 @@ describe("Plot module", () => {
 
   describe("Plot", () => {
     it("should add single tool using add_tools method", () => {
-      const plot = Plot.create()
+      const plot = XYPlot.create()
       const reset = ResetTool.create()
 
       plot.add_tools(reset)
@@ -92,7 +105,7 @@ describe("Plot module", () => {
     })
 
     it("should add tools by their registered aliases", () => {
-      const plot = Plot.create()
+      const plot = XYPlot.create()
 
       plot.add_tools("xpan", "reset")
 
@@ -123,7 +136,7 @@ describe("Plot module", () => {
     })
   })
 
-  describe("PlotView", () => {
+  describe("XYPlotView", () => {
     it("should allow to resolve child renderers of its composite renderers", async () => {
       const graph = GraphRenderer.create({
         layout_provider: StaticLayoutProvider.create(),
@@ -137,7 +150,7 @@ describe("Plot module", () => {
         }),
       })
       const glyph = GlyphRenderer.create({data_source: ColumnDataSource.create(), glyph: Rect.create()})
-      const plot = Plot.create({renderers: [graph, glyph]})
+      const plot = XYPlot.create({renderers: [graph, glyph]})
       const {view: plot_view} = await display(plot)
       expect(plot_view.views.find_one(graph.node_renderer)).to.be.instanceof(GlyphRendererView)
       expect(plot_view.views.find_one(graph.edge_renderer)).to.be.instanceof(GlyphRendererView)
@@ -348,7 +361,7 @@ describe("Plot module", () => {
       expect(x_range.end).to.be.equal(10)
     })
 
-    describe("PlotView.pause()", () => {
+    describe("XYPlotView.pause()", () => {
 
       it("should start unpaused", async () => {
         const view = await new_plot_view()
@@ -382,8 +395,8 @@ describe("Plot module", () => {
       const x_range = DataRange1d.create()
       const y_range = DataRange1d.create()
 
-      const p0 = Plot.create({x_range, y_range})
-      const p1 = Plot.create({x_range, y_range})
+      const p0 = XYPlot.create({x_range, y_range})
+      const p1 = XYPlot.create({x_range, y_range})
       const row = Row.create({children: [p0, p1]})
 
       const {view} = await display(row, null)
@@ -412,5 +425,260 @@ describe("Plot module", () => {
       expect(x_range.linked_plots.has(pv1)).to.be.false
       expect(y_range.linked_plots.has(pv1)).to.be.false
     })
+  })
+})
+
+describe("XYPlot coordinate mapping", () => {
+  it("requires a fresh, range-free mapping and freezes it at construction", () => {
+    const mapping = CartesianMapping.create()
+    const p = XYPlot.create({coordinate_system: mapping})
+    const q = XYPlot.create()
+    expect(p.coordinate_system).to.be.identical(mapping)
+    expect(q.coordinate_system).to.not.be.identical(XYPlot.create().coordinate_system)
+    expect("x_range" in Plot.prototype._props).to.be.false
+    expect("x_source" in mapping.properties).to.be.false
+    expect(() => p.coordinate_system = CartesianMapping.create()).to.throw(Error, /initialization/)
+    p.setv({coordinate_system: mapping})
+    expect(p.coordinate_system).to.be.identical(mapping)
+    expect(() => p.setv({coordinate_system: null} as any)).to.throw(Error, /initialization/)
+    expect(() => XYPlot.create({coordinate_system: null} as any)).to.throw(Error)
+  })
+
+  it("preserves default mapping identity when a JS-created plot is patched into a document", () => {
+    const source = new Document()
+    const target = new Document()
+    const p = XYPlot.create()
+    source.add_root(p)
+    const patch = source.create_json_patch([new RootAddedEvent(source, p)])
+    target.apply_json_patch(patch)
+    const restored = target.get_model_by_id(p.id) as XYPlot
+    expect(restored.coordinate_system.id).to.be.equal(p.coordinate_system.id)
+    expect(target.get_model_by_id(p.coordinate_system.id)).to.be.identical(restored.coordinate_system)
+    const replacement = CartesianMapping.create()
+    expect(() => target.apply_json_patch(source.create_json_patch([
+      new ModelChangedEvent(source, p, "coordinate_system", replacement),
+    ]))).to.throw(Error, /initialization/)
+    expect(restored.coordinate_system.id).to.be.equal(p.coordinate_system.id)
+  })
+
+  it("pairs shared and Cartesian model/view contracts", async () => {
+    const p = XYPlot.create()
+    const {view} = await display(p)
+    expect(view).to.be.instanceof(PlotView)
+    expect(view).to.be.instanceof(XYPlotView)
+    expect(view.model).to.be.identical(p)
+  })
+
+  it("rebinds renderer transforms to replacement ranges and scales", async () => {
+    const p = XYPlot.create({
+      x_range: Range1d.create({start: 0, end: 10}),
+      y_range: Range1d.create({start: 0, end: 10}),
+    })
+    const renderer = p.add_glyph(Scatter.create({x: {field: "x"}, y: {field: "y"}}),
+      ColumnDataSource.create({data: {x: [2], y: [3]}}))
+    const {view} = await display(p)
+    const rv = view.renderer_views.get(renderer)!
+    const before = rv.coordinates
+    const changes: Range1d[] = []
+    p.on_change(p.properties.x_range, () => changes.push(p.x_range as Range1d))
+    const replacement = Range1d.create({start: 1, end: 100})
+    p.x_range = replacement
+    p.x_scale = LogScale.create()
+    const after = rv.coordinates
+    expect(after).to.not.be.identical(before)
+    expect(after.x_source).to.be.identical(replacement)
+    expect(after.y_source).to.be.identical(p.y_range)
+    expect(after.x_scale).to.be.instanceof(LogScale)
+    expect(p.x_scale.properties.source_range.is_unset).to.be.true
+    expect(changes).to.be.equal([replacement])
+    const [sx] = after.map_to_screen([10], [3])
+    expect(sx[0]).to.be.similar(view.frame.bbox.hcenter, 0.01)
+    replacement.end = 1000
+    const [updated] = after.map_to_screen([10], [3])
+    expect(updated[0]).to.be.similar(view.frame.bbox.left + view.frame.bbox.width/3, 0.01)
+  })
+
+  it("runs property callbacks and links for range replacement", async () => {
+    const target = XYPlot.create()
+    const link = CustomJS.create({args: {target}, code: "target.x_range = cb_obj.x_range"})
+    const source = XYPlot.create({_js_property_callbacks: {"change:x_range": [link]}})
+    const range = Range1d.create({start: 2, end: 8})
+    source.x_range = range
+    await poll(() => target.x_range == range, 10, 1000)
+    expect(target.x_range).to.be.identical(range)
+  })
+
+  it("repaints when a replacement range changes and disconnects the previous range", async () => {
+    const original = Range1d.create({start: 0, end: 10})
+    const p = XYPlot.create({x_range: original})
+    const {view} = await display(p)
+    const repaint = sinon.spy(view, "request_repaint")
+    try {
+      const replacement = Range1d.create({start: 0, end: 20})
+      p.x_range = replacement
+      repaint.resetHistory()
+      replacement.end = 30
+      expect(repaint.called).to.be.true
+      repaint.resetHistory()
+      original.end = 40
+      expect(repaint.called).to.be.false
+    } finally {
+      repaint.restore()
+    }
+  })
+
+  it("retains listeners for a range still shared by another dimension", async () => {
+    const shared = Range1d.create({start: 0, end: 10})
+    const p = XYPlot.create({x_range: shared, y_range: shared})
+    const {view} = await display(p)
+    const repaint = sinon.spy(view, "request_repaint")
+    try {
+      p.x_range = Range1d.create({start: 0, end: 20})
+      repaint.resetHistory()
+      shared.end = 30
+      expect(repaint.called).to.be.true
+      p.y_range = Range1d.create({start: 0, end: 40})
+      repaint.resetHistory()
+      shared.end = 50
+      expect(repaint.called).to.be.false
+    } finally {
+      repaint.restore()
+    }
+  })
+
+  it("observes interval constraints on replacement named ranges", async () => {
+    const original = Range1d.create({start: 0, end: 10})
+    const p = XYPlot.create({extra_x_ranges: {other: original}})
+    const {view} = await display(p)
+    const repaint = sinon.spy(view, "request_repaint")
+    try {
+      const replacement = Range1d.create({start: 0, end: 20})
+      p.extra_x_ranges = {other: replacement}
+      repaint.resetHistory()
+      replacement.end = 30
+      expect(repaint.called).to.be.true
+      replacement.min_interval = 40
+      expect(replacement.span).to.be.equal(40)
+      replacement.min_interval = null
+      replacement.max_interval = 25
+      expect(replacement.span).to.be.equal(25)
+      repaint.resetHistory()
+      original.end = 50
+      expect(repaint.called).to.be.false
+    } finally {
+      repaint.restore()
+    }
+  })
+
+  it("starts a new range history when a range is replaced", async () => {
+    const original = Range1d.create({start: 0, end: 10})
+    const p = XYPlot.create({x_range: original, y_range: Range1d.create({start: 0, end: 10})})
+    const {view} = await display(p)
+    const pan = {xrs: new Map([[original, {start: 2, end: 8}]]), yrs: new Map()}
+    view.state.push("pan", {range: pan})
+    view.update_range(pan)
+    const replacement = Range1d.create({start: 100, end: 110})
+    view.pause()
+    p.x_range = replacement
+    expect(view.state.can_undo).to.be.false
+    expect(view.state.undo()).to.be.null
+    expect(original.start).to.be.equal(2)
+    expect(original.end).to.be.equal(8)
+    const next = {xrs: new Map([[replacement, {start: 102, end: 108}]]), yrs: new Map()}
+    view.state.push("pan", {range: next})
+    view.update_range(next)
+    view.state.undo()
+    expect(replacement.start).to.be.equal(100)
+    expect(replacement.end).to.be.equal(110)
+    view.unpause()
+    await view.ready
+  })
+
+  it("captures shared finite autorange bounds after the replacement settles", async () => {
+    const shared = DataRange1d.create()
+    const p = XYPlot.create({x_range: shared, y_range: Range1d.create({start: 0, end: 10})})
+    p.add_glyph(Scatter.create({x: {field: "x"}, y: {field: "y"}}),
+      ColumnDataSource.create({data: {x: [2, 8], y: [3, 7]}}))
+    const q = XYPlot.create({x_range: Range1d.create({start: 0, end: 10}), y_range: Range1d.create({start: 0, end: 10})})
+    q.add_glyph(Scatter.create({x: {field: "x"}, y: {field: "y"}}),
+      ColumnDataSource.create({data: {x: [100, 200], y: [3, 7]}}))
+    const {view: row_view} = await display(Row.create({children: [p, q]}))
+    const view = row_view.owner.get_one(q)
+    const before = {start: shared.start, end: shared.end}
+    q.x_range = shared
+    await view.ready
+    const initial = {start: shared.start, end: shared.end}
+    expect(initial.end).to.be.above(before.end)
+    const pan = {xrs: new Map([[shared, {start: 110, end: 190}]]), yrs: new Map()}
+    view.state.push("pan", {range: pan})
+    view.update_range(pan)
+    view.state.undo()
+    expect({start: shared.start, end: shared.end}).to.be.equal(initial)
+  })
+
+  it("selects named ranges from the plot and rebinds after dictionary replacement", async () => {
+    const first = Range1d.create({start: 0, end: 10})
+    const p = XYPlot.create({extra_x_ranges: {other: first}})
+    const renderer = p.add_glyph(Scatter.create(), ColumnDataSource.create(), {x_range_name: "other"})
+    const {view} = await display(p)
+    const rv = view.renderer_views.get(renderer)!
+    expect(rv.coordinates.x_source).to.be.identical(first)
+    const next = Range1d.create({start: 20, end: 30})
+    p.extra_x_ranges = {other: next}
+    expect(rv.coordinates.x_source).to.be.identical(next)
+    expect(view.frame.ranges.has(first)).to.be.false
+    expect(view.frame.ranges.has(next)).to.be.true
+  })
+
+  it("autoranges a replacement data range", async () => {
+    const p = XYPlot.create({
+      x_range: Range1d.create({start: 0, end: 10}),
+      y_range: Range1d.create({start: 0, end: 10}),
+    })
+    p.add_glyph(Scatter.create({x: {field: "x"}, y: {field: "y"}}),
+      ColumnDataSource.create({data: {x: [2, 8], y: [3, 7]}}))
+    const {view} = await display(p)
+    const replacement = DataRange1d.create()
+    p.x_range = replacement
+    await view.ready
+    expect(isFinite(replacement.start)).to.be.true
+    expect(isFinite(replacement.end)).to.be.true
+    expect(replacement.start).to.be.below(2)
+    expect(replacement.end).to.be.above(8)
+  })
+
+  it("recomputes categorical coordinates after range replacement and factor changes", async () => {
+    const p = XYPlot.create({
+      x_range: FactorRange.create({factors: ["a", "b"]}),
+      x_scale: CategoricalScale.create(),
+      y_range: Range1d.create({start: 0, end: 10}),
+    })
+    const renderer = p.add_glyph(Scatter.create({x: {field: "x"}, y: {field: "y"}}),
+      ColumnDataSource.create({data: {x: ["a"], y: [3]}}))
+    const {view} = await display(p)
+    const rv = view.renderer_views.get(renderer)! as GlyphRendererView
+    expect(rv.glyph.index.bbox.x0).to.be.equal(0.5)
+    const replacement = FactorRange.create({factors: ["b", "a"]})
+    p.x_range = replacement
+    await view.ready
+    expect(rv.glyph.index.bbox.x0).to.be.equal(1.5)
+    replacement.factors = ["a", "b"]
+    await view.ready
+    expect(rv.glyph.index.bbox.x0).to.be.equal(0.5)
+  })
+
+  it("round trips construction-fixed mappings and shared ranges", () => {
+    const x_range = Range1d.create({start: 1, end: 10})
+    const p = XYPlot.create({x_range, coordinate_system: CartesianMapping.create()})
+    const q = XYPlot.create({x_range})
+    const serializer = new Serializer()
+    const rep = serializer.encode([p, q])
+    const deserializer = new Deserializer(default_resolver)
+    const [cp, cq] = deserializer.decode(rep) as XYPlot[]
+    expect(cp).to.be.instanceof(XYPlot)
+    expect(cp.coordinate_system).to.be.instanceof(CartesianMapping)
+    expect(cp.coordinate_system).to.not.be.identical(cq.coordinate_system)
+    expect(cp.x_range).to.be.identical(cq.x_range)
+    expect(() => cp.coordinate_system = CartesianMapping.create()).to.throw(Error, /initialization/)
   })
 })

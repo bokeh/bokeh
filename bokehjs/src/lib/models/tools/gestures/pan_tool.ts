@@ -1,3 +1,4 @@
+import type {XYPlotView} from "../../plots/xy_plot_canvas"
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import type {RangeInfo, RangeState} from "../../plots/range_manager"
 import {MenuItem} from "../../ui/menus"
@@ -20,7 +21,7 @@ export function update_ranges(scales: Map<string, Scale>, p0: number, p1: number
   return r
 }
 
-export class PanToolView extends GestureToolView {
+export class PanToolView extends GestureToolView<XYPlotView> {
   declare model: PanTool
 
   protected pan_info?: RangeInfo & {

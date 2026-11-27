@@ -11,7 +11,7 @@ import {PanTool} from "@bokehjs/models/tools/gestures/pan_tool"
 import {TapTool} from "@bokehjs/models/tools/gestures/tap_tool"
 import {build_view} from "@bokehjs/core/build_views"
 import {gridplot} from "@bokehjs/api/gridplot"
-import {ExamineTool, UndoTool, Plot, CustomAction, Legend, LegendItem, CustomJS, Range1d} from "@bokehjs/models"
+import {ExamineTool, UndoTool, CustomAction, Legend, LegendItem, CustomJS, Range1d, XYPlot} from "@bokehjs/models"
 import * as tb_css from "@bokehjs/styles/tool_button.css"
 import * as toolbar_css from "@bokehjs/styles/toolbar.css"
 import * as logo_css from "@bokehjs/styles/logo.css"
@@ -212,7 +212,7 @@ describe("ToolbarView", () => {
     it("of ExamineTool", async () => {
       const tool = ExamineTool.create()
       const toolbar = Toolbar.create({tools: [tool]})
-      const plot = Plot.create({toolbar})
+      const plot = XYPlot.create({toolbar})
       const {view} = await display(plot)
       const toolbar_view = view.owner.get_one(toolbar)
       const tool_view = view.owner.get_one(tool)
@@ -243,7 +243,7 @@ describe("ToolbarView", () => {
         })
         fn(legend, tool)
         const toolbar = Toolbar.create({tools: [tool]})
-        const plot = Plot.create({
+        const plot = XYPlot.create({
           toolbar,
           center: [legend],
           width: 200,

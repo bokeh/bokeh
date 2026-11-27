@@ -10,7 +10,13 @@
 import numpy as np
 
 from bokeh.io import curdoc, show
-from bokeh.models import ColumnDataSource, Grid, HAreaStep, LinearAxis, Plot
+from bokeh.models import (
+    ColumnDataSource,
+    Grid,
+    HAreaStep,
+    LinearAxis,
+    XYPlot,
+)
 
 N = 30
 y = np.linspace(-2, 3, N)
@@ -19,7 +25,7 @@ x2 = 10 - y**2
 
 source = ColumnDataSource(dict(x1=x1, x2=x2, y=y))
 
-plot = Plot(
+plot = XYPlot(
     title=None, width=300, height=300,
     min_border=0, toolbar_location=None)
 

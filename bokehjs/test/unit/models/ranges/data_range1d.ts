@@ -1,7 +1,7 @@
 import {expect} from "#framework/assertions"
 import {display, fig} from "#framework/layouts"
 
-import {Plot} from "@bokehjs/models/plots/plot"
+import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 import type {RangeManager} from "@bokehjs/models/plots/range_manager"
 import {DataRange1d} from "@bokehjs/models/ranges/data_range1d"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
@@ -144,7 +144,7 @@ describe("DataRange1d", () => {
       const source = ColumnDataSource.create({data: {x: [0, 1], y: [1, 3]}})
       const glyph = Scatter.create({x: {field: "x"}, y: {field: "y"}})
       const renderer = GlyphRenderer.create({data_source: source, glyph})
-      const p = Plot.create({renderers: [renderer], y_range})
+      const p = XYPlot.create({renderers: [renderer], y_range})
       const pv = await build_view(p)
       const range_manager = (pv as any)._range_manager as RangeManager // XXX: protected
 
@@ -171,7 +171,7 @@ describe("DataRange1d", () => {
         const source = ColumnDataSource.create({data: {x: [0, 1], y}})
         const glyph = Scatter.create({x: {field: "x"}, y: {field: "y"}})
         const renderer = GlyphRenderer.create({data_source: source, glyph})
-        const p = Plot.create({renderers: [renderer], y_range})
+        const p = XYPlot.create({renderers: [renderer], y_range})
         const pv = await build_view(p)
         const range_manager = (pv as any)._range_manager as RangeManager // XXX: protected
 
@@ -212,7 +212,7 @@ describe("DataRange1d", () => {
         glyph: invisible_glyph,
         visible: false,
       })
-      const p = Plot.create({renderers: [visible_renderer, invisible_renderer], y_range})
+      const p = XYPlot.create({renderers: [visible_renderer, invisible_renderer], y_range})
       const pv = await build_view(p)
       const range_manager = (pv as any)._range_manager as RangeManager // XXX: protected
 
@@ -293,13 +293,13 @@ describe("DataRange1d", () => {
     it("should add renderers from one plot", async () => {
       const r1 = DataRange1d.create()
       const g1 = GlyphRenderer.create({data_source: ColumnDataSource.create(), glyph: Scatter.create()})
-      const p1 = Plot.create({renderers: [g1], x_range: r1})
+      const p1 = XYPlot.create({renderers: [g1], x_range: r1})
       await build_view(p1)
       expect(r1.computed_renderers()).to.be.equal([g1])
 
       const r2 = DataRange1d.create()
       const g2 = GlyphRenderer.create({data_source: ColumnDataSource.create(), glyph: Scatter.create()})
-      const p2 = Plot.create({renderers: [g1, g2], x_range: r2})
+      const p2 = XYPlot.create({renderers: [g1, g2], x_range: r2})
       await build_view(p2)
       expect(r2.computed_renderers()).to.be.equal([g1, g2])
     })
@@ -308,11 +308,11 @@ describe("DataRange1d", () => {
       const r = DataRange1d.create()
 
       const g1 = GlyphRenderer.create({data_source: ColumnDataSource.create(), glyph: Scatter.create()})
-      const p1 = Plot.create({renderers: [g1], x_range: r})
+      const p1 = XYPlot.create({renderers: [g1], x_range: r})
       await build_view(p1)
 
       const g2 = GlyphRenderer.create({data_source: ColumnDataSource.create(), glyph: Scatter.create()})
-      const p2 = Plot.create({renderers: [g2], x_range: r})
+      const p2 = XYPlot.create({renderers: [g2], x_range: r})
       await build_view(p2)
 
       expect(r.computed_renderers()).to.be.equal([g1, g2])
@@ -324,10 +324,10 @@ describe("DataRange1d", () => {
 
       const r = DataRange1d.create({renderers: [g2]})
 
-      const p1 = Plot.create({renderers: [g1], x_range: r})
+      const p1 = XYPlot.create({renderers: [g1], x_range: r})
       await build_view(p1)
 
-      const p2 = Plot.create({renderers: [g2], x_range: r})
+      const p2 = XYPlot.create({renderers: [g2], x_range: r})
       await build_view(p2)
 
       expect(r.computed_renderers()).to.be.equal([g2])
@@ -435,7 +435,7 @@ describe("DataRange1d", () => {
 
     it("should compute max/min for dimension of a single plot_bounds", async () => {
       const r = DataRange1d.create()
-      const p = Plot.create({visible: true, x_range: r})
+      const p = XYPlot.create({visible: true, x_range: r})
       const pv = await build_view(p)
 
       const bounds = new Map([
@@ -448,9 +448,9 @@ describe("DataRange1d", () => {
     it("should compute max/min for dimension of multiple plot_bounds", async () => {
       const r = DataRange1d.create()
 
-      const p0 = Plot.create({visible: true, x_range: r})
-      const p1 = Plot.create({visible: true, x_range: r})
-      const p2 = Plot.create({visible: true, x_range: r})
+      const p0 = XYPlot.create({visible: true, x_range: r})
+      const p1 = XYPlot.create({visible: true, x_range: r})
+      const p2 = XYPlot.create({visible: true, x_range: r})
 
       const pv0 = await build_view(p0)
       const pv1 = await build_view(p1)
@@ -532,7 +532,7 @@ describe("DataRange1d", () => {
     it("should update its start and end values", async () => {
       const r = DataRange1d.create()
       const g = GlyphRenderer.create({data_source: ColumnDataSource.create(), glyph: Scatter.create()})
-      const p = Plot.create({renderers: [g], x_range: r})
+      const p = XYPlot.create({renderers: [g], x_range: r})
       const pv = await build_view(p)
 
       const bounds = new Map([
@@ -546,7 +546,7 @@ describe("DataRange1d", () => {
     it("should not update its start or end values to NaN when log", async () => {
       const r = DataRange1d.create({scale_hint: "log"})
       const g = GlyphRenderer.create({data_source: ColumnDataSource.create(), glyph: Scatter.create()})
-      const p = Plot.create({renderers: [g], x_range: r})
+      const p = XYPlot.create({renderers: [g], x_range: r})
       const pv = await build_view(p)
 
       const bounds = new Map([

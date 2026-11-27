@@ -2,7 +2,7 @@ import {display} from "#framework/layouts"
 
 import type {Arrayable} from "@bokehjs/core/types"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
-import {Plot} from "@bokehjs/models/plots/plot"
+import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 import type {Glyph} from "@bokehjs/models/glyphs/glyph"
 import type {GlyphRendererView} from "@bokehjs/models/renderers/glyph_renderer"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
@@ -38,7 +38,7 @@ export async function create_glyph_renderer_view<G extends Glyph>(
   const [x_range, x_scale] = make_scale("x", axis_type, options.x_range)
   const [y_range, y_scale] = make_scale("y", axis_type, options.y_range)
 
-  const plot = Plot.create({
+  const plot = XYPlot.create({
     width: 200, height: 200,
     x_range, y_range,
     x_scale, y_scale,

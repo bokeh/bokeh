@@ -1,4 +1,4 @@
-Plot bbox=[0, 0, 200, 200]
+XYPlot bbox=[0, 0, 200, 200]
   Canvas bbox=[0, 0, 200, 200]
   CartesianFrame bbox=[5, 5, 165, 95]
   GlyphRenderer bbox=[13, 9, 150, 87]

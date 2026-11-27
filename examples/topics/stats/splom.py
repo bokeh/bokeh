@@ -24,10 +24,10 @@ from bokeh.models import (
     LassoSelectTool,
     LinearAxis,
     PanTool,
-    Plot,
     ResetTool,
     Scatter,
     WheelZoomTool,
+    XYPlot,
 )
 from bokeh.sampledata.penguins import data
 from bokeh.transform import factor_cmap
@@ -47,7 +47,7 @@ ydrs = [DataRange1d(bounds=None) for _ in range(N)]
 plots = []
 
 for i, (y, x) in enumerate(product(ATTRS, reversed(ATTRS))):
-    p = Plot(x_range=xdrs[i%N], y_range=ydrs[i//N],
+    p = XYPlot(x_range=xdrs[i%N], y_range=ydrs[i//N],
              background_fill_color="#fafafa",
              border_fill_color="white", width=200, height=200, min_border=5)
 

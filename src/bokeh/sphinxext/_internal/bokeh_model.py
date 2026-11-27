@@ -38,7 +38,6 @@ log = logging.getLogger(__name__)
 import importlib
 import inspect
 import json
-import warnings
 from collections.abc import Collection
 from heapq import nlargest
 from os import getenv
@@ -53,11 +52,10 @@ from bokeh.core.property.descriptors import AliasPropertyDescriptor, PropertyDes
 from bokeh.core.property.singletons import Undefined
 from bokeh.core.serialization import AnyRep, Serializer, SymbolRep
 from bokeh.model import Model
-from bokeh.util.warnings import BOKEH_DEPRECATION_MESSAGE_PATTERN
 
 from . import PARALLEL_SAFE, SphinxParallelSpec
 from .bokeh_directive import BokehDirective, py_sig_re
-from .bokeh_prop import _render_property_detail
+from .bokeh_prop import _get_model_instance, _render_property_detail
 from .templates import MODEL_DETAIL, PROP_DETAIL
 
 # -----------------------------------------------------------------------------
@@ -116,12 +114,7 @@ class BokehModelDirective(BokehDirective):
         if not issubclass(model, Model):
             raise SphinxError(f"Unable to generate model reference docs: {model_name}, is not a subclass of Model")
 
-        # We may need to instantiate deprecated objects as part of documenting
-        # them in the reference guide. Suppress any warnings here to keep the
-        # docs build clean just for this case
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", message=BOKEH_DEPRECATION_MESSAGE_PATTERN, category=DeprecationWarning)
-            model_obj = model()
+        model_obj = _get_model_instance(model)
 
         model_json = json.dumps(to_json_rep(model_obj), sort_keys=True, indent=2, separators=(", ", ": "))
 

@@ -11,7 +11,14 @@ import numpy as np
 
 from bokeh.core.properties import field
 from bokeh.io import curdoc, show
-from bokeh.models import ColumnDataSource, Grid, HStrip, LinearAxis, Plot, Range1d
+from bokeh.models import (
+    ColumnDataSource,
+    Grid,
+    HStrip,
+    LinearAxis,
+    Range1d,
+    XYPlot,
+)
 
 N = 9
 y0 = np.linspace(-9, 9, N)
@@ -19,7 +26,7 @@ y1 = [y + 0.2*(i + 1) for i, y in enumerate(y0)]
 
 source = ColumnDataSource(dict(y0=y0, y1=y1))
 
-plot = Plot(
+plot = XYPlot(
     x_range=Range1d(start=-10, end=10),
     title=None, width=300, height=300,
     min_border=0, toolbar_location=None,

@@ -6,7 +6,8 @@ import {default_resolver} from "@bokehjs/base"
 import {ClientConnection} from "@bokehjs/client/connection"
 import {ClientSession} from "@bokehjs/client/session"
 import {Document, documents} from "@bokehjs/document"
-import {Plot, PlotView} from "@bokehjs/models/plots/plot"
+import {XYPlotView} from "@bokehjs/models/plots/xy_plot_canvas"
+import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 
 const default_options = {url: "ws://127.0.0.1:5877/ws", token: btoa(JSON.stringify({session_id: "mount-test"}))}
 // The transport lifecycle tests below keep registration outside their timing seam.
@@ -24,12 +25,12 @@ async function with_connection(connect: (connection: ClientConnection) => Promis
 
 describe("connect_session()", () => {
   it("prepares builtins for concurrent clients without replacing registrations or opening cancelled connections", async () => {
-    const original_plot = default_resolver.get("Plot")
+    const original_plot = default_resolver.get("XYPlot")
     if (original_plot == null) {
-      throw new Error("the unit test registry is missing Plot")
+      throw new Error("the unit test registry is missing XYPlot")
     }
-    class ApplicationPlot extends Plot {}
-    ApplicationPlot.__qualified__ = "Plot"
+    class ApplicationPlot extends XYPlot {}
+    ApplicationPlot.__qualified__ = "XYPlot"
     default_resolver.register(ApplicationPlot, true)
     const original_warn = console.warn
     const warnings: unknown[][] = []
@@ -39,7 +40,7 @@ describe("connect_session()", () => {
     try {
       await with_connection(async (connection) => {
         connections.push(connection)
-        for (const name of ["Plot", "Slider", "DataTable"]) {
+        for (const name of ["XYPlot", "Slider", "DataTable"]) {
           expect(default_resolver.get(name) != null).to.be.true
         }
         return connection.session = new ClientSession(connection, new Document())
@@ -53,7 +54,7 @@ describe("connect_session()", () => {
         await Promise.all([first.ready, second.ready])
         expect((await cancelled.ready.catch((error) => error)).name).to.be.equal("AbortError")
         expect(connections.length).to.be.equal(2)
-        expect(default_resolver.get("Plot")).to.be.equal(ApplicationPlot)
+        expect(default_resolver.get("XYPlot")).to.be.equal(ApplicationPlot)
 
         const repeated = connect_session(default_options)
         owners.push(repeated)
@@ -180,8 +181,8 @@ describe("connect_session()", () => {
   })
 
   it("lets a borrowed mount detach, fail, abort, and remount without closing the session", async () => {
-    const first = Plot.create({width: 100, height: 100})
-    const second = Plot.create({width: 100, height: 100})
+    const first = XYPlot.create({width: 100, height: 100})
+    const second = XYPlot.create({width: 100, height: 100})
     const doc = new Document({roots: [first, second]})
     let connection!: ClientConnection
     await with_connection(async (created) => {
@@ -228,13 +229,13 @@ describe("connect_session()", () => {
   })
 
   it("keeps rendering failure separate from connection ownership", async () => {
-    class FailingView extends PlotView {
+    class FailingView extends XYPlotView {
       override async lazy_initialize(): Promise<void> {
         await super.lazy_initialize()
         throw new Error("render failed")
       }
     }
-    class FailingPlot extends Plot {
+    class FailingPlot extends XYPlot {
       static { this.prototype.default_view = FailingView }
     }
     const doc = new Document({roots: [FailingPlot.create()]})
@@ -262,7 +263,7 @@ describe("connect_session()", () => {
   })
 
   it("closes after readiness on abort without destroying the decoded document", async () => {
-    const plot = Plot.create()
+    const plot = XYPlot.create()
     const doc = new Document({roots: [plot]})
     let connection!: ClientConnection
     let sent = 0

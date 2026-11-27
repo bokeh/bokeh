@@ -5,9 +5,9 @@ from bokeh.models import (
     ColumnDataSource,
     GlyphRenderer,
     MultiLine,
-    Plot,
     Rect,
     Selection,
+    XYPlot,
 )
 from bokeh.settings import settings
 
@@ -15,7 +15,7 @@ from bokeh.settings import settings
 # would be skipped given the set value is equal to the default value.
 settings.serialize_include_defaults.set_value(True)
 
-plot = Plot(
+plot = XYPlot(
     renderers=[
         GlyphRenderer(
             glyph=Rect(x=0, y=0, width=1, height=1),

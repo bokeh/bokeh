@@ -48,7 +48,7 @@ from ..annotations import Label, LabelSet
 from ..callbacks import CustomJS
 from ..filters import GroupFilter
 from ..glyphs import Bezier, Rect
-from ..plots import Plot
+from ..plots import XYPlot
 from ..ranges import Range1d
 from ..renderers import GlyphRenderer
 from ..sources import ColumnDataSource, IndexedSubset
@@ -239,7 +239,7 @@ class _BokehStructureGraph:
             doc=docs,
         )
 
-    def _make_graph_plot(self) -> Plot:
+    def _make_graph_plot(self) -> XYPlot:
         """ Builds the graph portion of the final model.
 
         """
@@ -285,7 +285,7 @@ class _BokehStructureGraph:
         x_padding = (frame_width - (right - left)) / 2
         y_padding = (frame_height - (top - bottom)) / 2
 
-        p2 = Plot(
+        p2 = XYPlot(
             outline_line_alpha=0.0,
             frame_width=frame_width,
             frame_height=frame_height,

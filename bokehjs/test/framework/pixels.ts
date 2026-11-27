@@ -1,22 +1,22 @@
 import {expect_condition} from "./assertions"
-import type {PlotView} from "@bokehjs/models/plots/plot_canvas"
+import type {XYPlotView} from "@bokehjs/models/plots/xy_plot_canvas"
 
 export type Point = [number, number]
 
-export function pixels(view: PlotView, [x, y]: Point): number[] {
+export function pixels(view: XYPlotView, [x, y]: Point): number[] {
   const {ctx, pixel_ratio} = view.canvas_view.primary
   const sx = Math.floor(view.frame.x_scale.compute(x)*pixel_ratio)
   const sy = Math.floor(view.frame.y_scale.compute(y)*pixel_ratio)
   return Array.from(ctx.getImageData(sx, sy, 1, 1).data)
 }
 
-export function expect_pixel(view: PlotView, point: Point, expected: number[]): void {
+export function expect_pixel(view: XYPlotView, point: Point, expected: number[]): void {
   const actual = pixels(view, point)
   expect_condition(actual.every((value, i) => Math.abs(value - expected[i]) <= 2),
     `pixel at ${point}: expected ${expected}, got ${actual}`)
 }
 
-export function region_has_ink(view: PlotView, [x0, y0]: Point, [x1, y1]: Point): boolean {
+export function region_has_ink(view: XYPlotView, [x0, y0]: Point, [x1, y1]: Point): boolean {
   const {ctx, pixel_ratio} = view.canvas_view.primary
   const sx0 = view.frame.x_scale.compute(x0)*pixel_ratio
   const sy0 = view.frame.y_scale.compute(y0)*pixel_ratio

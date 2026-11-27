@@ -26,7 +26,7 @@ import pytest
 
 from bokeh import __version__
 from bokeh.embed._util import ThemePolicy
-from bokeh.models import Plot
+from bokeh.models import XYPlot
 from bokeh.resources import CDN, INLINE, Resources
 from bokeh.settings import settings
 
@@ -136,7 +136,7 @@ def test__shares_exec_prefix() -> None:
         sys.exec_prefix = old_ex
 
 def test__resized_restores_after_exception() -> None:
-    plot = Plot(width=100, height=200)
+    plot = XYPlot(width=100, height=200)
 
     with pytest.raises(RuntimeError):  # noqa: PT012  (the raise is the point: it proves the context manager unwinds)
         with biu._resized(plot, width=300, height=400):
@@ -148,7 +148,7 @@ def test__resized_restores_after_exception() -> None:
     assert plot.height == 200
 
 def test_get_layout_html_uses_source_or_curdoc_theme_by_default() -> None:
-    plot = Plot()
+    plot = XYPlot()
 
     with patch("bokeh.io.util.embed") as mock_embed:
         mock_embed.return_value.page.return_value = "<html></html>"
@@ -165,7 +165,7 @@ def test_inline_export_preserves_resource_configuration(tmp_path: os.PathLike) -
         nonce="export-nonce", crossorigin="anonymous")
 
     with patch("bokeh.io.util.embed") as mock_embed:
-        biu.get_layout_html(Plot(), resources=policy)
+        biu.get_layout_html(XYPlot(), resources=policy)
 
     exported = mock_embed.return_value.page.call_args.kwargs["resources"]
     assert exported.mode == CDN

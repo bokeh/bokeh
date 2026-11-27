@@ -8,7 +8,13 @@
 '''
 
 from bokeh.io import curdoc, show
-from bokeh.models import ColumnDataSource, Grid, LinearAxis, MultiPolygons, Plot
+from bokeh.models import (
+    ColumnDataSource,
+    Grid,
+    LinearAxis,
+    MultiPolygons,
+    XYPlot,
+)
 
 xs_dict = [
     [ {'exterior': [1, 1, 2, 2],  'holes': [                              ]} ],
@@ -29,7 +35,7 @@ ys = [[[p['exterior'], *p['holes']] for p in mp] for mp in ys_dict]
 
 source = ColumnDataSource(dict(xs=xs, ys=ys))
 
-plot = Plot(
+plot = XYPlot(
     title=None, width=300, height=300,
     min_border=0, toolbar_location=None)
 

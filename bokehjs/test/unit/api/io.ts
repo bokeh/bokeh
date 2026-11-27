@@ -6,17 +6,18 @@ import {
 import {figure} from "@bokehjs/api/plotting"
 import {Document, documents} from "@bokehjs/document"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
-import {Plot, PlotView} from "@bokehjs/models/plots/plot"
+import {XYPlotView} from "@bokehjs/models/plots/xy_plot_canvas"
+import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 import {defer} from "@bokehjs/core/util/defer"
 
 describe("in api/plotting module", () => {
   describe("show() function", () => {
     it("returns an owning mount with specific view types", async () => {
-      const mounted = show(Plot.create())
+      const mounted = show(XYPlot.create())
       await mounted.ready
       // tsc will fail with TS2740 if this doesn't produce the correct type
-      const [view]: PlotView[] = mounted.views
-      expect(view).to.be.instanceof(PlotView)
+      const [view]: XYPlotView[] = mounted.views
+      expect(view).to.be.instanceof(XYPlotView)
       await mounted.dispose()
     })
   })
@@ -26,13 +27,13 @@ describe("in api/plotting module", () => {
       const target = document.createElement("div")
       document.body.append(target)
       const documents_before = documents.length
-      const plot = Plot.create()
+      const plot = XYPlot.create()
 
       const mounted = mount(plot, target)
       expect(mounted.state).to.be.equal("pending")
       await mounted.ready
       const [view] = mounted.views
-      expect(view).to.be.instanceof(PlotView)
+      expect(view).to.be.instanceof(XYPlotView)
       expect(plot.document).to.be.equal(mounted.document)
       expect(documents.length).to.be.equal(documents_before + 1)
       expect(mounted.state).to.be.equal("ready")
@@ -58,7 +59,7 @@ describe("in api/plotting module", () => {
       const first_waiter = when_mounted(first_target)
       const second_waiter = when_mounted(second_target)
 
-      const mounted = mount({first: Plot.create(), second: Plot.create()}, {
+      const mounted = mount({first: XYPlot.create(), second: XYPlot.create()}, {
         first: first_target, second: second_target,
       })
       const [first_discovery, second_discovery] = await Promise.all([first_waiter, second_waiter])
@@ -136,14 +137,14 @@ describe("in api/plotting module", () => {
     })
 
     it("publishes readiness failures and clears them on remount", async () => {
-      class FailingPlotView extends PlotView {
+      class FailingPlotView extends XYPlotView {
         override async lazy_initialize(): Promise<void> {
           await super.lazy_initialize()
           throw new Error("target-local render failure")
         }
       }
 
-      class FailingPlot extends Plot {
+      class FailingPlot extends XYPlot {
         static {
           this.prototype.default_view = FailingPlotView
         }
@@ -164,7 +165,7 @@ describe("in api/plotting module", () => {
       expect(target.hasAttribute(BOKEH_MOUNTED_ATTRIBUTE)).to.be.false
       expect(await when_mounted(target).then(() => null, (error: unknown) => error)).to.be.equal(mounted_error)
 
-      const remounted = mount(Plot.create(), target)
+      const remounted = mount(XYPlot.create(), target)
       expect(await when_mounted(target)).to.be.equal(remounted)
       await remounted.ready
       expect(target.bokehMountError).to.be.undefined
@@ -175,9 +176,9 @@ describe("in api/plotting module", () => {
     it("doesn't let a stale mount clear a newer target publication", async () => {
       const target = document.createElement("div")
       document.body.append(target)
-      const first = mount(Plot.create(), target)
+      const first = mount(XYPlot.create(), target)
       await first.ready
-      const second = mount(Plot.create(), target)
+      const second = mount(XYPlot.create(), target)
       await second.ready
       expect(target.bokehMount).to.be.equal(second)
 
@@ -190,7 +191,7 @@ describe("in api/plotting module", () => {
       expect(target.hasAttribute(BOKEH_MOUNTED_ATTRIBUTE)).to.be.false
 
       const discovery = when_mounted(target)
-      const third = mount(Plot.create(), target)
+      const third = mount(XYPlot.create(), target)
       expect(await discovery).to.be.equal(third)
       await third.ready
       await third.dispose()
@@ -200,14 +201,14 @@ describe("in api/plotting module", () => {
     it("doesn't let a stale mount reclaim a newer target publication", async () => {
       const target = document.createElement("div")
       document.body.append(target)
-      const doc = new Document({roots: [Plot.create()]})
+      const doc = new Document({roots: [XYPlot.create()]})
       const first = mount(doc, target)
       await first.ready
-      const second = mount(Plot.create(), target)
+      const second = mount(XYPlot.create(), target)
       await second.ready
       expect(target.bokehMount).to.be.equal(second)
 
-      const added = Plot.create()
+      const added = XYPlot.create()
       doc.add_root(added)
       while (first.view(added.id) == null) {
         await defer()
@@ -224,14 +225,14 @@ describe("in api/plotting module", () => {
       const first_target = document.createElement("div")
       const second_target = document.createElement("div")
       document.body.append(first_target, second_target)
-      const first = Plot.create()
-      const second = Plot.create()
+      const first = XYPlot.create()
+      const second = XYPlot.create()
 
       const mounted = mount({first, second}, {first: first_target, second: second_target})
       await mounted.ready
       const [first_view, second_view] = mounted.views
-      expect_instanceof(first_view, PlotView)
-      expect_instanceof(second_view, PlotView)
+      expect_instanceof(first_view, XYPlotView)
+      expect_instanceof(second_view, XYPlotView)
       expect(first_target.contains(first_view.el)).to.be.true
       expect(second_target.contains(second_view.el)).to.be.true
 
@@ -249,8 +250,8 @@ describe("in api/plotting module", () => {
       const replacement_target = document.createElement("div")
       const second_target = document.createElement("div")
       document.body.append(first_target, replacement_target, second_target)
-      const first = Plot.create()
-      const second = Plot.create()
+      const first = XYPlot.create()
+      const second = XYPlot.create()
       second.name = "semantic-detail"
       const doc = new Document({roots: [first, second]})
       const source = new MountSource(doc, {summary: first, detail: second})
@@ -264,11 +265,11 @@ describe("in api/plotting module", () => {
       expect(mounted.ownership.document).to.be.equal("caller")
       expect(mounted.document.get_model_by_name("semantic-detail")).to.be.equal(second)
       const detail_view = mounted.view("detail")
-      expect_instanceof(detail_view, PlotView)
+      expect_instanceof(detail_view, XYPlotView)
       expect(mounted.view_lookup.find_one(second)).to.be.equal(detail_view)
 
       const first_view = await mounted.attach("summary", first_target)
-      expect_instanceof(first_view, PlotView)
+      expect_instanceof(first_view, XYPlotView)
       expect(first_target.contains(first_view.el)).to.be.true
       expect(mounted.views.length).to.be.equal(2)
       expect(mounted.view_lookup.find_one(first)).to.be.equal(first_view)
@@ -285,7 +286,7 @@ describe("in api/plotting module", () => {
       expect(second_target.childElementCount).to.be.above(0)
 
       const reattached = await mounted.attach("summary", first_target)
-      expect_instanceof(reattached, PlotView)
+      expect_instanceof(reattached, XYPlotView)
       expect(reattached).to.not.be.equal(first_view)
 
       await mounted.dispose()
@@ -304,7 +305,7 @@ describe("in api/plotting module", () => {
       const started = new Promise<void>((resolve) => initialization_started = resolve)
       const gate = new Promise<void>((resolve) => continue_initialization = resolve)
 
-      class DelayedPlotView extends PlotView {
+      class DelayedPlotView extends XYPlotView {
         override async lazy_initialize(): Promise<void> {
           await super.lazy_initialize()
           initialization_started()
@@ -312,7 +313,7 @@ describe("in api/plotting module", () => {
         }
       }
 
-      class DelayedPlot extends Plot {
+      class DelayedPlot extends XYPlot {
         static {
           this.prototype.default_view = DelayedPlotView
         }
@@ -340,7 +341,7 @@ describe("in api/plotting module", () => {
       const started = new Promise<void>((resolve) => initialization_started = resolve)
       const gate = new Promise<void>((resolve) => continue_initialization = resolve)
 
-      class DelayedPlotView extends PlotView {
+      class DelayedPlotView extends XYPlotView {
         override async lazy_initialize(): Promise<void> {
           await super.lazy_initialize()
           initialization_started()
@@ -348,7 +349,7 @@ describe("in api/plotting module", () => {
         }
       }
 
-      class DelayedPlot extends Plot {
+      class DelayedPlot extends XYPlot {
         static {
           this.prototype.default_view = DelayedPlotView
         }
@@ -359,11 +360,11 @@ describe("in api/plotting module", () => {
       const first = DelayedPlot.create()
       const doc = new Document({roots: [first]})
       const mounted = mount(doc, target)
-      const before_rendering = Plot.create()
+      const before_rendering = XYPlot.create()
       doc.add_root(before_rendering)
       await started
 
-      const added = Plot.create()
+      const added = XYPlot.create()
       doc.add_root(added)
       expect(mounted.state).to.be.equal("pending")
       expect(mounted.root(added.id)).to.be.equal(added)
@@ -389,7 +390,7 @@ describe("in api/plotting module", () => {
       const started = new Promise<void>((resolve) => initialization_started = resolve)
       const gate = new Promise<void>((resolve) => continue_initialization = resolve)
 
-      class DelayedPlotView extends PlotView {
+      class DelayedPlotView extends XYPlotView {
         override async lazy_initialize(): Promise<void> {
           await super.lazy_initialize()
           initialization_started()
@@ -397,7 +398,7 @@ describe("in api/plotting module", () => {
         }
       }
 
-      class DelayedPlot extends Plot {
+      class DelayedPlot extends XYPlot {
         static {
           this.prototype.default_view = DelayedPlotView
         }
@@ -406,8 +407,8 @@ describe("in api/plotting module", () => {
       const target = document.createElement("div")
       document.body.append(target)
       const building = DelayedPlot.create()
-      const waiting = Plot.create()
-      const retained = Plot.create()
+      const waiting = XYPlot.create()
+      const retained = XYPlot.create()
       const doc = new Document({roots: [building, waiting, retained]})
       const mounted = mount(doc, target)
       await started
@@ -421,7 +422,7 @@ describe("in api/plotting module", () => {
       expect(mounted.root_keys).to.be.equal([retained.id])
       expect(mounted.view_lookup.find_one(building)).to.be.null
       expect(mounted.view_lookup.find_one(waiting)).to.be.null
-      expect(mounted.view(retained.id)).to.be.instanceof(PlotView)
+      expect(mounted.view(retained.id)).to.be.instanceof(XYPlotView)
       expect(mounted.views.length).to.be.equal(1)
 
       await mounted.dispose()
@@ -435,7 +436,7 @@ describe("in api/plotting module", () => {
       const started = new Promise<void>((resolve) => initialization_started = resolve)
       const gate = new Promise<void>((resolve) => continue_initialization = resolve)
 
-      class DelayedPlotView extends PlotView {
+      class DelayedPlotView extends XYPlotView {
         override async lazy_initialize(): Promise<void> {
           await super.lazy_initialize()
           initialization_started()
@@ -443,7 +444,7 @@ describe("in api/plotting module", () => {
         }
       }
 
-      class DelayedPlot extends Plot {
+      class DelayedPlot extends XYPlot {
         static {
           this.prototype.default_view = DelayedPlotView
         }
@@ -476,7 +477,7 @@ describe("in api/plotting module", () => {
 
       const controller = new AbortController()
       const abort_callbacks: MountError[] = []
-      const aborted = mount(Plot.create(), abort_target, {
+      const aborted = mount(XYPlot.create(), abort_target, {
         signal: controller.signal,
         on_error: (error) => abort_callbacks.push(error),
       })
@@ -490,7 +491,7 @@ describe("in api/plotting module", () => {
       await aborted.when_disposed
 
       const dispose_callbacks: MountError[] = []
-      const disposed = mount(Plot.create(), dispose_target, {
+      const disposed = mount(XYPlot.create(), dispose_target, {
         on_error: (error) => dispose_callbacks.push(error),
       })
       const readiness = disposed.ready.then(() => null, (error: unknown) => error)
@@ -509,7 +510,7 @@ describe("in api/plotting module", () => {
     it("reports target errors and rolls back mount-owned documents", async () => {
       const target = document.createElement("div")
       const documents_before = documents.length
-      const plot = Plot.create()
+      const plot = XYPlot.create()
       const errors: MountError[] = []
       const mounted = mount(plot, target, {on_error: (error) => errors.push(error)})
 
@@ -526,14 +527,14 @@ describe("in api/plotting module", () => {
     })
 
     it("rolls back all views and ownership when one root fails to render", async () => {
-      class FailingPlotView extends PlotView {
+      class FailingPlotView extends XYPlotView {
         override async lazy_initialize(): Promise<void> {
           await super.lazy_initialize()
           throw new Error("intentional mount failure")
         }
       }
 
-      class FailingPlot extends Plot {
+      class FailingPlot extends XYPlot {
         static {
           this.prototype.default_view = FailingPlotView
         }
@@ -542,7 +543,7 @@ describe("in api/plotting module", () => {
       const target = document.createElement("div")
       document.body.append(target)
       const documents_before = documents.length
-      const first = Plot.create()
+      const first = XYPlot.create()
       const second = FailingPlot.create()
       const mounted = mount({first, second}, target)
 
@@ -561,7 +562,7 @@ describe("in api/plotting module", () => {
 
     it("reports the logical root key for keyed target failures", async () => {
       const target = document.createElement("div")
-      const plot = Plot.create()
+      const plot = XYPlot.create()
       const mounted = mount({summary: plot}, {summary: target})
 
       const error = await mounted.ready.then(() => null, (error: unknown) => error)
@@ -574,7 +575,7 @@ describe("in api/plotting module", () => {
     it("rolls back even when an error callback throws", async () => {
       const target = document.createElement("div")
       const documents_before = documents.length
-      const plot = Plot.create()
+      const plot = XYPlot.create()
       let callback_called = false
       const mounted = mount(plot, target, {
         on_error() {
@@ -594,7 +595,7 @@ describe("in api/plotting module", () => {
 
     it("surfaces dynamic root render failures without disposing a ready caller document", async () => {
       let fail = true
-      class FailingPlotView extends PlotView {
+      class FailingPlotView extends XYPlotView {
         override async lazy_initialize(): Promise<void> {
           await super.lazy_initialize()
           if (fail) {
@@ -604,7 +605,7 @@ describe("in api/plotting module", () => {
         }
       }
 
-      class FailingPlot extends Plot {
+      class FailingPlot extends XYPlot {
         static {
           this.prototype.default_view = FailingPlotView
         }
@@ -644,7 +645,7 @@ describe("in api/plotting module", () => {
       controller.abort(new Error("component unmounted"))
       const documents_before = documents.length
 
-      const mounted = mount(Plot.create(), target, {signal: controller.signal})
+      const mounted = mount(XYPlot.create(), target, {signal: controller.signal})
       const error = await mounted.ready.then(() => null, (error: unknown) => error)
       expect(error).to.be.instanceof(MountError)
       expect((error as MountError).kind).to.be.equal("abort")
@@ -653,7 +654,7 @@ describe("in api/plotting module", () => {
     })
 
     it("releases model ownership synchronously when mounting is aborted", async () => {
-      const plot = Plot.create()
+      const plot = XYPlot.create()
       const first_target = document.createElement("div")
       const second_target = document.createElement("div")
       const controller = new AbortController()
@@ -680,7 +681,7 @@ describe("in api/plotting module", () => {
       const started = new Promise<void>((resolve) => initialization_started = resolve)
       const gate = new Promise<void>((resolve) => continue_initialization = resolve)
 
-      class DelayedPlotView extends PlotView {
+      class DelayedPlotView extends XYPlotView {
         override async lazy_initialize(): Promise<void> {
           await super.lazy_initialize()
           initialization_started()
@@ -688,7 +689,7 @@ describe("in api/plotting module", () => {
         }
       }
 
-      class DelayedPlot extends Plot {
+      class DelayedPlot extends XYPlot {
         static {
           this.prototype.default_view = DelayedPlotView
         }
@@ -718,13 +719,13 @@ describe("in api/plotting module", () => {
 
     it("doesn't destroy a caller-owned document", async () => {
       const target = document.createElement("div")
-      const plot = Plot.create()
+      const plot = XYPlot.create()
       const doc = new Document({roots: [plot]})
       document.body.append(target)
       const mounted = mount(doc, target)
       await mounted.ready
       const [view] = mounted.views
-      expect_instanceof(view, PlotView)
+      expect_instanceof(view, XYPlotView)
 
       await mounted.dispose()
       expect(doc.is_destroyed).to.be.false

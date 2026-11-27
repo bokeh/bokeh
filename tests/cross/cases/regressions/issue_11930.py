@@ -6,7 +6,7 @@ from bokeh.models import (
     GlyphRenderer,
     Line,
     LinearAxis,
-    Plot,
+    XYPlot,
 )
 
 x = [1, 2, 3]
@@ -16,7 +16,7 @@ data_source = ColumnDataSource(data=dict(x=x, y=y))
 glyph = Line()
 glyph_renderer = GlyphRenderer(glyph=glyph, data_source=data_source)
 
-plot = Plot(width=200, height=200, renderers=[glyph_renderer])
+plot = XYPlot(width=200, height=200, renderers=[glyph_renderer])
 
 int_overrides = {1: "A", 3: "C"}
 float_overrides = {1.0: "A", 3.0: "C"}

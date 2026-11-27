@@ -13,10 +13,10 @@ from bokeh.embed import embed
 from bokeh.models import (
     BoxZoomTool,
     PanTool,
-    Plot,
     Range1d,
     WheelZoomTool,
     WMTSTileSource,
+    XYPlot,
 )
 from bokeh.util.browser import view
 
@@ -30,7 +30,7 @@ tile_options['url'] = 'http://c.tile.openstreetmap.org/{z}/{x}/{y}.png'
 tile_source = WMTSTileSource(**tile_options)
 
 # instantiate plot and add tile source
-p = Plot(x_range=x_range, y_range=y_range, height=800, width=800)
+p = XYPlot(x_range=x_range, y_range=y_range, height=800, width=800)
 p.add_tools(WheelZoomTool(), PanTool(), BoxZoomTool(match_aspect=True))
 
 tile_renderer_options = {}

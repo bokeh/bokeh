@@ -1,3 +1,4 @@
+import type {XYPlotView} from "../../plots/xy_plot_canvas"
 import {PlotActionTool, PlotActionToolView} from "./plot_action_tool"
 import {DataRenderer} from "../../renderers/data_renderer"
 import type {Scale} from "../../scales/scale"
@@ -7,7 +8,7 @@ import {scale_range} from "core/util/zoom"
 import type * as p from "core/properties"
 import {logger} from "core/logging"
 
-export abstract class ZoomBaseToolView extends PlotActionToolView {
+export abstract class ZoomBaseToolView extends PlotActionToolView<XYPlotView> {
   declare model: ZoomBaseTool
 
   abstract get factor(): number

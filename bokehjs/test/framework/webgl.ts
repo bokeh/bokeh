@@ -1,13 +1,13 @@
 import type {GlyphView} from "@bokehjs/models/glyphs/glyph"
 import type {BaseGLGlyph} from "@bokehjs/models/glyphs/webgl/base"
-import type {PlotView} from "@bokehjs/models/plots/plot_canvas"
+import type {XYPlotView} from "@bokehjs/models/plots/xy_plot_canvas"
 import {paint} from "@bokehjs/core/util/defer"
 import {actions, xy} from "./interactive"
 import type {PlotActions, Point} from "./interactive"
 
 /** Wait for rendering and browser compositing without depending on a particular
  * WebGL backend implementation. */
-export async function settle_webgl(view: PlotView, frames: number = 2): Promise<void> {
+export async function settle_webgl(view: XYPlotView, frames: number = 2): Promise<void> {
   await view.ready
   for (let i = 0; i < frames; i++) {
     await paint()
@@ -24,7 +24,7 @@ export function require_glglyph(glyph: GlyphView): BaseGLGlyph {
 export class WebGLScenario {
   private readonly _actions: PlotActions
 
-  constructor(readonly view: PlotView) {
+  constructor(readonly view: XYPlotView) {
     this._actions = actions(view, {pause: 0})
   }
 

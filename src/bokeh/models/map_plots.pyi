@@ -11,7 +11,7 @@ from typing import Unpack
 from .._types import JSON, Bytes
 from ..core.enums import MapTypeType as MapType
 from ..model.model import Model, _ModelInit
-from .plots import Plot, _PlotInit
+from .plots import XYPlot, _XYPlotInit
 
 class _MapOptionsInit(_ModelInit, total=False):
     lat: float
@@ -26,10 +26,10 @@ class MapOptions(Model):
     lng: float = ...
     zoom: int = ...
 
-class _MapPlotInit(_PlotInit, total=False):
+class _MapPlotInit(_XYPlotInit, total=False):
     ...
 
-class MapPlot(Plot):
+class MapPlot(XYPlot):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_MapPlotInit]) -> None: ...
 

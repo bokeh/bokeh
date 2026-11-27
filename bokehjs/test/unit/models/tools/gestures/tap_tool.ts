@@ -5,16 +5,16 @@ import type {Tool} from "@bokehjs/models/tools/tool"
 import type {TapToolCallback} from "@bokehjs/models/tools/gestures/tap_tool"
 import {TapTool} from "@bokehjs/models/tools/gestures/tap_tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
-import type {PlotView} from "@bokehjs/models/plots/plot"
-import {Plot} from "@bokehjs/models/plots/plot"
+import type {XYPlotView} from "@bokehjs/models/plots/xy_plot_canvas"
+import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 import {GlyphRenderer} from "@bokehjs/models/renderers"
 import {ColumnDataSource} from "@bokehjs/models/sources"
 import {Quad} from "@bokehjs/models/glyphs"
 import type {TapEvent, KeyModifiers} from "@bokehjs/core/ui_events"
 
 describe("TapTool", () => {
-  async function test_case(tool: Tool): Promise<PlotView> {
-    const plot = Plot.create({
+  async function test_case(tool: Tool): Promise<XYPlotView> {
+    const plot = XYPlot.create({
       x_range: Range1d.create({start: -1, end: 1}),
       y_range: Range1d.create({start: -1, end: 1}),
       width: 200,
@@ -32,14 +32,14 @@ describe("TapTool", () => {
     return view
   }
 
-  function tap(plot_view: PlotView, sx: number, sy: number,
+  function tap(plot_view: XYPlotView, sx: number, sy: number,
       modifiers: KeyModifiers = {ctrl: false, shift: false, alt: false}) {
     const event: TapEvent = {type: "tap", sx, sy, modifiers, native: new PointerEvent("pointerup")}
     const {ui_event_bus} = plot_view.canvas_view
     ui_event_bus._trigger(ui_event_bus.tap, event)
   }
 
-  function doubletap(plot_view: PlotView, sx: number, sy: number,
+  function doubletap(plot_view: XYPlotView, sx: number, sy: number,
       modifiers: KeyModifiers = {ctrl: false, shift: false, alt: false}) {
     const event: TapEvent = {type: "tap", sx, sy, modifiers, native: new PointerEvent("pointerup")}
     const {ui_event_bus} = plot_view.canvas_view

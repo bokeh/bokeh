@@ -1,3 +1,4 @@
+import type {XYPlotView} from "../../plots/xy_plot_canvas"
 import {InspectTool, InspectToolView} from "./inspect_tool"
 import type {Renderer} from "../../renderers/renderer"
 import {Span} from "../../annotations/span"
@@ -9,7 +10,7 @@ import type {Color} from "core/types"
 import {isArray} from "core/util/types"
 import {tool_icon_crosshair} from "styles/icons.css"
 
-export class CrosshairToolView extends InspectToolView {
+export class CrosshairToolView extends InspectToolView<XYPlotView> {
   declare model: CrosshairTool
 
   protected _spans: Span[]

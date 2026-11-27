@@ -2,12 +2,12 @@ import {expect} from "#framework/assertions"
 import {actions, xy} from "#framework/interactive"
 import {display} from "#framework/layouts"
 
-import {Plot, Range1d, Span} from "@bokehjs/models"
+import {XYPlot, Range1d, Span} from "@bokehjs/models"
 
 describe("Span", () => {
   it("should restore location when dragging was cancelled with Escape", async () => {
     const span = Span.create({location: 0.5, dimension: "height", editable: true})
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       width: 400,
       height: 400,
       min_border: 0,

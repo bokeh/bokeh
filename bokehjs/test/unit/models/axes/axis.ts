@@ -9,7 +9,7 @@ import {ScaledTicker} from "@bokehjs/models/tickers/scaled_ticker"
 import {ScaledTickFormatter} from "@bokehjs/models/formatters/scaled_tick_formatter"
 import {SITickFormatter} from "@bokehjs/models/formatters/si_tick_formatter"
 import {SingleIntervalTicker} from "@bokehjs/models/tickers/single_interval_ticker"
-import {Plot} from "@bokehjs/models/plots/plot"
+import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 import {FactorRange} from "@bokehjs/models/ranges/factor_range"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {CategoricalScale} from "@bokehjs/models/scales/categorical_scale"
@@ -33,7 +33,7 @@ describe("Axis", () => {
 
   it("should select one SI prefix from the visible major ticks after range changes", async () => {
     const x_range = Range1d.create({start: 0, end: 800})
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       x_range,
       y_range: Range1d.create({start: 0, end: 1}),
     })
@@ -61,7 +61,7 @@ describe("Axis", () => {
   })
 
   it("should provide its ticker to a ScaledTickFormatter", async () => {
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       x_range: Range1d.create({start: -Math.PI, end: Math.PI}),
       y_range: Range1d.create({start: 0, end: 1}),
     })
@@ -83,7 +83,7 @@ describe("Axis", () => {
   })
 
   it("should render text-like units from a ScaledTickFormatter", async () => {
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       x_range: Range1d.create({start: -Math.PI, end: Math.PI}),
       y_range: Range1d.create({start: 0, end: 1}),
     })
@@ -109,7 +109,7 @@ describe("Axis", () => {
   })
 
   it("should render TeX origin labels and inline fractions", async () => {
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       x_range: Range1d.create({start: -1, end: 1}),
       y_range: Range1d.create({start: 0, end: 1}),
     })
@@ -143,7 +143,7 @@ describe("Axis", () => {
   })
 
   it("should render a shared TeX ScaledTickFormatter on two axes", async () => {
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       x_range: Range1d.create({start: -Math.PI, end: Math.PI}),
       y_range: Range1d.create({start: -Math.PI, end: Math.PI}),
     })
@@ -182,7 +182,7 @@ describe("Axis", () => {
   })
 
   it("should render unscaled labels when a ScaledTickFormatter has no ScaledTicker", async () => {
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       x_range: Range1d.create({start: 0, end: 1}),
       y_range: Range1d.create({start: 0, end: 1}),
     })
@@ -196,7 +196,7 @@ describe("Axis", () => {
   })
 
   it("should compute labels with overrides", async () => {
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       x_range: Range1d.create({start: 0, end: 10}),
       y_range: Range1d.create({start: 0, end: 10}),
     })
@@ -216,7 +216,7 @@ describe("Axis", () => {
   })
 
   it("should restore formatted labels when overrides are cleared", async () => {
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       x_range: Range1d.create({start: 0, end: 10}),
       y_range: Range1d.create({start: 0, end: 10}),
     })
@@ -233,7 +233,7 @@ describe("Axis", () => {
   })
 
   it("should discard removed override keys when overrides are replaced", async () => {
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       x_range: Range1d.create({start: 0, end: 10}),
       y_range: Range1d.create({start: 0, end: 10}),
     })
@@ -249,7 +249,7 @@ describe("Axis", () => {
   })
 
   it("should compute labels with math text on overrides", async () => {
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       x_range: Range1d.create({start: 0, end: 10}),
       y_range: Range1d.create({start: 0, end: 10}),
     })
@@ -279,7 +279,7 @@ describe("Axis", () => {
       axis_label: "$$\\sin(x)$$",
     })
 
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       x_range: Range1d.create({start: 0, end: 10}),
       y_range: Range1d.create({start: 0, end: 10}),
     })
@@ -302,7 +302,7 @@ describe("Axis", () => {
       $$`,
     })
 
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       x_range: Range1d.create({start: 0, end: 10}),
       y_range: Range1d.create({start: 0, end: 10}),
     })
@@ -315,7 +315,7 @@ describe("Axis", () => {
   })
 
   it("loc should return numeric fixed_location", async () => {
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       x_range: Range1d.create({start: 0, end: 10}),
       y_range: Range1d.create({start: 0, end: 10}),
     })
@@ -333,7 +333,7 @@ describe("Axis", () => {
   })
 
   it("loc should return synthetic for categorical fixed_location", async () => {
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       x_range: FactorRange.create({factors: ["foo", "bar"]}),
       x_scale: CategoricalScale.create(),
       y_range: Range1d.create({start: 0, end: 10}),
@@ -426,7 +426,7 @@ describe("AxisView", () => {
       ...axis_attrs,
     })
 
-    const plot = Plot.create({
+    const plot = XYPlot.create({
       x_range: Range1d.create({start: 0, end: 1}),
       y_range: Range1d.create({start: 0, end: 1}),
       toolbar: Toolbar.create(),

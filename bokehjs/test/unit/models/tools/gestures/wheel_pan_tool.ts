@@ -4,8 +4,8 @@ import {display} from "#framework/layouts"
 import type {Tool} from "@bokehjs/models/tools/tool"
 import {WheelPanTool} from "@bokehjs/models/tools/gestures/wheel_pan_tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
-import type {PlotView} from "@bokehjs/models/plots/plot"
-import {Plot} from "@bokehjs/models/plots/plot"
+import type {XYPlotView} from "@bokehjs/models/plots/xy_plot_canvas"
+import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 
 describe("WheelPanTool", () => {
 
@@ -27,8 +27,8 @@ describe("WheelPanTool", () => {
   })
 
   describe("View", () => {
-    async function mkplot(tool: Tool): Promise<PlotView> {
-      const plot = Plot.create({
+    async function mkplot(tool: Tool): Promise<XYPlotView> {
+      const plot = XYPlot.create({
         x_range: Range1d.create({start: 0, end: 1}),
         y_range: Range1d.create({start: 0, end: 1}),
       })

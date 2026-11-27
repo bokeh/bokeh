@@ -40,7 +40,7 @@ export namespace Anscombe {
   const ydr = Bokeh.Range1d.create({start: -0.5, end: 20.5})
 
   function make_plot(title: string, xname: string, yname: string): Bokeh.Plot {
-    const plot = Bokeh.Plot.create({
+    const plot = Bokeh.XYPlot.create({
       x_range: xdr,
       y_range: ydr,
       title,

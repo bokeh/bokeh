@@ -4,7 +4,7 @@ import {actions, xy} from "#framework/interactive"
 
 import type {ScatterView} from "@bokehjs/models/glyphs/scatter"
 import {Scatter} from "@bokehjs/models/glyphs/scatter"
-import {Plot} from "@bokehjs/models/plots/plot"
+import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import type {GlyphRendererView} from "@bokehjs/models/renderers/glyph_renderer"
@@ -51,7 +51,7 @@ async function make_testcase(): Promise<{hover_view: HoverToolView, data_source:
   const glyph = Scatter.create({x: {field: "x"}, y: {field: "y"}})
   const glyph_renderer = GlyphRenderer.create({glyph, data_source})
 
-  const plot = Plot.create({
+  const plot = XYPlot.create({
     x_range: Range1d.create({start: -1, end: 1}),
     y_range: Range1d.create({start: -1, end: 1}),
     renderers: [glyph_renderer],

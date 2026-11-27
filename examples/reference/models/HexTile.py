@@ -8,7 +8,13 @@
 '''
 
 from bokeh.io import curdoc, show
-from bokeh.models import ColumnDataSource, Grid, HexTile, LinearAxis, Plot
+from bokeh.models import (
+        ColumnDataSource,
+        Grid,
+        HexTile,
+        LinearAxis,
+        XYPlot,
+)
 
 source = ColumnDataSource(dict(
         q=[0,  0, -1, -1,  1, 1, 0],
@@ -16,7 +22,7 @@ source = ColumnDataSource(dict(
     ),
 )
 
-plot = Plot(
+plot = XYPlot(
     title=None, width=300, height=300,
     min_border=0, toolbar_location=None)
 
