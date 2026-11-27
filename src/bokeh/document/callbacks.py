@@ -474,11 +474,19 @@ class DocumentCallbackManager:
         self._ordered_event_queue = queue
         try:
             while queue:
+                if self._hold is not None:
+                    # A callback started a new hold. All reserved events precede
+                    # changes collected by that hold, even if their model callbacks
+                    # already ran. Transfer them as a group without recombining them.
+                    deferred = []
+                    for event, invoke_model_callbacks in queue:
+                        if not invoke_model_callbacks:
+                            event.callback_invoker = None
+                        deferred.append(event)
+                    self._held_events[:0] = deferred
+                    break
                 event, invoke_model_callbacks = queue.popleft()
                 if invoke_model_callbacks:
-                    if self._hold is not None:
-                        self.trigger_on_change(event)
-                        continue
                     self._invoke_model_callbacks(doc, event)
                 self._invoke_change_callbacks(doc, event)
         finally:

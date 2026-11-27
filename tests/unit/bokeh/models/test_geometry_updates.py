@@ -798,6 +798,48 @@ def test_callback_patch_follows_record_streams(policy):
     assert peer.roots[0].data["label"] == source.data["label"] == [original, "edited"]
 
 
+@pytest.mark.parametrize("initial_policy", ["collect", "combine"])
+@pytest.mark.parametrize("fresh_policy", ["collect", "combine"])
+def test_callback_rehold_preserves_reserved_record_events(initial_policy, fresh_policy):
+    source = GeometryDataSource(geometries=[None], data={"label": ["A"]})
+    document = Document()
+    document.add_root(source)
+    peer = Document.from_json(document.to_json())
+    events = []
+    seen = []
+    document.on_change(events.append)
+
+    def stream(label):
+        source.stream({"geometries": [None], "data": {"label": [label]}}, rollover=2)
+
+    def patch_and_hold(attr, old, new):
+        seen.append(list(new["label"]))
+        if len(seen) == 1:
+            source.patch({"label": [(1, "edited")]})
+            document.hold(fresh_policy)
+            stream("D")
+
+    source.on_change("data", patch_and_hold)
+    document.hold(initial_policy)
+    stream("B")
+    stream("C")
+    document.unhold()
+    assert [event.kind for event in events] == ["ColumnsStreamed"]
+    assert seen == [["B", "C"], ["B", "edited"]]
+
+    document.unhold()
+    assert [event.kind for event in events] == [
+        "ColumnsStreamed", "ColumnsStreamed", "ColumnsPatched", "ColumnsStreamed",
+    ]
+    assert [event.data["data"]["label"] for event in events if isinstance(event, ColumnsStreamedEvent)] == [
+        ["B"], ["C"], ["D"],
+    ]
+    assert seen == [["B", "C"], ["B", "edited"], ["edited", "D"], ["edited", "D"]]
+    for event in events:
+        apply_patch(patch_doc([event]), peer)
+    assert peer.roots[0].data["label"] == source.data["label"] == ["edited", "D"]
+
+
 def test_list_attribute_patch_reuses_storage_and_rolls_back_failed_batches():
     values = [1., 2.]
     data = GeometryDataSource(geometries=[None, None], data={"v": values})
