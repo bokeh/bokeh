@@ -125,6 +125,41 @@ export type AuxText = {
   muted_text_alpha: AlphaArg
 }
 
+export type AuxBackgroundFill = {
+  selection_background_fill_color: ColorArg
+  selection_background_fill_alpha: AlphaArg
+  nonselection_background_fill_color: ColorArg
+  nonselection_background_fill_alpha: AlphaArg
+  hover_background_fill_color: ColorArg
+  hover_background_fill_alpha: AlphaArg
+  muted_background_fill_color: ColorArg
+  muted_background_fill_alpha: AlphaArg
+}
+
+export type AuxBackgroundHatch = {
+  selection_background_hatch_color: ColorArg
+  selection_background_hatch_alpha: AlphaArg
+  nonselection_background_hatch_color: ColorArg
+  nonselection_background_hatch_alpha: AlphaArg
+  hover_background_hatch_color: ColorArg
+  hover_background_hatch_alpha: AlphaArg
+  muted_background_hatch_color: ColorArg
+  muted_background_hatch_alpha: AlphaArg
+}
+
+export type AuxBorderLine = {
+  selection_border_line_color: ColorArg
+  selection_border_line_alpha: AlphaArg
+  nonselection_border_line_color: ColorArg
+  nonselection_border_line_alpha: AlphaArg
+  hover_border_line_color: ColorArg
+  hover_border_line_alpha: AlphaArg
+  muted_border_line_color: ColorArg
+  muted_border_line_alpha: AlphaArg
+}
+
+export type AuxTextBox = AuxBackgroundFill & AuxBackgroundHatch & AuxBorderLine
+
 export type AuxGlyph = {
   source: IndexedDataSource | ColumnarDataSource["data"]
   view: IndexedSubset
@@ -191,7 +226,7 @@ export type ImageStackArgs    = GlyphArgs<ImageStack.Props>
 export type ImageURLArgs      = GlyphArgs<ImageURL.Props>
 export type LineArgs          = GlyphArgs<Line.Props>          & AuxLine
 export type MarkerArgs        = GlyphArgs<Marker.Props>        & AuxLine & AuxFill & AuxHatch
-export type MathMLArgs        = GlyphArgs<MathML.Props>                                       & AuxText
+export type MathMLArgs        = GlyphArgs<MathML.Props>                                       & AuxText & AuxTextBox
 export type MultiLineArgs     = GlyphArgs<MultiLine.Props>     & AuxLine
 export type MultiPolygonsArgs = GlyphArgs<MultiPolygons.Props> & AuxLine & AuxFill & AuxHatch
 export type NgonArgs          = GlyphArgs<Ngon.Props>          & AuxLine & AuxFill & AuxHatch
@@ -205,8 +240,8 @@ export type ScatterArgs       = GlyphArgs<Scatter.Props>       & AuxLine & AuxFi
 export type SegmentArgs       = GlyphArgs<Segment.Props>       & AuxLine
 export type SplineArgs        = GlyphArgs<Spline.Props>        & AuxLine
 export type StepArgs          = GlyphArgs<Step.Props>          & AuxLine
-export type TeXArgs           = GlyphArgs<TeX.Props>                                          & AuxText
-export type TextArgs          = GlyphArgs<Text.Props>                                         & AuxText
+export type TeXArgs           = GlyphArgs<TeX.Props>                                          & AuxText & AuxTextBox
+export type TextArgs          = GlyphArgs<Text.Props>                                         & AuxText & AuxTextBox
 export type VAreaArgs         = GlyphArgs<VArea.Props>                   & AuxFill & AuxHatch
 export type VAreaStepArgs     = GlyphArgs<VAreaStep.Props>               & AuxFill & AuxHatch
 export type VBarArgs          = GlyphArgs<VBar.Props>          & AuxLine & AuxFill & AuxHatch

@@ -448,13 +448,24 @@ export class Figure extends BaseFigure {
   _pop_visuals(cls: HasPropsClass<HasProps>, props: Attrs, prefix: string = "",
       defaults: Attrs = {}, override_defaults: Attrs = {}): Attrs {
 
-    const _split_feature_trait = function(ft: string): string[] {
-      const fta: string[] = ft.split("_", 2)
-      return fta.length == 2 ? fta : fta.concat([""])
+    const _visual_features = ["line", "fill", "hatch", "text", "global"]
+
+    // Split a property name at its visual feature, which may be included with a prefix,
+    // e.g. "line_color" -> ["line", "color"], "background_fill_color" -> ["background_fill", "color"]
+    // and "text_line_height" -> ["text", "line_height"]. Other names are split at the first "_".
+    const _split_feature_trait = function(ft: string): [string, string] {
+      const parts = ft.split("_")
+      for (let i = 0; i < parts.length - 1; i++) {
+        if (includes(_visual_features, parts[i])) {
+          return [parts.slice(0, i + 1).join("_"), parts.slice(i + 1).join("_")]
+        }
+      }
+      const [feature, ...trait] = parts
+      return [feature, trait.join("_")]
     }
     const _is_visual = function(ft: string): boolean {
       const [feature, trait] = _split_feature_trait(ft)
-      return includes(["line", "fill", "hatch", "text", "global"], feature) && trait !== ""
+      return includes(_visual_features, feature.split("_").at(-1)!) && trait != ""
     }
 
     defaults = {...defaults}
@@ -484,17 +495,21 @@ export class Figure extends BaseFigure {
     const traits = new Set<string>()
     for (const pname of keys(cls.prototype._props)) {
       if (_is_visual(pname)) {
-        const trait = _split_feature_trait(pname)[1]
+        const [feature, trait] = _split_feature_trait(pname)
+        // A secondary visual, e.g. "background_fill_color" of the text's bounding box,
+        // shouldn't take the color of the primary visual or the default color.
+        const is_secondary = !includes(_visual_features, feature)
+        const allows_alias = !(is_secondary && trait == "color")
         if (props_proxy.has(prefix + pname)) {
           result[pname] = props[prefix + pname]
           delete props[prefix + pname]
-        } else if (!prototype_props_proxy.has(trait) && props_proxy.has(prefix + trait)) {
+        } else if (allows_alias && !prototype_props_proxy.has(trait) && props_proxy.has(prefix + trait)) {
           result[pname] = props[prefix + trait]
         } else if (override_defaults_proxy.has(trait)) {
           result[pname] = override_defaults[trait]
         } else if (defaults_proxy.has(pname)) {
           result[pname] = defaults[pname]
-        } else if (trait_defaults_proxy.has(trait)) {
+        } else if (allows_alias && trait_defaults_proxy.has(trait)) {
           result[pname] = trait_defaults[trait]
         }
         if (!prototype_props_proxy.has(trait)) {
