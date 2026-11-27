@@ -352,3 +352,6 @@ Bug fixes
   restored to its state from before the drag instead.
 * Fixed a ``Dialog`` becoming unmovable after the browser cancelled the
   pointer while moving or resizing it.
+* ``ColumnDataSource.patch()`` now rejects out-of-bounds sub-indices in a
+  multi-index patch with a ``ValueError`` before mutating any column, instead of
+  mutating the earlier columns and then raising ``IndexError`` (:bokeh-issue:`15854`, :bokeh-pull:`15857`).
