@@ -7,7 +7,7 @@ For AI coding agents that work on this repository. It lists commands and rules t
 All tools run through [pixi](https://pixi.sh). Details: `docs/bokeh/source/docs/dev_guide/setup.rst`.
 
 ```sh
-pixi run setup                          # first-time setup, and after bokehjs/package-lock.json changes
+pixi run setup                          # first-time setup (fixes "No module named 'bokeh'"), and after bokehjs/package-lock.json changes
 pixi run python tools/hooks/install.py  # git hooks, once per clone
 pixi run reinstall                      # rebuild after pulling changes or editing BokehJS
 pixi run pytest tests/unit/bokeh/models/test_ranges.py  # one test file
@@ -21,6 +21,7 @@ pixi run check-formatting               # whitespace and line endings, fixes fil
 - Run the tests for what you changed first, not whole suites.
 - Leave `BOKEH_RESOURCES` and `BOKEH_DEV` unset when you run tests or build the docs.
 - If `git` or `pixi` is missing, ask the contributor before you install it, then follow "Install or update Git" or "Install or update Pixi" in `docs/bokeh/source/docs/dev_guide/setup.rst`. Do not fall back to the system Python, `pip`, or `npm`.
+- If `pixi run setup` fails at any step, the Bokeh install is missing or stale. See "Troubleshooting" in that file, and tell the contributor which step failed.
 - If `gh` is missing or not logged in, ask the contributor to check the issue for you and suggest installing and authenticating it.
 - Do not report a check as passed unless you ran it and saw it pass. Do not call a failure pre-existing unless you saw it fail without your change.
 
@@ -35,7 +36,7 @@ Check the issue first: `gh issue view <number> -R bokeh/bokeh --json state,label
 - Every pull request needs an open issue that a maintainer has triaged, so it no longer has the `TRIAGE` label. If there is none, stop and tell the contributor. Do not write code for it.
 - If the issue already has a pull request by someone else, do not open a competing one, even if it is a draft. Recommend that the contributor joins the discussion there and offers their findings. If it is the contributor's own, continue on its branch.
 - Reproduce a bug, and check the cause that the issue states against the code, before you fix anything. Report it if they do not match.
-- Branch from the default branch, which `git symbolic-ref refs/remotes/origin/HEAD` shows. It is named `branch-X.Y`, not `main`. Name your branch `<issue number>_<short_description>`.
+- Branch from the default branch of `bokeh/bokeh`, not of a fork. It is named `branch-X.Y`, not `main`. See "Remotes and forks" in [.github/AGENTS.md](.github/AGENTS.md). Name your branch `<issue number>_<short_description>`.
 
 ## Rules for the change
 

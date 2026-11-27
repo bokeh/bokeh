@@ -4,12 +4,27 @@ Read the root [AGENTS.md](../AGENTS.md) first, including its checks to make befo
 
 Pushing a branch and opening a pull request are visible to everyone. Do both only when the contributor has asked for it and has reviewed the change.
 
-## Where to push
+## Remotes and forks
 
-- Most contributors cannot push to `bokeh/bokeh`. Check with `gh repo view bokeh/bokeh --json viewerPermission`.
-- Without `WRITE` or higher, push to the contributor's fork and open the pull request from it. If no remote points to a fork, offer to create one with `gh repo fork bokeh/bokeh --remote`.
-- The base of the pull request is the default branch of `bokeh/bokeh`, which is named `branch-X.Y`. It is not `main`.
-- Update your branch with a rebase on the default branch. Do not merge the default branch into it.
+Only maintainers can push to `bokeh/bokeh`, so most contributors work on a fork. Run `git remote -v` at the start of the task, not only before you push, to see which case applies. Below, `upstream` is the remote of `bokeh/bokeh`, and `origin` is the remote you push to.
+
+- **Clone of a fork** (the usual case): `origin` is the contributor's fork. If no remote points to `bokeh/bokeh`, add it with `git remote add upstream https://github.com/bokeh/bokeh.git`.
+- **Clone of `bokeh/bokeh`, without permission to push**: this is enough to build and test, but not to push. Check with `gh repo view bokeh/bokeh --json viewerPermission`. Without `WRITE` or higher, offer to create a fork with `gh repo fork bokeh/bokeh --remote` when the contributor wants to push. This renames `origin` to `upstream` and adds the fork as `origin`, which gives the first case.
+- **Clone of `bokeh/bokeh`, with permission to push** (maintainers): `origin` is `bokeh/bokeh`, and there is no `upstream`. Read `origin` wherever this file says `upstream`.
+
+In every case:
+
+- Fetch before you branch: `git fetch upstream --tags`. A fork is often behind `bokeh/bokeh`, and it can lack the tags that Bokeh's version comes from. Without the tags, setup fails with `KeyError: '0.0.1'`.
+- Find the default branch: `git remote set-head upstream --auto` prints it. It is named `branch-X.Y`. It is not `main`.
+- Create your branch from it: `git switch --no-track -c <issue number>_<short_description> upstream/branch-X.Y`. Do not branch from the fork's copy of the default branch, and do not commit to the default branch.
+- Update your branch with `git fetch upstream` and `git rebase upstream/branch-X.Y`. Do not merge the default branch into it.
+
+## Committing and pushing
+
+- `git config user.name` and `git config user.email` must print the contributor's name and email address. If one is empty, ask the contributor to set it. Never make up an identity.
+- Push your branch with `git push -u origin <branch>`. Never push to the default branch.
+- If git asks for a password over HTTPS, `gh auth setup-git` makes git use the login of `gh`.
+- The base of the pull request is the default branch of `bokeh/bokeh`, also when the pull request comes from a fork.
 
 ## Title
 
