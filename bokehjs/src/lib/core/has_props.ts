@@ -443,7 +443,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
         HasProps._value_record_references(prop.get_value(), collector, {recursive: false})
         return retained
       })()
-      if (prop.syncable && (serializer.include_defaults || prop.dirty || has_retained_ref) && !(prop.readonly && prop.is_unset)) {
+      if (prop.syncable && (serializer.include_defaults || prop.once || prop.dirty || has_retained_ref) && !(prop.readonly && prop.is_unset)) {
         const value = prop.get_value()
         attributes[prop.attr] = serializer.encode(Object.hasOwn(overrides, prop.attr) ? overrides[prop.attr] : value) as AnyVal
       }
@@ -650,9 +650,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     this._changing = true
 
     const cmp = new Comparator({no_fail: true})
-    for (const [prop, incoming] of changes) {
-      // Coerce once before equality so comparison and storage use the same value.
-      const value = prop.initialized && prop.kind.coerce != null ? prop.kind.coerce(incoming) : incoming
+    for (const [prop, value] of changes) {
       if (check_eq === false || prop.is_unset || !cmp.eq(prop.get_value(), value)) {
         prop.set_value(value)
         changed.add(prop)
@@ -685,8 +683,14 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     return changed
   }
 
-  setv<T extends Attrs>(changed_attrs: Partial<T>, options: HasProps.SetOptions = {}): void {
-    const changes = entries(changed_attrs)
+  setv<T extends Attrs>(changed_attrs: Partial<T> | Map<string, unknown>, options: HasProps.SetOptions = {}): void {
+    // Normalize and validate the whole update before modifying any property.
+    const changes = entries(changed_attrs).map(([attr, incoming]) => {
+      const prop = this.property(attr)
+      const value = prop.initialized && prop.kind.coerce != null ? prop.kind.coerce(incoming) : incoming
+      prop.assert_writable(value)
+      return [attr, value] as const
+    })
 
     if (changes.length == 0) {
       return
@@ -697,7 +701,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
       for (const [attr, value] of changes) {
         const prop = this.properties[attr]
-        prop.set_value(prop.initialized && prop.kind.coerce != null ? prop.kind.coerce(value) : value)
+        prop.set_value(value)
       }
 
       return

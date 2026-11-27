@@ -694,3 +694,103 @@ describe("core/has_props module", () => {
     })
   })
 })
+
+namespace OnceModel {
+  export type Props = HasProps.Props & {
+    fixed: p.Property<number>
+    mutable: p.Property<number>
+    readonly_value: p.Property<number>
+  }
+}
+interface OnceModel extends p.AttrsOf<OnceModel.Props> {}
+class OnceModel extends HasProps {
+  declare properties: OnceModel.Props
+  static {
+    this.define<OnceModel.Props>(({Float}) => ({
+      fixed: [Float, 1, {once: true}],
+      mutable: [Float, 0],
+      readonly_value: [Float, 2, {readonly: true}],
+    }))
+  }
+}
+
+describe("construction-only properties", () => {
+  it("accepts defaults, explicit initialization and deserialization", () => {
+    const defaults = OnceModel.create()
+    const explicit = OnceModel.create({fixed: 3})
+    expect(defaults.fixed).to.be.equal(1)
+    expect(explicit.fixed).to.be.equal(3)
+    const cloned = explicit.clone()
+    expect(cloned.fixed).to.be.equal(3)
+    expect(() => cloned.fixed = 4).to.throw(Error, /initialization/)
+    const encoded = new Serializer().encode(defaults)
+    const resolver = new ModelResolver(default_resolver)
+    resolver.register(OnceModel)
+    const decoded = new Deserializer(resolver).decode(encoded) as OnceModel
+    expect(decoded.fixed).to.be.equal(1)
+    expect(() => decoded.fixed = 4).to.throw(Error, /initialization/)
+    // Existing readonly behavior is independent of construction-only assignment.
+    defaults.readonly_value = 5
+    expect(defaults.readonly_value).to.be.equal(5)
+  })
+
+  for (const silent of [false, true]) {
+    for (const map of [false, true]) {
+      it(`rejects ${map ? "Map" : "object"} updates atomically with silent=${silent}`, () => {
+        const model = OnceModel.create()
+        const updates = {mutable: 9, fixed: 2}
+        expect(() => model.setv(map ? new Map(Object.entries(updates)) : updates, {silent})).to.throw(Error, /initialization/)
+        expect(model.mutable).to.be.equal(0)
+        expect(model.fixed).to.be.equal(1)
+        model.mutable = 3
+        expect(model.mutable).to.be.equal(3)
+      })
+    }
+  }
+
+  it("rejects direct or forced replacement but accepts the current value", () => {
+    const model = OnceModel.create()
+    expect(() => model.properties.fixed.set_value(2)).to.throw(Error, /initialization/)
+    expect(() => model.setv({fixed: 2}, {check_eq: false})).to.throw(Error, /initialization/)
+    model.fixed = 1
+    expect(model.fixed).to.be.equal(1)
+  })
+})
+
+describe("construction-only conversion", () => {
+  it("does not rerun conversion when the initialized value is reapplied", () => {
+    let conversions = 0
+    class ConvertedOnce extends HasProps {
+      declare fixed: number[]
+      static {
+        this.define<{fixed: p.Property<number[]>}>(({List, Float}) => ({
+          fixed: [List(Float), [1], {once: true, convert: (value) => {
+            conversions++
+            return [...value]
+          }}],
+        }))
+      }
+    }
+    const model = ConvertedOnce.create()
+    const value = model.fixed
+    model.setv({fixed: value}, {silent: true})
+    expect(model.fixed).to.be.identical(value)
+    expect(conversions).to.be.equal(1)
+  })
+})
+
+describe("construction-only property deserialization", () => {
+  it("allows redefinition with the same value and restores other attributes after failure", () => {
+    const model = OnceModel.create()
+    const resolver = new ModelResolver(default_resolver)
+    resolver.register(OnceModel)
+    const decoder = new Deserializer(resolver, new Map([[model.id, model]]))
+    const definition = {$type: model.type, $id: model.id, fixed: 1, mutable: 5}
+    expect(decoder.decode(definition)).to.be.identical(model)
+    expect(model.mutable).to.be.equal(5)
+    const update = {...definition, mutable: 9}
+    expect(() => decoder.decode([update, {type: "symbol", name: "invalid"}])).to.throw(Error)
+    expect(model.fixed).to.be.equal(1)
+    expect(model.mutable).to.be.equal(5)
+  })
+})

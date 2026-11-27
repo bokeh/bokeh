@@ -43,7 +43,7 @@ export class XYPlot extends Plot {
     this.prototype.default_view = PlotView
 
     this.define<XYPlot.Props>(({Bool, Float, Dict, Ref}) => ({
-      coordinate_system: [ Ref(CartesianMapping), () => CartesianMapping.create(), {readonly: true} ],
+      coordinate_system: [ Ref(CartesianMapping), () => CartesianMapping.create(), {once: true} ],
 
       x_range:           [ Ref(Range), () => DataRange1d.create() ],
       y_range:           [ Ref(Range), () => DataRange1d.create() ],

@@ -3,6 +3,8 @@ import * as sinon from "sinon"
 import {expect, expect_not_null} from "#framework/assertions"
 import {display, fig, row} from "#framework/layouts"
 
+import {Document} from "@bokehjs/document"
+import {RootAddedEvent, ModelChangedEvent} from "@bokehjs/document/events"
 import {Plot} from "@bokehjs/models/plots/plot"
 import {XYPlot} from "@bokehjs/models/plots/xy_plot"
 import type {PlotView} from "@bokehjs/models/plots/plot"
@@ -434,10 +436,28 @@ describe("XYPlot coordinate mapping", () => {
     expect(q.coordinate_system).to.not.be.identical(XYPlot.create().coordinate_system)
     expect("x_range" in Plot.prototype._props).to.be.false
     expect("x_source" in mapping.properties).to.be.false
-    expect(() => p.coordinate_system = CartesianMapping.create()).to.throw(Error, /readonly/)
-    expect(() => p.setv({coordinate_system: mapping})).to.throw(Error, /readonly/)
-    expect(() => p.setv({coordinate_system: null} as any)).to.throw(Error, /readonly/)
+    expect(() => p.coordinate_system = CartesianMapping.create()).to.throw(Error, /initialization/)
+    p.setv({coordinate_system: mapping})
+    expect(p.coordinate_system).to.be.identical(mapping)
+    expect(() => p.setv({coordinate_system: null} as any)).to.throw(Error, /initialization/)
     expect(() => XYPlot.create({coordinate_system: null} as any)).to.throw(Error)
+  })
+
+  it("preserves default mapping identity when a JS-created plot is patched into a document", () => {
+    const source = new Document()
+    const target = new Document()
+    const p = XYPlot.create()
+    source.add_root(p)
+    const patch = source.create_json_patch([new RootAddedEvent(source, p)])
+    target.apply_json_patch(patch)
+    const restored = target.get_model_by_id(p.id) as XYPlot
+    expect(restored.coordinate_system.id).to.be.equal(p.coordinate_system.id)
+    expect(target.get_model_by_id(p.coordinate_system.id)).to.be.identical(restored.coordinate_system)
+    const replacement = CartesianMapping.create()
+    expect(() => target.apply_json_patch(source.create_json_patch([
+      new ModelChangedEvent(source, p, "coordinate_system", replacement),
+    ]))).to.throw(Error, /initialization/)
+    expect(restored.coordinate_system.id).to.be.equal(p.coordinate_system.id)
   })
 
   it("rebinds renderer transforms to replacement ranges and scales", async () => {
@@ -626,6 +646,6 @@ describe("XYPlot coordinate mapping", () => {
     expect(cp.coordinate_system).to.be.instanceof(CartesianMapping)
     expect(cp.coordinate_system).to.not.be.identical(cq.coordinate_system)
     expect(cp.x_range).to.be.identical(cq.x_range)
-    expect(() => cp.coordinate_system = CartesianMapping.create()).to.throw(Error, /readonly/)
+    expect(() => cp.coordinate_system = CartesianMapping.create()).to.throw(Error, /initialization/)
   })
 })

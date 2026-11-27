@@ -32,9 +32,7 @@ import {StyledElement} from "../ui/styled_element"
 
 import type {LayoutDOMView} from "../layouts/layout_dom"
 export {PlotView} from "./plot_canvas"
-import {PlotMapping} from "../coordinates/plot_mapping"
-import type {Attrs} from "core/types"
-import type {HasProps} from "core/has_props"
+import type {PlotMapping} from "../coordinates/plot_mapping"
 
 export namespace Plot {
   export type Attrs = p.AttrsOf<Props>
@@ -110,23 +108,6 @@ export interface Plot extends Plot.Attrs {}
 export abstract class Plot extends LayoutDOM {
   declare properties: Plot.Props
   declare __view_type__: LayoutDOMView
-
-  override initialize(): void {
-    super.initialize()
-    if (Object.getPrototypeOf(this) == Plot.prototype) {
-      throw new Error("Plot is abstract. Use XYPlot or Figure")
-    }
-    if (!(this.coordinate_system instanceof PlotMapping)) {
-      throw new Error("A concrete plot requires a coordinate mapping")
-    }
-  }
-
-  override setv<T extends Attrs>(changed_attrs: Partial<T>, options: HasProps.SetOptions = {}): void {
-    if (this.properties.coordinate_system.initialized && Object.hasOwn(changed_attrs, "coordinate_system")) {
-      throw new Error("Plot.coordinate_system is a readonly property. Set it during construction")
-    }
-    super.setv(changed_attrs, options)
-  }
 
   readonly use_map: boolean = false
 
