@@ -17,18 +17,19 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-import sys
+# Standard library imports
 from typing import TYPE_CHECKING, Any
 
-from ..core.property.vectorization import field
+# Bokeh imports
+from ..core.property.vectorization import Field, Value, field
 from ..models.glyphs import Circle, MultiLine, Scatter
 from ..models.renderers import GlyphRenderer
-from ..models.sources import ColumnarDataSource, ColumnDataSource
+from ..models.sources import ColumnDataSource, GraphDataSource
 from ._renderer import make_glyph, pop_visuals
 
 if TYPE_CHECKING:
     from ..models.glyph import Glyph
-    from ..models.sources import DataDictLike
+    from ..models.sources import GraphEdges, GraphNodes
     from ._renderer import Attrs
 
 #-----------------------------------------------------------------------------
@@ -50,33 +51,26 @@ RENDERER_ARGS = ['name', 'level', 'visible', 'x_range_name', 'y_range_name',
 # Dev API
 #-----------------------------------------------------------------------------
 
-def get_graph_kwargs(node_source: ColumnarDataSource | DataDictLike, edge_source: ColumnarDataSource | DataDictLike, **kwargs: Any) -> dict[str, Any]:
-
-    if not isinstance(node_source, ColumnarDataSource):
-        try:
-            node_source = ColumnDataSource(node_source)
-        except ValueError as err:
-            msg = f"Failed to auto-convert {type(node_source)} to ColumnDataSource.\n Original error: {err}"
-            raise ValueError(msg).with_traceback(sys.exc_info()[2])
-
-    if not isinstance(edge_source, ColumnarDataSource):
-        try:
-            edge_source = ColumnDataSource(edge_source)
-        except ValueError as err:
-            msg = f"Failed to auto-convert {type(edge_source)} to ColumnDataSource.\n Original error: {err}"
-            raise ValueError(msg).with_traceback(sys.exc_info()[2])
+def get_graph_kwargs(node_source: GraphNodes, edge_source: GraphEdges, **kwargs: Any) -> dict[str, Any]:
+    data_source = GraphDataSource(nodes=node_source, edges=edge_source)
+    node_source = data_source.nodes
+    edge_source = data_source.edges
 
     marker = kwargs.pop('node_marker', None)
     marker_type: type[Scatter | Circle] = Scatter
     if isinstance(marker, dict) and 'field' in marker:
+        marker = Field(**marker)
+    elif isinstance(marker, dict) and 'value' in marker:
+        marker = Value(**marker)
+
+    if isinstance(marker, Field):
         kwargs['node_marker'] = marker
     elif isinstance(marker, str) and isinstance(node_source, ColumnDataSource) and marker in node_source.data:
         kwargs['node_marker'] = field(marker)
     else:
-        if isinstance(marker, dict) and 'value' in marker:
-            marker = marker['value']
+        marker_value = marker.value if isinstance(marker, Value) else marker
 
-        if marker is None or marker == "circle":
+        if marker_value is None or marker_value == "circle":
             if "node_radius" in kwargs:
                 marker_type = Circle
             else:
@@ -160,6 +154,7 @@ def get_graph_kwargs(node_source: ColumnarDataSource | DataDictLike, edge_source
 
     renderer_kwargs["node_renderer"] = node_renderer
     renderer_kwargs["edge_renderer"] = edge_renderer
+    renderer_kwargs["data_source"] = data_source
 
     return renderer_kwargs
 

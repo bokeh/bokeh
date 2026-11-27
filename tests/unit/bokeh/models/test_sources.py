@@ -25,6 +25,8 @@ import numpy as np
 import pytest
 
 from bokeh.core.property.singletons import Undefined
+from bokeh.document import Document
+from bokeh.document.events import ColumnDataChangedEvent
 from bokeh.models import (
     ColumnDataSource,
     DataTable,
@@ -1138,3 +1140,213 @@ class TestDataTable:
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+
+class GraphTestIndexedSource(bms.IndexedDataSource):
+    pass
+
+
+class TestGraphDataSource:
+    def test_default_sources_define_topology_fields(self) -> None:
+        source = bms.GraphDataSource()
+
+        assert source.nodes.data == dict(index=[])
+        assert source.edges.data == dict(start=[], end=[])
+
+    @pytest.mark.parametrize("empty", [[], {}])
+    def test_explicit_empty_data_defines_topology_fields(self, empty) -> None:
+        source = bms.GraphDataSource(nodes=empty, edges=empty)
+
+        assert source.nodes.data == dict(index=[])
+        assert source.edges.data == dict(start=[], end=[])
+
+    def test_accepts_node_identifier_mapping(self) -> None:
+        source = bms.GraphDataSource(nodes={"alice": {"color": "red"}, "bob": {"color": "blue"}})
+
+        assert source.nodes.data == dict(index=["alice", "bob"], color=["red", "blue"])
+
+    def test_accepts_storage_neutral_child_sources(self) -> None:
+        nodes = GraphTestIndexedSource()
+        edges = GraphTestIndexedSource()
+        source = bms.GraphDataSource(nodes=nodes, edges=edges)
+
+        assert source.nodes is nodes
+        assert source.edges is edges
+
+    def test_accepts_graph_shaped_records(self) -> None:
+        source = bms.GraphDataSource(
+            nodes=[{"id": "alice", "color": "red"}, {"id": "bob", "color": "blue"}],
+            edges=[{"source": "alice", "target": "bob", "weight": 2}],
+        )
+
+        assert source.nodes.data == dict(index=["alice", "bob"], color=["red", "blue"])
+        assert source.edges.data == dict(start=["alice"], end=["bob"], weight=[2])
+
+    def test_preserves_alias_named_attributes_in_graph_records(self) -> None:
+        source = bms.GraphDataSource(
+            nodes=[{"index": "A", "id": "station-1"}, {"index": "B", "id": "station-2"}],
+            edges=[{"start": "A", "end": "B", "source": "survey"}],
+        )
+
+        assert source.nodes.data == dict(index=["A", "B"], id=["station-1", "station-2"])
+        assert source.edges.data == dict(start=["A"], end=["B"], source=["survey"])
+
+    def test_accepts_bare_nodes_and_tuple_edges(self) -> None:
+        source = bms.GraphDataSource(nodes=["alice", "bob"], edges=[("alice", "bob", {"weight": 2})])
+
+        assert source.nodes.data == dict(index=["alice", "bob"])
+        assert source.edges.data == dict(start=["alice"], end=["bob"], weight=[2])
+
+    def test_accepts_composite_node_ids_and_list_edges(self) -> None:
+        source = bms.GraphDataSource(
+            nodes=[((1, 2), {"label": "A"}), ((3, 4), {"label": "B"})],
+            edges=[[(1, 2), (3, 4), {"weight": 2}]],
+        )
+
+        assert source.nodes.data == dict(index=[[1, 2], [3, 4]], label=["A", "B"])
+        assert source.edges.data == dict(start=[[1, 2]], end=[[3, 4]], weight=[2])
+
+    def test_rejects_duplicate_node_ids(self) -> None:
+        with pytest.raises(ValueError, match="duplicate graph node identifier"):
+            bms.GraphDataSource(nodes=["alice", "alice"])
+
+    @pytest.mark.parametrize("nodes", [
+        {"alice": {"index": "bob"}},
+        [("alice", {"index": "bob"})],
+    ])
+    def test_rejects_node_attributes_that_overwrite_identifiers(self, nodes) -> None:
+        with pytest.raises(ValueError, match="reserved 'index' field"):
+            bms.GraphDataSource(nodes=nodes)
+
+    def test_rejects_node_records_without_identifiers(self) -> None:
+        with pytest.raises(ValueError, match="must contain an 'id' or 'index'"):
+            bms.GraphDataSource(nodes=[{"label": "Alice"}])
+
+    @pytest.mark.parametrize("edge", [{"source": "alice"}, {"target": "bob"}])
+    def test_rejects_edge_records_with_missing_endpoints(self, edge) -> None:
+        with pytest.raises(ValueError, match="must contain source/target or start/end"):
+            bms.GraphDataSource(edges=[edge])
+
+    def test_rejects_edge_tuple_attributes_that_are_not_mappings(self) -> None:
+        with pytest.raises(ValueError, match="third item of an edge tuple must be an attribute mapping"):
+            bms.GraphDataSource(edges=[("alice", "bob", "label")])
+
+    @pytest.mark.parametrize("endpoint", ["start", "end"])
+    def test_rejects_edge_attributes_that_overwrite_endpoints(self, endpoint: str) -> None:
+        with pytest.raises(ValueError, match="edge tuple attributes cannot contain endpoint fields"):
+            bms.GraphDataSource(edges=[("alice", "bob", {endpoint: "carol"})])
+
+    @pytest.mark.parametrize("edge", [("alice",), ("alice", "bob", {}, {}), 1])
+    def test_rejects_malformed_edges(self, edge) -> None:
+        with pytest.raises(ValueError, match="an edge must be a mapping or a"):
+            bms.GraphDataSource(edges=[edge])
+
+    def test_rejects_multiple_positional_graphs(self) -> None:
+        with pytest.raises(TypeError, match="at most one positional graph argument"):
+            bms.GraphDataSource(object(), object())
+
+    def test_rejects_duplicate_graph_arguments(self) -> None:
+        with pytest.raises(TypeError, match="graph was provided more than once"):
+            bms.GraphDataSource(object(), graph=object())
+
+    @pytest.mark.parametrize("table", ["nodes", "edges"])
+    def test_rejects_graph_with_explicit_tables(self, table: str) -> None:
+        with pytest.raises(ValueError, match="provide either a graph or explicit nodes and edges"):
+            bms.GraphDataSource(graph=object(), **{table: []})
+
+    def test_rejects_objects_without_a_graph_interface(self) -> None:
+        with pytest.raises(ValueError, match="expected a NetworkX-like graph"):
+            bms.GraphDataSource(object())
+
+    def test_distinguishes_scalar_identifier_types(self) -> None:
+        identifiers = [None, False, 0, -0.0, True, 1, "1"]
+        source = bms.GraphDataSource(nodes=identifiers)
+
+        assert source.nodes.data["index"] == identifiers
+
+    @pytest.mark.parametrize("identifiers", [
+        [np.int64(1), 1],
+        [np.bool_(True), True],
+        [np.float32(np.nan), float("nan")],
+    ])
+    def test_rejects_identifiers_that_serialize_to_the_same_scalar(self, identifiers) -> None:
+        with pytest.raises(ValueError, match="duplicate graph node identifier"):
+            bms.GraphDataSource(nodes=identifiers)
+
+    @pytest.mark.skipif(pd is None, reason="requires pandas")
+    def test_rejects_duplicate_null_identifiers(self) -> None:
+        with pytest.raises(ValueError, match="duplicate graph node identifier"):
+            bms.GraphDataSource(nodes=[pd.NA, None])
+
+    def test_rejects_non_scalar_identifiers(self) -> None:
+        with pytest.raises(ValueError, match="identifiers must be scalar values or nested sequences"):
+            bms.GraphDataSource(nodes=[{"id": object()}])
+
+    def test_accepts_networkx_like_graphs_directly(self) -> None:
+        class Graph:
+            def nodes(self, *, data):
+                assert data is True
+                return [("alice", {"color": "red"}), ("bob", {"color": "blue"})]
+
+            def edges(self, *, data):
+                assert data is True
+                return [("alice", "bob", {"weight": 2})]
+
+        source = bms.GraphDataSource(Graph())
+
+        assert source.nodes.data == dict(index=["alice", "bob"], color=["red", "blue"])
+        assert source.edges.data == dict(start=["alice"], end=["bob"], weight=[2])
+
+    def test_preserves_non_internal_networkx_attributes(self) -> None:
+        class Graph:
+            def nodes(self, *, data):
+                assert data is True
+                return [("alice", {"id": "external"})]
+
+            def edges(self, *, data):
+                assert data is True
+                return [("alice", "alice", {"source": "imported", "target": "value"})]
+
+        source = bms.GraphDataSource(Graph())
+
+        assert source.nodes.data == dict(index=["alice"], id=["external"])
+        assert source.edges.data == dict(
+            start=["alice"], end=["alice"], source=["imported"], target=["value"],
+        )
+
+    @pytest.mark.skipif(pd is None, reason="requires pandas")
+    def test_normalizes_dataframe_topology_aliases(self) -> None:
+        source = bms.GraphDataSource(
+            nodes=pd.DataFrame({"id": ["alice", "bob"], "color": ["red", "blue"]}),
+            edges=pd.DataFrame({"source": ["alice"], "target": ["bob"], "weight": [2]}),
+        )
+
+        assert list(source.nodes.data["index"]) == ["alice", "bob"]
+        assert list(source.nodes.data["color"]) == ["red", "blue"]
+        assert list(source.edges.data["start"]) == ["alice"]
+        assert list(source.edges.data["end"]) == ["bob"]
+        assert "level_0" not in source.nodes.data
+        assert list(source.edges.data["index"]) == [0]
+
+    def test_accepts_identifiers_serialized_as_browser_scalars(self) -> None:
+        nodes = [dt.date(2024, 1, 1), np.datetime64("2024-01-02T00:00:00"), np.timedelta64(2, "D")]
+        source = bms.GraphDataSource(nodes=nodes)
+
+        assert source.nodes.data["index"] == nodes
+        document = Document()
+        document.add_root(source)
+        assert document.to_json()
+
+    def test_child_updates_use_normal_document_events(self) -> None:
+        source = bms.GraphDataSource(nodes=["alice", "bob"], edges=[("alice", "bob")])
+        document = Document()
+        document.add_root(source)
+        events = []
+        document.on_change(events.append)
+
+        assert isinstance(source.nodes, ColumnDataSource)
+        source.nodes.data = {"index": ["alice", "bob", "carol"]}
+
+        assert len(events) == 1
+        assert isinstance(events[0], ColumnDataChangedEvent)
+        assert events[0].model is source.nodes

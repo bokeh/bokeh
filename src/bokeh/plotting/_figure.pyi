@@ -51,7 +51,7 @@ from ..models.plots import Plot, _PlotInit
 from ..models.ranges import Range
 from ..models.renderers import ContourRenderer, GlyphRenderer, GraphRenderer
 from ..models.scales import Scale
-from ..models.sources import ColumnDataSource
+from ..models.sources import GraphEdges, GraphNodes
 from ..models.tools import (
     Drag,
     GestureTool,
@@ -144,7 +144,7 @@ class figure(Plot, GlyphAPI):
 
     def vline_stack(self, stackers: SequenceLike[str], **kw: Any) -> list[GlyphRenderer[Line]]: ...
 
-    def graph(self, node_source: ColumnDataSource, edge_source: ColumnDataSource, layout_provider: LayoutProvider, **kwargs: Any) -> GraphRenderer: ...
+    def graph(self, node_source: GraphNodes, edge_source: GraphEdges, layout_provider: LayoutProvider, **kwargs: Any) -> GraphRenderer: ...
 
     def contour(self,
         x: npt.ArrayLike | None = None,
