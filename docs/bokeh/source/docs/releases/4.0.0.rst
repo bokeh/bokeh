@@ -354,4 +354,4 @@ Bug fixes
   pointer while moving or resizing it.
 * ``ColumnDataSource.patch()`` now rejects out-of-bounds sub-indices in a
   multi-index patch with a ``ValueError`` before mutating any column, instead of
-  mutating the earlier columns and then raising ``IndexError`` (:bokeh-issue:`15854`).
+  mutating the earlier columns and then raising ``IndexError`` (:bokeh-issue:`15854`, :bokeh-pull:`15857`).
