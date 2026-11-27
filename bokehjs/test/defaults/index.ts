@@ -15,6 +15,8 @@ import {unique_id} from "@bokehjs/core/util/string"
 
 import {default_resolver} from "@bokehjs/base"
 import {settings} from "@bokehjs/core/settings"
+import {GraphRenderer} from "@bokehjs/models/renderers/graph_renderer"
+import {GraphDataSource} from "@bokehjs/models/sources/graph_data_source"
 
 import "@bokehjs/models/main"
 import "@bokehjs/models/widgets/main"
@@ -134,11 +136,6 @@ function check_matching_defaults(context: string[], name: string, python_default
 
   for (const [k, js_v] of entries(bokehjs_defaults)) {
     console.log(`${context.join(" -> ")} ${name}.${k}`)
-
-    // node_renderer/edge_renderer are configured dynamically in bokehjs
-    if (name == "GraphRenderer" && (k == "node_renderer" || k == "edge_renderer")) {
-      continue
-    }
 
     // special case for days/months/years tickers (null vs computed integer)
     if ((name == "DaysTicker" || name == "MonthsTicker" || name == "YearsTicker") && k == "interval") {
@@ -349,8 +346,15 @@ describe("Defaults", () => {
       // However, given this is only partial initialization, i.e. we
       // don't finalize instances or connect signals, then any code that
       // may depend on fully initialized state will not run.
-      const obj = construct_deferred(model, unique_id())
-      obj.initialize_props({})
+      const obj = (() => {
+        if (model === GraphRenderer || model === GraphDataSource) {
+          // Graph model constructors supply coupled references.
+          return model.create()
+        }
+        const obj = construct_deferred(model, unique_id())
+        obj.initialize_props({})
+        return obj
+      })()
 
       const serializer = new DefaultsSerializer()
       const defaults = serializer.encode(obj)

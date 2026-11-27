@@ -21,7 +21,7 @@ export class ImageView extends ImageBaseView {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.color_mapper.change, () => this._update_image())
+    this.on_transitive_change(this.model.properties.color_mapper, () => this._update_image())
   }
 
   protected _update_image(): void {

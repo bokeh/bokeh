@@ -83,6 +83,7 @@ if TYPE_CHECKING:
     )
     from ..models.renderers.contour_renderer import ContourRenderer
     from ..models.renderers.glyph_renderer import GlyphRenderer
+    from ..models.sources import GraphEdges, GraphNodes
     from ..util.datatypes import SequenceLike
 
 #-----------------------------------------------------------------------------
@@ -116,33 +117,20 @@ class figure(Plot, GlyphAPI):
         * :func:`~bokeh.plotting.figure.annular_wedge`
         * :func:`~bokeh.plotting.figure.annulus`
         * :func:`~bokeh.plotting.figure.arc`
-        * :func:`~bokeh.plotting.figure.asterisk`
         * :func:`~bokeh.plotting.figure.bezier`
         * :func:`~bokeh.plotting.figure.block`
         * :func:`~bokeh.plotting.figure.circle`
-        * :func:`~bokeh.plotting.figure.circle_cross`
-        * :func:`~bokeh.plotting.figure.circle_dot`
-        * :func:`~bokeh.plotting.figure.circle_x`
-        * :func:`~bokeh.plotting.figure.circle_y`
         * :func:`~bokeh.plotting.figure.contour`
-        * :func:`~bokeh.plotting.figure.cross`
-        * :func:`~bokeh.plotting.figure.dash`
-        * :func:`~bokeh.plotting.figure.diamond`
-        * :func:`~bokeh.plotting.figure.diamond_cross`
-        * :func:`~bokeh.plotting.figure.diamond_dot`
-        * :func:`~bokeh.plotting.figure.dot`
         * :func:`~bokeh.plotting.figure.ellipse`
         * :func:`~bokeh.plotting.figure.harea`
         * :func:`~bokeh.plotting.figure.harea_step`
         * :func:`~bokeh.plotting.figure.hbar`
-        * :func:`~bokeh.plotting.figure.hex`
         * :func:`~bokeh.plotting.figure.hex_tile`
         * :func:`~bokeh.plotting.figure.hstrip`
         * :func:`~bokeh.plotting.figure.hspan`
         * :func:`~bokeh.plotting.figure.image`
         * :func:`~bokeh.plotting.figure.image_rgba`
         * :func:`~bokeh.plotting.figure.image_url`
-        * :func:`~bokeh.plotting.figure.inverted_triangle`
         * :func:`~bokeh.plotting.figure.line`
         * :func:`~bokeh.plotting.figure.mathml`
         * :func:`~bokeh.plotting.figure.multi_line`
@@ -150,33 +138,20 @@ class figure(Plot, GlyphAPI):
         * :func:`~bokeh.plotting.figure.ngon`
         * :func:`~bokeh.plotting.figure.patch`
         * :func:`~bokeh.plotting.figure.patches`
-        * :func:`~bokeh.plotting.figure.plus`
         * :func:`~bokeh.plotting.figure.quad`
         * :func:`~bokeh.plotting.figure.quadratic`
         * :func:`~bokeh.plotting.figure.ray`
         * :func:`~bokeh.plotting.figure.rect`
         * :func:`~bokeh.plotting.figure.segment`
-        * :func:`~bokeh.plotting.figure.square`
-        * :func:`~bokeh.plotting.figure.square_cross`
-        * :func:`~bokeh.plotting.figure.square_dot`
-        * :func:`~bokeh.plotting.figure.square_pin`
-        * :func:`~bokeh.plotting.figure.square_x`
-        * :func:`~bokeh.plotting.figure.star`
-        * :func:`~bokeh.plotting.figure.star_dot`
         * :func:`~bokeh.plotting.figure.step`
         * :func:`~bokeh.plotting.figure.tex`
         * :func:`~bokeh.plotting.figure.text`
-        * :func:`~bokeh.plotting.figure.triangle`
-        * :func:`~bokeh.plotting.figure.triangle_dot`
-        * :func:`~bokeh.plotting.figure.triangle_pin`
         * :func:`~bokeh.plotting.figure.varea`
         * :func:`~bokeh.plotting.figure.varea_step`
         * :func:`~bokeh.plotting.figure.vbar`
         * :func:`~bokeh.plotting.figure.vstrip`
         * :func:`~bokeh.plotting.figure.vspan`
         * :func:`~bokeh.plotting.figure.wedge`
-        * :func:`~bokeh.plotting.figure.x`
-        * :func:`~bokeh.plotting.figure.y`
 
     There is a scatter function that can be parameterized by marker type:
 
@@ -697,19 +672,15 @@ class figure(Plot, GlyphAPI):
         '''
         return self._line_stack(stackers, "y", **kw)
 
-    def graph(self, node_source: ColumnDataSource, edge_source: ColumnDataSource, layout_provider: LayoutProvider, **kwargs):
+    def graph(self, node_source: GraphNodes, edge_source: GraphEdges, layout_provider: LayoutProvider, **kwargs):
         ''' Creates a network graph using the given node, edge and layout provider.
 
         Args:
-            node_source (:class:`~bokeh.models.sources.ColumnDataSource`) : a user-supplied data source
-                for the graph nodes. An attempt will be made to convert the object to
-                :class:`~bokeh.models.sources.ColumnDataSource` if needed. If none is supplied, one is created
-                for the user automatically.
+            node_source : An indexed source, mapping, dataframe, or sequence of
+                node identifiers or records.
 
-            edge_source (:class:`~bokeh.models.sources.ColumnDataSource`) : a user-supplied data source
-                for the graph edges. An attempt will be made to convert the object to
-                :class:`~bokeh.models.sources.ColumnDataSource` if needed. If none is supplied, one is created
-                for the user automatically.
+            edge_source : An indexed source, mapping, dataframe, or sequence of
+                edge tuples or records.
 
             layout_provider (:class:`~bokeh.models.graphs.LayoutProvider`) : a ``LayoutProvider`` instance to
                 provide the graph coordinates in Cartesian space.

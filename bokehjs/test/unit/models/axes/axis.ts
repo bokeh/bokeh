@@ -215,6 +215,39 @@ describe("Axis", () => {
     expect(labels.items.map((l) => (l as TextBox).text)).to.be.equal(["zero", "2", "four", "6", "8", "ten"])
   })
 
+  it("should restore formatted labels when overrides are cleared", async () => {
+    const plot = Plot.create({
+      x_range: Range1d.create({start: 0, end: 10}),
+      y_range: Range1d.create({start: 0, end: 10}),
+    })
+    const axis = LinearAxis.create({major_label_overrides: new Map([[0, "zero"], [4, "four"]])})
+    plot.add_layout(axis, "below")
+    const {view: plot_view} = await display(plot)
+    const axis_view = plot_view.owner.get_one(axis)
+
+    expect(axis_view.compute_labels([0, 4]).items.map(text_of)).to.be.equal(["zero", "four"])
+    axis.major_label_overrides = new Map()
+    await plot_view.ready
+    expect(axis_view.compute_labels([0, 4]).items.map(text_of)).to.be.equal(["0", "4"])
+    expect(axis_view._major_label_views.size).to.be.equal(0)
+  })
+
+  it("should discard removed override keys when overrides are replaced", async () => {
+    const plot = Plot.create({
+      x_range: Range1d.create({start: 0, end: 10}),
+      y_range: Range1d.create({start: 0, end: 10}),
+    })
+    const axis = LinearAxis.create({major_label_overrides: new Map([[0, "zero"], [4, "four"]])})
+    plot.add_layout(axis, "below")
+    const {view: plot_view} = await display(plot)
+    const axis_view = plot_view.owner.get_one(axis)
+
+    axis.major_label_overrides = new Map([[4, "FOUR"]])
+    await plot_view.ready
+    expect(axis_view.compute_labels([0, 4]).items.map(text_of)).to.be.equal(["0", "FOUR"])
+    expect([...axis_view._major_label_views.keys()]).to.be.equal([4])
+  })
+
   it("should compute labels with math text on overrides", async () => {
     const plot = Plot.create({
       x_range: Range1d.create({start: 0, end: 10}),

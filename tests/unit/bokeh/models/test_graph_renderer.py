@@ -15,12 +15,19 @@ from __future__ import annotations
 #-----------------------------------------------------------------------------
 import pytest
 
+from bokeh.document import Document
 from bokeh.models import (
     Bezier,
     Circle,
     ColumnDataSource,
+    EdgesOnly,
+    GeoJSONDataSource,
+    GraphDataSource,
     MultiLine,
+    NodesAndLinkedEdges,
     Patches,
+    RecordDataSource,
+    Scatter,
     Segment,
     StaticLayoutProvider,
 )
@@ -45,13 +52,96 @@ class TestGraphRenderer:
         assert renderer.y_range_name == "default"
         assert renderer.node_renderer.data_source.data == dict(index=[])
         assert renderer.edge_renderer.data_source.data == dict(start=[], end=[])
+        assert renderer.data_source.nodes is renderer.node_renderer.data_source
+        assert renderer.data_source.edges is renderer.edge_renderer.data_source
         assert renderer.layout_provider == layout_provider
+
+    def test_class_renderer_defaults(self) -> None:
+        model = bmr.GraphRenderer
+        nodes = model.lookup("node_renderer").class_default(model)
+        edges = model.lookup("edge_renderer").class_default(model)
+
+        assert isinstance(nodes.glyph, Scatter)
+        assert nodes.data_source.data == {"index": []}
+        assert isinstance(edges.glyph, MultiLine)
+        assert edges.data_source.data == {"start": [], "end": []}
+
+    def test_init_from_graph_data_source(self) -> None:
+        nodes = RecordDataSource(records=[{"index": "a"}, {"index": "b"}])
+        edges = RecordDataSource(records=[{"start": "a", "end": "b"}])
+        source = GraphDataSource(nodes=nodes, edges=edges)
+        renderer = bmr.GraphRenderer(data_source=source)
+
+        assert renderer.node_renderer.data_source is nodes
+        assert renderer.edge_renderer.data_source is edges
+
+    @pytest.mark.parametrize("compact", [False, True])
+    def test_serializes_coupled_graph_properties(self, compact: bool, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setenv("BOKEH_SERIALIZE_INCLUDE_DEFAULTS", "false")
+        document = Document()
+        document.add_root(bmr.GraphRenderer(layout_provider=StaticLayoutProvider()))
+
+        encoded = document.to_static_json(deferred=False) if compact else document.to_json(deferred=False)
+        graph, = encoded["roots"]
+        assert {"data_source", "node_renderer", "edge_renderer"} <= graph.keys()
+
+    def test_preserves_shared_sources_and_legacy_policies_in_document_roundtrip(self) -> None:
+        source = GraphDataSource(nodes=["a", "b"], edges=[("a", "b")])
+        renderer = bmr.GraphRenderer(
+            data_source=source,
+            layout_provider=StaticLayoutProvider(graph_layout={"a": (0, 0), "b": (1, 1)}),
+            selection_policy=NodesAndLinkedEdges(),
+            inspection_policy=EdgesOnly(),
+        )
+        document = Document()
+        document.add_root(renderer)
+        restored, = Document.from_json(document.to_json()).roots
+
+        assert isinstance(restored, bmr.GraphRenderer)
+        assert restored.node_renderer.data_source is restored.data_source.nodes
+        assert restored.edge_renderer.data_source is restored.data_source.edges
+        assert isinstance(restored.selection_policy, NodesAndLinkedEdges)
+        assert isinstance(restored.inspection_policy, EdgesOnly)
+
+    def test_rejects_mismatched_node_source(self) -> None:
+        source = GraphDataSource()
+        node_renderer = bmr.GlyphRenderer(data_source=ColumnDataSource(data=dict(index=[])), glyph=Circle())
+
+        with pytest.raises(ValueError, match="must use the same node source"):
+            bmr.GraphRenderer(data_source=source, node_renderer=node_renderer)
+
+    def test_rejects_mismatched_edge_source(self) -> None:
+        source = GraphDataSource()
+        edge_renderer = bmr.GlyphRenderer(data_source=ColumnDataSource(data=dict(start=[], end=[])), glyph=MultiLine())
+
+        with pytest.raises(ValueError, match="must use the same edge source"):
+            bmr.GraphRenderer(data_source=source, edge_renderer=edge_renderer)
+
+    def test_validation_detects_replaced_child_source(self) -> None:
+        renderer = bmr.GraphRenderer()
+        renderer.edge_renderer.data_source = ColumnDataSource(data=dict(start=[], end=[]))
+
+        errors = renderer._check_malformed_graph_source()
+
+        assert len(errors) == 1
+        assert errors[0].name == "MALFORMED_GRAPH_SOURCE"
+        assert "sources must match GraphDataSource.nodes and GraphDataSource.edges" in errors[0].extra
 
     def test_check_malformed_graph_source_no_errors(self) -> None:
         renderer = bmr.GraphRenderer()
 
         check = renderer._check_malformed_graph_source()
         assert check == []
+
+    def test_validation_with_non_cds_columnar_source(self) -> None:
+        nodes = GeoJSONDataSource(geojson='{"type": "FeatureCollection", "features": []}')
+        renderer = bmr.GraphRenderer(node_renderer=bmr.GlyphRenderer(data_source=nodes, glyph=Circle()))
+        assert renderer._check_malformed_graph_source() == []
+
+    def test_preserves_existing_indexed_source_with_duplicate_ids(self) -> None:
+        nodes = ColumnDataSource(data={"index": [0, 0, 1]})
+        renderer = bmr.GraphRenderer(node_renderer=bmr.GlyphRenderer(data_source=nodes, glyph=Circle()))
+        assert renderer.data_source.nodes is nodes
 
     def test_check_malformed_graph_source_no_node_index(self) -> None:
         node_source = ColumnDataSource()

@@ -181,16 +181,15 @@ def test_record_source_from_csv_reports_bad_input(tmp_path: "Path", contents: st
         RecordDataSource.from_csv(path, converters={"x": int})
 
 
-def test_legacy_graph_reports_noncolumnar_sources_without_attribute_errors() -> None:
+def test_graph_accepts_record_backed_child_renderers() -> None:
     source = RecordDataSource(records=[dict(index=0, start=0, end=0)])
     graph = GraphRenderer(
         node_renderer=GlyphRenderer(data_source=source, glyph=Scatter()),
         edge_renderer=GlyphRenderer(data_source=source, glyph=Bezier()),
     )
-    errors = check_integrity([graph]).error
-    assert len(errors) == 1
-    assert errors[0].name == "MALFORMED_GRAPH_SOURCE"
-    assert "columnar node and edge sources" in errors[0].extra
+    assert graph.data_source.nodes is source
+    assert graph.data_source.edges is source
+    assert check_integrity([graph]).error == []
 
 
 @pytest.mark.parametrize(("tool_type", "glyph_type"), [
