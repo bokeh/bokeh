@@ -39,6 +39,7 @@ from .core.enums import (
 from .core.property.vectorization import Expr, Field, Value
 from .core.property.visual import DashPatternType as DashPattern
 from .core.property_aliases import TextAnchorType as TextAnchor
+from .core.types import FactorSeqType
 from .models.expressions import Expression
 from .models.transforms import Transform
 
@@ -99,6 +100,9 @@ type Number2dArg = FieldName | Number2dVal | Number2dSpec | Sequence[Number2dVal
 type Number3dVal = Sequence[Number2dVal]
 type Number3dSpec = DataSpec[Number3dVal]
 type Number3dArg = FieldName | Number3dVal | Number3dSpec | Sequence[Number3dVal] | Number3dArray
+
+type PositionArg = NumberArg | FactorSeqType | StringArray
+type Position1dArg = Number1dArg | Sequence[FactorSeqType | StringArray]
 
 type Image2dVal = Number2dArray
 type Image2dSpec = DataSpec[Image2dVal]

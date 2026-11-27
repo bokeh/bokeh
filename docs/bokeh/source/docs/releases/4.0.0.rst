@@ -343,6 +343,8 @@ Bug fixes
 * Fixed ``figure.graph()`` dropping ``node_`` and ``edge_`` prefixed glyph properties
   whose names start with any of the prefix's letters (e.g. ``node_name``), and applying
   unprefixed arguments (e.g. ``tags``) to both node and edge glyphs.
+* Python type checkers now accept hierarchical factor sequences and NumPy
+  string arrays as glyph coordinates (:bokeh-issue:`15746`).
 * Fixed ``BoxAnnotation`` and ``Dialog`` ignoring a dimension's movement
   limits when only one of them was set (e.g. only ``left_limit``). Data-space
   limits of ``BoxAnnotation`` bound data values, so on a reversed range
