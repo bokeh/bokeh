@@ -55,6 +55,11 @@ POINTER_FILES = {
         # Gemini CLI documents imports only with an explicit relative path
         pointer="@./AGENTS.md",
     ),
+    ".github/copilot-instructions.md": _POINTER.format(
+        why="The Copilot harness in VS Code reads .github/copilot-instructions.md as its project instruction file, and AGENTS.md only if the harness supports it.",
+        until="the Copilot harness reads AGENTS.md at the root by default",
+        pointer="See [AGENTS.md](../AGENTS.md).",
+    ),
 }
 
 #: Executables that the files may run with ``pixi run``, in addition to tasks.
@@ -272,6 +277,7 @@ def test_section_titles_exist(path: Path) -> None:
 
 @pytest.mark.parametrize("name", POINTER_FILES)
 def test_pointer_files_only_point_to_agents_file(name: str) -> None:
+    # the instructions live in the root AGENTS.md, which is not always next to the pointer
+    assert (TOP_PATH / "AGENTS.md").exists()
     for path in _find(name):
-        assert (path.parent / "AGENTS.md").exists(), f"{path} has no AGENTS.md next to it"
         assert path.read_text(encoding="utf-8").strip() == POINTER_FILES[name], f"{path} must only contain {POINTER_FILES[name]!r}"
