@@ -1,0 +1,4 @@
+Plot bbox=[0, 0, 50, 300]
+  Canvas bbox=[0, 0, 50, 300]
+  CartesianFrame bbox=[35, 20, 15, 260]
+  LogAxis bbox=[0, 20, 35, 260]

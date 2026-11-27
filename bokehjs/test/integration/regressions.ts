@@ -53,7 +53,7 @@ import type {Factor} from "@bokehjs/models/ranges/factor_range"
 import type {GlyphRendererWithSource} from "@bokehjs/models/renderers/glyph_renderer"
 
 import type {Color, Arrayable} from "@bokehjs/core/types"
-import type {LineDash, Location, OutputBackend} from "@bokehjs/core/enums"
+import type {CorrectionPolicy, LineDash, Location, OutputBackend} from "@bokehjs/core/enums"
 import {Anchor, MarkerType} from "@bokehjs/core/enums"
 import {subsets, tail} from "@bokehjs/core/util/iterator"
 import {isArray, isPlainObject} from "@bokehjs/core/util/types"
@@ -5830,6 +5830,26 @@ describe("Bug", () => {
         stylesheets: [":host { width: 200px; height: 200px; }"],
       })
       await display(pane, [250, 250])
+    })
+  })
+
+  describe("in issue #12069", () => {
+    it("long axis labels can be misaligned", async () => {
+      const fruits = ["Strawberries with a multi\nline label", "Oranges", "Apples"]
+      const counts = [500, 600, 100]
+
+      function plot(axis_label_correction_policy: CorrectionPolicy) {
+        const title = `axis_label_correction_policy=${axis_label_correction_policy}`
+        const p = fig([300, 300], {toolbar_location: null, x_range: fruits, title})
+        p.vbar({x: fruits, top: counts, width: 0.9})
+        p.xaxis.major_label_orientation = 3.1415 / 4
+        p.xaxis.axis_label_correction_policy = axis_label_correction_policy
+        return p
+      }
+
+      const p1 = plot("never")
+      const p2 = plot("always")
+      await display(gridplot([[p1, p2]], {toolbar_location: "above"}))
     })
   })
 })

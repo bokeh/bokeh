@@ -105,6 +105,7 @@ __all__ = (
     'ColorScheme',
     'ContextWhich',
     'CoordinateUnits',
+    'CorrectionPolicy',
     'DashPattern',
     'DateFormat',
     'DatetimeUnits',
@@ -358,6 +359,10 @@ ContextWhich = _string_enumeration(ContextWhichType)
 type CoordinateUnitsType = Literal["canvas", "screen", "data"]
 #: Specify units for mapping coordinates.
 CoordinateUnits = _string_enumeration(CoordinateUnitsType)
+
+type CorrectionPolicyType = Literal["auto", "always", "never"]
+#: Specify the rule for a correction.
+CorrectionPolicy = _string_enumeration(CorrectionPolicyType)
 
 type DashPatternType = Literal["solid", "dashed", "dotted", "dotdash", "dashdot"]
 #: Specify a named dashing pattern for stroking lines.

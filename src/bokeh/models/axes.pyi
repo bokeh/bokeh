@@ -14,6 +14,7 @@ from .._types import Datetime, TextLike
 from ..core.enums import (
     AlignType as Align,
     AutoType as Auto,
+    CorrectionPolicyType as CorrectionPolicy,
     LabelOrientationType as LabelOrientation,
 )
 from ..core.property_mixins import (
@@ -59,6 +60,7 @@ class _AxisInit(_GuideRendererInit, _AxisLabelTextInit, _MajorLabelTextInit, _Ax
     axis_label_standoff: int
     axis_label_orientation: LabelOrientation | float
     axis_label_align: Align
+    axis_label_correction_policy: CorrectionPolicy
     major_label_standoff: int
     major_label_orientation: LabelOrientation | float
     major_label_overrides: dict[float | str, TextLike]
@@ -82,6 +84,7 @@ class Axis(GuideRenderer, AxisLabelText, MajorLabelText, AxisLine, MajorTickLine
     axis_label_standoff: int = ...
     axis_label_orientation: LabelOrientation | float = ...
     axis_label_align: Align = ...
+    axis_label_correction_policy: CorrectionPolicy = ...
     major_label_standoff: int = ...
     major_label_orientation: LabelOrientation | float = ...
     major_label_overrides: dict[float | str, TextLike] = ...

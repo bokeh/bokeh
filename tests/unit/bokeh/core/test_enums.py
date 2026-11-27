@@ -40,6 +40,7 @@ ALL = (
     'ColorScheme',
     'ContextWhich',
     'CoordinateUnits',
+    'CorrectionPolicy',
     'DashPattern',
     'DateFormat',
     'DatetimeUnits',
@@ -184,6 +185,9 @@ class Test_bce:
 
     def test_ContextWhich(self) -> None:
         assert tuple(bce.ContextWhich) == ("start", "center", "end", "all")
+
+    def test_CorrectionPolicy(self) -> None:
+        assert tuple(bce.CorrectionPolicy) == ("auto", "always", "never")
 
     def test_DashPattern(self) -> None:
         assert tuple(bce.DashPattern) ==("solid", "dashed", "dotted", "dotdash", "dashdot")
