@@ -77,4 +77,20 @@ describe("CumSum", () => {
     const ret1 = s.v_compute(source)
     expect(ret1).to.be.equal(new Float64Array([1, 3, 6, 10, 15]))
   })
+
+  it("should re-compute every time its own properties change", () => {
+    const source = ColumnDataSource.create({data: {foo: [1, 2, 3], bar: [10, 20, 30]}})
+
+    const s = CumSum.create({field: "foo"})
+    expect(s.v_compute(source)).to.be.equal(new Float64Array([1, 3, 6]))
+
+    s.field = "bar"
+    expect(s.v_compute(source)).to.be.equal(new Float64Array([10, 30, 60]))
+
+    s.field = "foo"
+    expect(s.v_compute(source)).to.be.equal(new Float64Array([1, 3, 6]))
+
+    s.include_zero = true
+    expect(s.v_compute(source)).to.be.equal(new Float64Array([0, 1, 3]))
+  })
 })

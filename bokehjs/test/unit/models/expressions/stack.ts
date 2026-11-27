@@ -1,7 +1,10 @@
-import {expect} from "#framework/assertions"
+import {expect, expect_instanceof} from "#framework/assertions"
+import {display, fig} from "#framework/layouts"
 
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {Stack} from "@bokehjs/models/expressions/stack"
+import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
+import {VBar, VBarView} from "@bokehjs/models/glyphs/vbar"
 
 describe("Stack", () => {
 
@@ -76,5 +79,38 @@ describe("Stack", () => {
     source.stream({foo: [4], bar: [0.4]})
     const ret1 = s.v_compute(source)
     expect(ret1).to.be.equal(new Float64Array([1.1, 2.2, 3.3, 4.4]))
+  })
+
+  it("should re-compute every time its fields change", () => {
+    const source = ColumnDataSource.create({data: {foo: [1, 2, 3], bar: [3, 2, 1]}})
+
+    const s = Stack.create({fields: ["foo"]})
+    expect(s.v_compute(source)).to.be.equal(new Float64Array([1, 2, 3]))
+
+    s.fields = ["bar"]
+    expect(s.v_compute(source)).to.be.equal(new Float64Array([3, 2, 1]))
+
+    s.fields = ["foo", "bar"]
+    expect(s.v_compute(source)).to.be.equal(new Float64Array([4, 4, 4]))
+  })
+
+  it("should update a glyph every time its fields change", async () => {
+    const source = ColumnDataSource.create({data: {x: [1, 2, 3], a: [1, 2, 3], b: [3, 2, 1]}})
+    const top = Stack.create({fields: ["a"]})
+    const glyph = VBar.create({x: {field: "x"}, top: {expr: top}, width: 0.5})
+    const renderer = GlyphRenderer.create({glyph, data_source: source})
+    const plot = fig([200, 200], {x_range: [0, 4], y_range: [0, 7], renderers: [renderer]})
+    const {view} = await display(plot)
+    const glyph_view = view.owner.get_one(renderer).glyph
+    expect_instanceof(glyph_view, VBarView)
+    expect([...glyph_view.top]).to.be.equal([1, 2, 3])
+
+    top.fields = ["b"]
+    await view.ready
+    expect([...glyph_view.top]).to.be.equal([3, 2, 1])
+
+    top.fields = ["a", "b"]
+    await view.ready
+    expect([...glyph_view.top]).to.be.equal([4, 4, 4])
   })
 })

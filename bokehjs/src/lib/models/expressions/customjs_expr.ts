@@ -1,4 +1,3 @@
-import {HasProps} from "core/has_props"
 import {Expression} from "./expression"
 import type {IndexedDataSource} from "../sources/indexed_data_source"
 import type * as p from "core/properties"
@@ -32,14 +31,12 @@ export class CustomJSExpr extends Expression {
 
   override connect_signals(): void {
     super.connect_signals()
-    for (const value of values(this.args)) {
-      if (value instanceof HasProps) {
-        value.change.connect(() => {
-          this._result.clear()
-          this.change.emit()
-        })
-      }
-    }
+    // Follow the models passed in `args`, also after `args` is replaced (replacing
+    // `args` itself is handled by Expression.connect_signals()).
+    this.on_transitive_change(this.properties.args, () => {
+      this._result.clear()
+      this.change.emit()
+    }, {on_replace: null})
   }
 
   get names(): string[] {

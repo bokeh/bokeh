@@ -42,6 +42,16 @@ export abstract class XYComponent extends Expression {
       transform: [ Ref(CoordinateTransform) ],
     }))
   }
+
+  override connect_signals(): void {
+    super.connect_signals()
+    // A component reads the transform's result, so follow the transform's changes.
+    // Replacing `transform` itself is handled by Expression.connect_signals().
+    this.on_transitive_change(this.properties.transform, () => {
+      this._result.clear()
+      this.change.emit()
+    }, {on_replace: null})
+  }
 }
 
 export namespace XComponent {
