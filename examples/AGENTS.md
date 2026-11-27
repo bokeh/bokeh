@@ -11,20 +11,15 @@ Read the root [AGENTS.md](../AGENTS.md) first. The scripts in this directory are
 
 ## Every example
 
-- Starts with a module docstring. Its first sentence is the summary that the documentation shows.
-- Has a `.. bokeh-example-metadata::` block in that docstring. Copy the block of a neighboring example, for example `examples/basic/bars/mixed.py`, and keep the order of its fields.
-- Lists every `bokeh.sampledata` module it imports in the `:sampledata:` field. A test enforces this.
+- Has a module docstring with a `bokeh-example-metadata` block. For its fields, the gallery, and the thumbnails, follow "Writing for Bokeh's narrative documentation" in `docs/bokeh/source/docs/dev_guide/documentation.rst`. Copy the block of a neighboring example, for example `examples/basic/bars/mixed.py`.
 - Is a complete script that a user can copy and run. Keep it short, and show one idea.
 - Uses only Bokeh, its required dependencies, and the packages that the examples already use. Do not add a dependency for an example.
 - Ends by showing or saving its output, the way the neighboring examples do.
 - Uses current API. Do not copy deprecated calls from old code, and run the example to see that it emits no deprecation warning.
 
-## Gallery and documentation
+## Renaming
 
-- The `:gallery:` field puts an example into the gallery. Its value is the alt text of the thumbnail. The example then needs two thumbnails under `docs/bokeh/source/_images/examples`, at the same relative path as the script: 300 by 300 pixels, and 600 by 600 pixels with an `@2x` suffix.
-- The gallery page is `docs/bokeh/source/docs/gallery.rst`.
-- An unknown category or a missing thumbnail fails the documentation build.
-- When you rename or move an example, search `docs/bokeh/source` and `tests/examples.yaml` for its path and update them.
+When you rename or move an example, search `docs/bokeh/source` and `tests/examples.yaml` for its path and update them.
 
 ## Tests
 

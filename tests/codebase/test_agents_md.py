@@ -19,6 +19,7 @@ import re
 import shlex
 import tomllib
 from functools import cache
+from itertools import pairwise
 from pathlib import Path
 
 import pytest
@@ -226,6 +227,47 @@ def test_paths_exist(path: Path) -> None:
         if relative not in tracked and top not in tracked:
             missing.append(candidate)
     assert missing == [], "git tracks no such paths, relative to the file or to the top of the repository"
+
+
+#: A pointer to a section: one or more titles in double quotes, followed by the
+#: file that has them. "there" and "in the same file" mean the file that the
+#: text named last.
+_TITLES = r'"[^"\n]+"(?:(?:,? (?:and|or) |, )"[^"\n]+")*'
+_SECTION_POINTER = re.compile(
+    rf"({_TITLES}) (?:in `([^`\n]+\.rst)`|in \[[^\]]*\]\(([^)\s]+\.md)\)|(in the same file|there)\b)",
+)
+_RST_UNDERLINE = re.compile(r"^([=\-~'^\"+#*])\1{3,}$")
+
+
+def _headings(path: Path) -> set[str]:
+    lines = path.read_text(encoding="utf-8").splitlines()
+    if path.suffix == ".md":
+        return {line.lstrip("#").strip() for line in lines if line.startswith("#")}
+    return {title.strip() for title, underline in pairwise(lines) if _RST_UNDERLINE.match(underline)}
+
+
+@pytest.mark.parametrize("path", AGENTS_FILES, ids=_ids)
+def test_section_titles_exist(path: Path) -> None:
+    # The AGENTS.md files point to sections of the contributor guide instead of
+    # repeating them. If you rename, move, or remove a section there, this test
+    # fails: update the AGENTS.md files that quote its title. Check as well
+    # whether the pointer still leads to what the agent needs.
+    text = path.read_text(encoding="utf-8")
+
+    missing = []
+    target: Path | None = None
+    for match in _SECTION_POINTER.finditer(text):
+        titles, rst, md, same = match.groups()
+        if not same:
+            name = rst or md
+            here = path.parent / name
+            target = here if here.exists() else TOP_PATH / name
+        if target is None or not target.exists():
+            missing.append(match.group(0))
+            continue
+        headings = _headings(target)
+        missing += [f"{title!r} in {target.relative_to(TOP_PATH)}" for title in re.findall(r'"([^"\n]+)"', titles) if title not in headings]
+    assert missing == [], "no such section titles. Update the AGENTS.md file to match the renamed or moved section."
 
 
 @pytest.mark.parametrize("name", POINTER_FILES)

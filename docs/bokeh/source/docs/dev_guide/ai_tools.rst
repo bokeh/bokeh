@@ -39,30 +39,15 @@ automatically. These files tell an agent how to set up the development
 environment, which commands build and test each part of Bokeh, and which
 conventions apply.
 
-The file in the top-level directory of the repository applies to all work in
-the repository. It links to more specific files:
+Most coding agents need no configuration to use these files. For Claude Code
+and Gemini CLI, the repository also contains the files ``CLAUDE.md`` and
+``GEMINI.md``, which only point to ``AGENTS.md``. If your tool reads none of
+these files, configure it to read ``AGENTS.md``.
 
-* :bokeh-tree:`AGENTS.md`: setup, common commands, and the rules for every
-  contribution
-* :bokeh-tree:`src/AGENTS.md`: the Python library
-* :bokeh-tree:`bokehjs/AGENTS.md`: BokehJS
-* :bokeh-tree:`docs/AGENTS.md`: the documentation
-* :bokeh-tree:`examples/AGENTS.md`: the examples
-* :bokeh-tree:`tests/AGENTS.md`: the Python tests
-* :bokeh-tree:`.github/AGENTS.md`: forks, remotes, and pull requests
-
-The ``AGENTS.md`` files are short on purpose. An agent loads them at the start
-of every session, so every line costs time and tokens. They contain commands,
-rules, and links to the pages of this contributor guide. The explanations are
-in this guide, which is the single source of truth for people and for agents.
-
-Most coding agents need no configuration to use these files. Claude Code and
-Gemini CLI read their own files by default, ``CLAUDE.md`` and ``GEMINI.md``.
-The top-level directory of the repository contains both files. Each of them is
-only a pointer to ``AGENTS.md``. Never add instructions to a pointer file, or
-to any other file for a specific tool. All instructions go into the
-``AGENTS.md`` files. If your tool reads none of these files, configure it to
-read ``AGENTS.md``, for example with the ``read`` option of Aider.
+Don't put your personal instructions into any of these files. Use a file that
+your tool reads in addition to them, for example ``CLAUDE.local.md`` for Claude
+Code or ``~/.gemini/GEMINI.md`` for Gemini CLI. Git ignores ``CLAUDE.local.md``
+in this repository.
 
 .. note::
     An ``AGENTS.md`` file makes it more likely that your agent follows Bokeh's
@@ -83,12 +68,7 @@ which tool you used and what it did. For example:
     AI disclosure: I used Claude Code to draft the fix and the tests. I
     reviewed and tested the changes myself.
 
-Expect your agent to add such a note, and leave it in. Make sure that it is
-accurate, especially the part about what you did yourself.
-
-This is stricter than the `AI Contribution Guidelines`_, which suggest
-mentioning substantive use of AI tools. A short note helps reviewers, and it
-costs you nothing.
+See the `AI Contribution Guidelines`_for details.
 
 .. _contributor_guide_ai_tools_maintenance:
 
@@ -108,13 +88,18 @@ them like documentation:
 * Add a new ``AGENTS.md`` file to a directory only if that directory needs
   more than a few lines of its own. Link the new file from the top-level
   ``AGENTS.md``.
+* ``CLAUDE.md`` and ``GEMINI.md`` are only pointers. Never add instructions to
+  them, or to any other file for a specific tool.
 
 A :ref:`codebase test <contributor_guide_testing_local_codebase>`
 (:bokeh-tree:`tests/codebase/test_agents_md.py`) checks every ``AGENTS.md``
 file. It fails if a file mentions a pixi task, a BokehJS build task, or a file
-that doesn't exist, if a file is not linked from the top-level file, if a
-file is longer than the size limit, or if a pointer file contains anything but
-its pointer. To run this test, use the following command:
+that doesn't exist, if a file quotes the title of a section that doesn't
+exist in the page it points to, if a file is not linked from the top-level
+file, if a file is longer than the size limit, or if a pointer file contains
+anything but its pointer. This means that you may need to update an
+``AGENTS.md`` file after you rename or move a section of this contributor
+guide. To run this test, use the following command:
 
 .. code-block:: sh
 

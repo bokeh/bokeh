@@ -21,13 +21,13 @@ pixi run check-formatting               # whitespace and line endings, fixes fil
 - Run the tests for what you changed first, not whole suites.
 - Leave `BOKEH_RESOURCES` and `BOKEH_DEV` unset when you run tests or build the docs.
 - If `git` or `pixi` is missing, ask the contributor before you install it, then follow "Install or update Git" or "Install or update Pixi" in `docs/bokeh/source/docs/dev_guide/setup.rst`. Do not fall back to the system Python, `pip`, or `npm`.
-- If `pixi run setup` fails at any step, the Bokeh install is missing or stale. See "Troubleshooting" in that file, and tell the contributor which step failed.
+- If `pixi run setup` fails at any step, the Bokeh install is missing or stale. See "Troubleshooting" there, and tell the contributor which step failed.
 - If `gh` is missing or not logged in, ask the contributor to check the issue for you and suggest installing and authenticating it.
 - Do not report a check as passed unless you ran it and saw it pass. Do not call a failure pre-existing unless you saw it fail without your change.
 
 ## Nested instructions
 
-Read the file for a directory before you change anything there: [src/AGENTS.md](src/AGENTS.md) (Python library), [bokehjs/AGENTS.md](bokehjs/AGENTS.md) (BokehJS), [docs/AGENTS.md](docs/AGENTS.md), [examples/AGENTS.md](examples/AGENTS.md), [tests/AGENTS.md](tests/AGENTS.md), [.github/AGENTS.md](.github/AGENTS.md) (pull requests).
+Read the file for a directory before you change anything there: [src/AGENTS.md](src/AGENTS.md) (Python library), [bokehjs/AGENTS.md](bokehjs/AGENTS.md) (BokehJS), [docs/AGENTS.md](docs/AGENTS.md), [examples/AGENTS.md](examples/AGENTS.md), [tests/AGENTS.md](tests/AGENTS.md), [.github/AGENTS.md](.github/AGENTS.md) (read it before you branch, push, or open a pull request).
 
 ## Before you start
 
@@ -44,7 +44,7 @@ Check the issue first: `gh issue view <number> -R bokeh/bokeh --json state,label
 - When you fix a pattern, search for its other occurrences and fix them too, or say why not.
 - Add or update tests with every code change. See [tests/AGENTS.md](tests/AGENTS.md).
 - A change to a model or property in Python needs the matching change in BokehJS, and the reverse.
-- A new feature or an API change needs a release note. See [docs/AGENTS.md](docs/AGENTS.md).
+- For a new feature or an API change, propose a release note in the pull request. See [docs/AGENTS.md](docs/AGENTS.md).
 - Comments explain why, not what. Do not add comments that narrate your change or restate the code.
 - Review `git status` and the whole diff before each commit. Stage only what the change needs. No scratch files, and no lockfile changes you did not intend.
 
@@ -57,15 +57,13 @@ Ask the contributor before you:
 - change files under `.github` or `tools`
 - accept new or changed visual baselines
 
+A maintainer (someone who can push to `bokeh/bokeh`) decides the triage check and these items: ask once, then follow the answer for the session.
+
 Never:
 
 - push to `main` or `branch-X.Y`, merge a pull request, or request a review on your own
 - edit generated files by hand, or weaken a test, a type, or a lint rule to make a check pass
 - close a pull request and open a new one for the same change
-
-## Pull requests
-
-Read [.github/AGENTS.md](.github/AGENTS.md) before you push a branch, or open or update a pull request. It covers forks, the title, the description, and the checklist.
 
 ## AI contributions
 
@@ -80,7 +78,5 @@ Disclose AI involvement, every time. This is stricter than the guidelines on pur
 
 ## Keep these files current
 
-- A pull request that changes a command, path, tool, or convention described in an `AGENTS.md` file updates that file.
-- Keep the files short. Explanations go into the contributor guide.
-- `tests/codebase/test_agents_md.py` checks the commands, paths, and size of every `AGENTS.md`.
-- For people: `docs/bokeh/source/docs/dev_guide/ai_tools.rst`.
+- A pull request that changes a command, path, tool, or convention described in an `AGENTS.md` file updates that file. Keep the files short. Explanations go into the contributor guide.
+- `tests/codebase/test_agents_md.py` checks the files. For people: `docs/bokeh/source/docs/dev_guide/ai_tools.rst`.
