@@ -24,7 +24,11 @@ export function throttle(func: () => void, wait: number): ThrottledFn {
   let resolver: Resolve<void> | null = null
 
   const fn = function() {
-    return new Promise<void>((resolve, reject) => {
+    const remaining = wait - (Date.now() - previous)
+    const immediate = remaining <= 0 && request == null
+    const canceled_resolver = immediate ? resolver : null
+
+    const promise = new Promise<void>((resolve, reject) => {
       const later = function() {
         previous = Date.now()
         timeout = null
@@ -38,22 +42,27 @@ export function throttle(func: () => void, wait: number): ThrottledFn {
         }
       }
 
-      const now = Date.now()
-      const remaining = wait - (now - previous)
-      if (remaining <= 0 && request == null) {
+      if (immediate) {
         if (timeout != null) {
           clearTimeout(timeout)
-          resolver?.()
+          timeout = null
         }
         resolver = resolve
         request = requestAnimationFrame(later)
       } else if (timeout == null && request == null) {
         resolver = resolve
-        timeout = setTimeout(() => request = requestAnimationFrame(later), remaining)
+        timeout = setTimeout(() => {
+          timeout = null
+          request = requestAnimationFrame(later)
+        }, remaining)
       } else {
         resolve()
       }
     })
+
+    // The canceled call completes with the replacement paint, including any error.
+    canceled_resolver?.(promise)
+    return promise
   }
 
   fn.stop = function() {

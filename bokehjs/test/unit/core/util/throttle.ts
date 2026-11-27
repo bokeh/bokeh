@@ -59,15 +59,60 @@ describe("throttle scheduling", () => {
       await first
       clock.tick(1)
       let settled = false
-      void fn().then(() => settled = true)
+      const delayed = fn().then(() => settled = true)
       await fn()
       expect(settled).to.be.false
       clock.setSystemTime(Date.now() + 20)
       const next = fn()
+      await Promise.resolve()
+      expect(settled).to.be.false
+      expect(runs).to.be.equal(1)
       clock.runToFrame()
-      await next
+      await Promise.all([delayed, next])
       expect(settled).to.be.true
       expect(runs).to.be.equal(2)
+      expect(clock.countTimers()).to.be.equal(0)
+    })
+  })
+
+  it("should reject both calls if the replacement frame fails", async () => {
+    await with_clock(async (clock) => {
+      const error = new Error("paint failed")
+      let runs = 0
+      const fn = throttle(() => {
+        if (++runs == 2) {
+          throw error
+        }
+      }, 20)
+      const first = fn()
+      clock.runToFrame()
+      await first
+      clock.tick(1)
+      const delayed = fn().then(() => null, (e: unknown) => e)
+      clock.setSystemTime(Date.now() + 20)
+      const next = fn().then(() => null, (e: unknown) => e)
+      clock.runToFrame()
+      expect(await delayed).to.be.equal(error)
+      expect(await next).to.be.equal(error)
+      expect(clock.countTimers()).to.be.equal(0)
+    })
+  })
+
+  it("should settle both calls when the replacement frame is stopped", async () => {
+    await with_clock(async (clock) => {
+      let runs = 0
+      const fn = throttle(() => runs++, 20)
+      const first = fn()
+      clock.runToFrame()
+      await first
+      clock.tick(1)
+      const delayed = fn()
+      clock.setSystemTime(Date.now() + 20)
+      const next = fn()
+      await fn()
+      fn.stop()
+      await Promise.all([delayed, next])
+      expect(runs).to.be.equal(1)
       expect(clock.countTimers()).to.be.equal(0)
     })
   })
@@ -120,9 +165,17 @@ describe("throttle scheduling", () => {
   }
 
   it("should allow stopping before a call and repeatedly", async () => {
-    const fn = throttle(() => {}, 20)
-    fn.stop()
-    fn.stop()
+    await with_clock(async (clock) => {
+      let runs = 0
+      const fn = throttle(() => runs++, 20)
+      fn.stop()
+      fn.stop()
+      const promise = fn()
+      clock.runAll()
+      await promise
+      expect(runs).to.be.equal(1)
+      expect(clock.countTimers()).to.be.equal(0)
+    })
   })
 
   it("should reject errors and preserve reentrant work", async () => {
