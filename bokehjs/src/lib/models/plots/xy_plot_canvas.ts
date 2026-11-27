@@ -4,6 +4,7 @@ import {CartesianFrame} from "../canvas/cartesian_frame"
 import type {CartesianFrameView} from "../canvas/cartesian_frame"
 import type {CoordinateTransform} from "../coordinates/coordinate_transform"
 import type {RendererView} from "../renderers/renderer"
+import {DataRange1d} from "../ranges/data_range1d"
 import type {Range} from "../ranges/range"
 import {RangeManager} from "./range_manager"
 import type {RangeInfo, RangeOptions} from "./range_manager"
@@ -139,7 +140,9 @@ export class XYPlotView extends PlotView {
       const {ranges} = this.frame
       const changed = ranges.size != range_connections.size || [...ranges].some((range) => !range_connections.has(range))
       if (changed && range_connections.size != 0) {
-        this._initial_state.range = undefined
+        // Autoranged sources must settle before their initial snapshot is captured.
+        this._initial_state.range = [...ranges].some((range) => range instanceof DataRange1d)
+          ? undefined : this._range_manager.compute_initial(false) ?? undefined
         this.state.clear()
       }
       for (const [range, constrain] of range_connections) {

@@ -578,8 +578,8 @@ describe("XYPlot coordinate mapping", () => {
     view.state.push("pan", {range: pan})
     view.update_range(pan)
     const replacement = Range1d.create({start: 100, end: 110})
+    view.pause()
     p.x_range = replacement
-    await view.ready
     expect(view.state.can_undo).to.be.false
     expect(view.state.undo()).to.be.null
     expect(original.start).to.be.equal(2)
@@ -590,6 +590,30 @@ describe("XYPlot coordinate mapping", () => {
     view.state.undo()
     expect(replacement.start).to.be.equal(100)
     expect(replacement.end).to.be.equal(110)
+    view.unpause()
+    await view.ready
+  })
+
+  it("captures shared finite autorange bounds after the replacement settles", async () => {
+    const shared = DataRange1d.create()
+    const p = XYPlot.create({x_range: shared, y_range: Range1d.create({start: 0, end: 10})})
+    p.add_glyph(Scatter.create({x: {field: "x"}, y: {field: "y"}}),
+      ColumnDataSource.create({data: {x: [2, 8], y: [3, 7]}}))
+    const q = XYPlot.create({x_range: Range1d.create({start: 0, end: 10}), y_range: Range1d.create({start: 0, end: 10})})
+    q.add_glyph(Scatter.create({x: {field: "x"}, y: {field: "y"}}),
+      ColumnDataSource.create({data: {x: [100, 200], y: [3, 7]}}))
+    const {view: row_view} = await display(Row.create({children: [p, q]}))
+    const view = row_view.owner.get_one(q)
+    const before = {start: shared.start, end: shared.end}
+    q.x_range = shared
+    await view.ready
+    const initial = {start: shared.start, end: shared.end}
+    expect(initial.end).to.be.above(before.end)
+    const pan = {xrs: new Map([[shared, {start: 110, end: 190}]]), yrs: new Map()}
+    view.state.push("pan", {range: pan})
+    view.update_range(pan)
+    view.state.undo()
+    expect({start: shared.start, end: shared.end}).to.be.equal(initial)
   })
 
   it("selects named ranges from the plot and rebinds after dictionary replacement", async () => {

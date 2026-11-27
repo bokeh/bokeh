@@ -197,7 +197,7 @@ export class RangeManager {
     return {xrs, yrs}
   }
 
-  compute_initial(): RangeInfo | null {
+  compute_initial(warn: boolean = this.warn_initial_ranges): RangeInfo | null {
     // check for good values for ranges before setting initial range
     let good_vals = true
     const {x_ranges, y_ranges} = this.frame
@@ -224,7 +224,7 @@ export class RangeManager {
     if (good_vals) {
       return {xrs, yrs}
     } else {
-      if (this.warn_initial_ranges) {
+      if (warn) {
         logger.warn("could not set initial ranges")
       }
       return null
