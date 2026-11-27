@@ -8,7 +8,7 @@ import {construct} from "@bokehjs/core/has_props"
 import type {HasProps, HasPropsClass, ModelAttrs} from "@bokehjs/core/has_props"
 import {
   Circle, ColumnDataSource, LinearAxis,
-  NormalHead, Segment, Toolbar,
+  NormalHead, Segment, Text, Toolbar,
 } from "@bokehjs/models"
 
 describe("in api/plotting module", () => {
@@ -209,6 +209,41 @@ describe("in api/plotting module", () => {
 
         expect(() => p.annular_wedge({...attrs, start_angle_units: "deg"})).to.throw(Error)
         expect(() => p.annular_wedge({...attrs, end_angle_units: "deg"})).to.throw(Error)
+      })
+
+      describe("text()", () => {
+        it("should support bounding box visuals in all glyph states", () => {
+          const r = figure().text({
+            x: 0, y: 0, text: "a",
+            background_fill_color: "white", border_line_color: "black", border_line_width: 2,
+            hover_border_line_color: "red",
+          })
+          assert(r.nonselection_glyph instanceof Text)
+          assert(r.muted_glyph instanceof Text)
+          assert(r.hover_glyph instanceof Text)
+
+          expect(r.glyph.background_fill_color).to.be.equal({value: "white"})
+          expect(r.glyph.border_line_width).to.be.equal({value: 2})
+
+          expect(r.nonselection_glyph.background_fill_alpha).to.be.equal({value: 0.1})
+          expect(r.nonselection_glyph.border_line_alpha).to.be.equal({value: 0.1})
+          expect(r.muted_glyph.background_fill_alpha).to.be.equal({value: 0.2})
+          expect(r.muted_glyph.border_line_alpha).to.be.equal({value: 0.2})
+
+          expect(r.hover_glyph.background_fill_color).to.be.equal({value: "white"})
+          expect(r.hover_glyph.border_line_color).to.be.equal({value: "red"})
+          expect(r.hover_glyph.border_line_width).to.be.equal({value: 2})
+        })
+
+        it("should apply 'alpha' but not 'color' to bounding box visuals", () => {
+          const r = figure().text({x: 0, y: 0, text: "a", color: "red", alpha: 0.5})
+          expect(r.glyph.text_color).to.be.equal({value: "red"})
+          expect(r.glyph.text_alpha).to.be.equal({value: 0.5})
+          expect(r.glyph.background_fill_color).to.be.equal({value: null})
+          expect(r.glyph.background_fill_alpha).to.be.equal({value: 0.5})
+          expect(r.glyph.border_line_color).to.be.equal({value: null})
+          expect(r.glyph.border_line_alpha).to.be.equal({value: 0.5})
+        })
       })
 
       describe("arrow()", () => {
