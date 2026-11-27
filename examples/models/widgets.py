@@ -384,7 +384,6 @@ widgets = Column(children=[
         tabs,
     ]),
     table],
-    stylesheets=[":host { background-color: var(--background-color); }"],
 )
 
 tooltip_2 = Tooltip(content=HTML("""\
@@ -402,7 +401,7 @@ doc.add_root(tooltip_2)
 if __name__ == "__main__":
     doc.validate()
     filename = "widgets.html"
-    with open(filename, "w") as f:
+    with open(filename, "w", encoding="utf-8") as f:
         f.write(embed(doc).page(title="Widgets"))
     print(f"Wrote {filename}")
     view(filename)

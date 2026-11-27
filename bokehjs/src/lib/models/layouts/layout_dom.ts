@@ -4,10 +4,12 @@ import {logger} from "core/logging"
 import {Signal} from "core/signaling"
 import {Align, Dimensions, FlowMode, SizingMode} from "core/enums"
 import {px} from "core/dom"
+import type {StyleSheetLike} from "core/dom"
 import type {CSSStyles} from "core/css"
 import {isNumber, isArray} from "core/util/types"
 import {enumerate} from "core/util/iterator"
 import type * as p from "core/properties"
+import layout_css from "styles/layout.css"
 
 import type {ViewStorage, ChildView} from "core/build_views"
 import {build_views} from "core/build_views"
@@ -70,6 +72,10 @@ export abstract class LayoutDOMView extends PaneView {
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
     await this.build_child_views()
+  }
+
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), layout_css]
   }
 
   override connect_signals(): void {

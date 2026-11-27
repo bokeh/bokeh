@@ -195,7 +195,6 @@ layout = row(children=w_columns, sizing_mode="stretch_width", stylesheets=[
     --bokeh-font-size: 1rem;
     --border-radius: 2px;
     transition: transform 0.1s ease;
-    background-color: var(--background-color);
   }"""),
 ])
 

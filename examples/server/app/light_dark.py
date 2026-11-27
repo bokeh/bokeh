@@ -34,7 +34,5 @@ light_dark = LightDark()
 div = Div(text=f"Current scheme: {color_scheme}")
 
 curdoc().add_root(
-    row([color_scheme_dropdown, light_dark, div], stylesheets=[
-        ":host { background-color: light-dark(white, black); color: light-dark(black, white);}",
-    ]),
+    row([color_scheme_dropdown, light_dark, div]),
 )

@@ -202,7 +202,6 @@ describe("Examples", () => {
         --bokeh-font-size: 1rem;
         --border-radius: 2px;
         transition: transform 0.1s ease;
-        background-color: var(--background-color);
       }`,
     ]})
 

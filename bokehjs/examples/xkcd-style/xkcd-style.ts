@@ -138,7 +138,6 @@ export namespace Xkcd {
       --border-bottom-right-radius: 20px 5px;
       --font-weight: bold;
       text-transform: uppercase;
-      background-color: var(--background-color);
     }`,
   ]})
 

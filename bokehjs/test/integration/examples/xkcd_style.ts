@@ -131,7 +131,6 @@ describe("Examples", () => {
         --border-radius: 20px 5px 20px 5px/5px 20px 5px 20px;
         --font-weight: bold;
         text-transform: uppercase;
-        background-color: var(--background-color);
       }`,
     ]})
 

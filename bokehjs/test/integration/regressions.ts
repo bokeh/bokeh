@@ -970,7 +970,7 @@ describe("Bug", () => {
       const p1 = fig([200, 200], {sizing_mode: "scale_width", background_fill_alpha: 0.5, border_fill_alpha: 0.5})
       p0.scatter([0, 1, 2], [3, 4, 5])
       p1.scatter([1, 2, 3], [4, 5, 6])
-      return row([p0, p1], {sizing_mode: "scale_width", styles: {background_color: "orange"}})
+      return row([p0, p1], {sizing_mode: "scale_width", styles: {"--background-color": "orange"}})
     }
 
     it("results in incorrect layout when viewport is smaller than optimal size", async () => {

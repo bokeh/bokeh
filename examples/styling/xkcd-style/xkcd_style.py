@@ -124,7 +124,6 @@ layout = row(children=w_columns, sizing_mode="stretch_width", stylesheets=[
     --border-bottom-right-radius: 20px 5px;
     --font-weight: bold;
     text-transform: uppercase;
-    background-color: var(--background-color);
   }"""),
 ])
 

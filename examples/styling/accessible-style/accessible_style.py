@@ -281,7 +281,6 @@ layout = row(children=w_columns, sizing_mode="stretch_width", stylesheets=[
     --outline-offset: 2px;
     --default-outline-color: #5D5E62;
     --menu-item-hover-text-decoration: underline;
-    background-color: var(--background-color);
   }
 """),
 ])
