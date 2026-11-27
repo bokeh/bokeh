@@ -7,6 +7,10 @@ import type * as p from "core/properties"
 export abstract class BaseDatetimePickerView extends BaseDatePickerView {
   declare model: BaseDatetimePicker
 
+  protected override _format_date(date: Date): string {
+    return date.toISOString()
+  }
+
   override connect_signals(): void {
     super.connect_signals()
 

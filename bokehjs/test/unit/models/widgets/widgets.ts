@@ -10,6 +10,7 @@ import {
   DatetimeRangePicker,
   FileInput,
   MultiChoice,
+  MultipleDatetimePicker,
   MultiSelect,
   PaletteSelect,
   Select,
@@ -107,5 +108,31 @@ describe("Button", () => {
 
     expect(view.self_style.css.includes("resize:")).to.be.false
     expect(view.self_style.css.includes("overflow: auto;")).to.be.false
+  })
+})
+
+describe("Datetime pickers", () => {
+  const d0 = new Date("2026-08-04T15:00:52.000Z")
+  const d1 = new Date("2026-08-05T16:01:53.000Z")
+
+  it("should preserve the selected instant in DatetimePicker", async () => {
+    const input = DatetimePicker.create({value: d0})
+    const {view} = await display(input, null)
+    view.picker.setDate(d0, true)
+    expect(input.value).to.be.equal(d0.toISOString())
+  })
+
+  it("should preserve the selected instants in DatetimeRangePicker", async () => {
+    const input = DatetimeRangePicker.create({value: [d0, d1]})
+    const {view} = await display(input, [600, 500])
+    view.picker.setDate([d0, d1], true)
+    expect(input.value).to.be.equal([d0.toISOString(), d1.toISOString()])
+  })
+
+  it("should preserve the selected instants in MultipleDatetimePicker", async () => {
+    const input = MultipleDatetimePicker.create({value: [d0, d1]})
+    const {view} = await display(input, [600, 500])
+    view.picker.setDate([d0, d1], true)
+    expect(input.value).to.be.equal([d0.toISOString(), d1.toISOString()])
   })
 })
