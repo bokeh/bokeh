@@ -440,7 +440,7 @@ Each HTML page also links to its Markdown version with a
 The `sphinx-llm <https://github.com/NVIDIA/sphinx-llm>`_ extension generates
 these files. After the HTML build, it runs a second Sphinx build with a
 Markdown builder that reuses the results of the first build. This second build
-is not parallel and adds several minutes, even if no source file has changed.
+is not parallel and adds one to two minutes, even if no source file has changed.
 For this reason, ``make html`` does not include it. To also build the Markdown
 pages and ``llms.txt``, use ``make all``:
 
