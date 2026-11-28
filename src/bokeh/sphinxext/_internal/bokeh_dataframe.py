@@ -41,6 +41,7 @@ from docutils import nodes
 from sphinx.errors import SphinxError
 
 from . import PARALLEL_SAFE, SphinxParallelSpec
+from .bokeh_markdown import markdown_block
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -96,7 +97,7 @@ def bokeh_dataframe(
         raise SphinxError(f"{text!r} is not a pandas Dataframe")
 
     node = nodes.raw("", df.head().to_html(), format="html")
-    return [node], []
+    return [node, markdown_block(_dataframe_markdown(df.head()))], []
 
 
 def setup(app: Any) -> SphinxParallelSpec:
@@ -108,6 +109,16 @@ def setup(app: Any) -> SphinxParallelSpec:
 # -----------------------------------------------------------------------------
 # Private API
 # -----------------------------------------------------------------------------
+
+
+def _dataframe_markdown(df: Any) -> str:
+    def cell(value: Any) -> str:
+        return str(value).replace("|", "\\|").replace("\n", " ")
+
+    header = ["", *(cell(column) for column in df.columns)]
+    rows = [[cell(index), *(cell(value) for value in row)] for index, row in zip(df.index, df.to_numpy().tolist())]
+    lines = [header, ["---"] * len(header), *rows]
+    return "\n".join("| " + " | ".join(line) + " |" for line in lines)
 
 # -----------------------------------------------------------------------------
 # Code

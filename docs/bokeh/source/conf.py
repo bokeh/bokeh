@@ -49,6 +49,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
+    "sphinx_llm.txt",
     "bokeh.sphinxext.bokeh_plot",
     "bokeh.sphinxext._internal.bokeh_autodoc",
     "bokeh.sphinxext._internal.bokeh_dataframe",
@@ -56,6 +57,7 @@ extensions = [
     "bokeh.sphinxext._internal.bokeh_enum",
     "bokeh.sphinxext._internal.bokeh_example_metadata",
     "bokeh.sphinxext._internal.bokeh_gallery",
+    "bokeh.sphinxext._internal.bokeh_markdown",
     "bokeh.sphinxext._internal.bokeh_model",
     "bokeh.sphinxext._internal.bokeh_options",
     "bokeh.sphinxext._internal.bokeh_palette",
@@ -106,6 +108,42 @@ intersphinx_mapping = {
     "sphinx"      : ("https://www.sphinx-doc.org/en/master/", None),
     "xyzservices" : ("https://xyzservices.readthedocs.io/en/stable/", None),
 }
+
+# Markdown version of every page, and an llms.txt index of those pages
+
+# Build the Markdown pages after the HTML pages, from the same doctrees. The
+# default is a concurrent build with its own doctrees, which would run every
+# bokeh-plot example a second time.
+llms_txt_build_parallel = False
+
+llms_txt_description = (
+    "Bokeh is a Python library for creating interactive visualizations for modern web browsers. "
+    "This index lists the Markdown version of the Bokeh documentation."
+)
+
+# These pages still have a Markdown version. They are left out of llms.txt to
+# keep the index small. The pages that are listed link to them.
+llms_txt_exclude = [
+    "docs/examples/**",              # one page per example, linked from docs/examples
+    "docs/reference/models/*/*/**",  # one page per model, linked from docs/reference/models/*
+]
+
+# The former pages of the model reference only say where a model has moved.
+# They are generated before the build, by api_reference.
+llms_txt_exclude += sorted(
+    path.relative_to(Path(__file__).parent).with_suffix("").as_posix()
+    for path in (Path(__file__).parent / "docs" / "reference" / "models").glob("*/*.rst")
+    if "data-bokeh-model-redirect" in path.read_text(encoding="utf-8")
+)
+
+# An llms.txt in every directory would mostly repeat the reference tree.
+llms_txt_nested_enabled = False
+
+# Publish page.md next to page.html, without an additional page.html.md
+llms_txt_suffix_mode = "replace"
+
+# One line per paragraph
+markdown_flavor = "github"
 
 napoleon_include_init_with_doc = True
 

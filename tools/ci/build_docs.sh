@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Usage: build_docs.sh [TARGET]
+#
+# TARGET is the make target of docs/bokeh/Makefile to build. The default is
+# "html". Pass "all" to also build the Markdown pages and llms.txt.
+TARGET=${1:-html}
+
 set -x #echo on
 
 cd docs/bokeh
@@ -7,7 +13,7 @@ cd docs/bokeh
 START=$SECONDS
 
 BUILD_START=$SECONDS
-make SPHINXOPTS="${SPHINXOPTS:--j auto}" all
+make SPHINXOPTS="${SPHINXOPTS:--j auto}" "$TARGET"
 BUILD_STATUS=$?
 BUILD_SECONDS=$((SECONDS-BUILD_START))
 

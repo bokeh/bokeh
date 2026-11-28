@@ -42,6 +42,7 @@ from bokeh.colors import named
 
 from . import PARALLEL_SAFE, SphinxParallelSpec
 from .bokeh_directive import BokehDirective
+from .bokeh_markdown import markdown_block
 from .templates import COLOR_DETAIL
 
 # -----------------------------------------------------------------------------
@@ -73,9 +74,10 @@ class BokehColorDirective(BokehDirective):
     def run(self) -> list[Any]:
         color = self.arguments[0]
 
-        html = COLOR_DETAIL.render(color=getattr(named, color).to_css(), text=color)
+        css = getattr(named, color).to_css()
+        html = COLOR_DETAIL.render(color=css, text=color)
         node = nodes.raw("", html, format="html")
-        return [node]
+        return [node, markdown_block(f"{color}: `{getattr(named, color).to_hex()}`")]
 
 
 def setup(app: Any) -> SphinxParallelSpec:

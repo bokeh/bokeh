@@ -21,6 +21,11 @@ if "%SPHINXBUILD%" == "" (
 	set SPHINXBUILD=sphinx-build
 )
 set BUILDDIR=build
+
+REM The Markdown pages and llms.txt take a second, non-parallel Sphinx build.
+REM Only "all" includes them, to keep "html" fast for local work.
+set MARKDOWNOPTS=-D llms_txt_enabled=0
+if defined BOKEH_DOCS_MARKDOWN set MARKDOWNOPTS=
 set ALLSPHINXOPTS=-d %BUILDDIR%/doctrees %SPHINXOPTS% source
 set I18NSPHINXOPTS=%SPHINXOPTS% .
 if NOT "%PAPER%" == "" (
@@ -33,9 +38,9 @@ if "%1" == "" goto help
 if "%1" == "help" (
 	:help
 	echo.Please use `make ^<target^>` where ^<target^> is one of
-	echo.  all               to make standalone HTML files
+	echo.  all               to make standalone HTML files, their Markdown versions, and llms.txt
 	echo.  clean             to clear all built documentation files
-	echo.  html              to make standalone HTML files
+	echo.  html              to make standalone HTML files only
 	echo.  reference         to regenerate the bokeh.models API reference
 	echo.  reference-check   to check that the generated API reference is current
 	echo.  reference-clean   to remove generated API reference sources
@@ -55,6 +60,7 @@ if "%1" == "clean" (
 )
 
 if "%1" == "all" (
+	set BOKEH_DOCS_MARKDOWN=1
 	call "%~f0" html
 	if errorlevel 1 exit /b 1
 	goto end
@@ -90,7 +96,7 @@ if "%1" == "html" (
 	call "%~f0" reference-check
 	if errorlevel 1 exit /b 1
 	xcopy ..\..\bokehjs\src\less\icons\* source\_images\icons\ /y
-	%SPHINXBUILD% -W -b html %ALLSPHINXOPTS% %BUILDDIR%\html
+	%SPHINXBUILD% -W -b html %MARKDOWNOPTS% %ALLSPHINXOPTS% %BUILDDIR%\html
 	xcopy ..\bokeh\server\static %BUILDDIR%\html\static\ /s /e /h /y
 	if errorlevel 1 exit /b 1
 	echo.

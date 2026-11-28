@@ -584,7 +584,9 @@ jobs:
           CARTO_API_KEY: ${{ secrets.CARTO_API_KEY }}
           PYTHONFAULTHANDLER: "1"
           SPHINXOPTS: "-j auto -T"
-        run: pixi run --locked --environment ${{ matrix.environment }} build-docs
+        # "all" also builds the Markdown pages and llms.txt, like release builds.
+        # Standard CI builds HTML only.
+        run: pixi run --locked --environment ${{ matrix.environment }} build-docs all
 
       - name: Upload docs
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

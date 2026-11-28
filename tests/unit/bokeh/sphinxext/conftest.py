@@ -10,6 +10,7 @@ if find_spec("sphinx") is None:
         "test_bokeh_autodoc.py",
         "test_bokeh_gallery.py",
         "test_bokeh_instrumentation.py",
+        "test_bokeh_markdown.py",
         "test_bokeh_model.py",
         "test_bokeh_parallel.py",
         "test_bokeh_plot.py",

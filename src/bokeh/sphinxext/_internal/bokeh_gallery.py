@@ -50,6 +50,8 @@ class GalleryCard(TypedDict):
     title: str
     desc: str
     parse_desc: bool
+    #: the card as a link, for the Markdown version of the page
+    markdown: str
 
 
 class GalleryGroup(TypedDict):
@@ -137,6 +139,7 @@ class BokehGalleryDirective(BokehDirective):
                         "title": entry["title"],
                         "desc": entry["desc"],
                         "parse_desc": False,
+                        "markdown": f"{_markdown_link(entry['title'], entry['url'])}: {_html_to_markdown(entry['desc'])}",
                     })
                 groups.append({"title": "", "cards": cards})
                 continue
@@ -157,14 +160,17 @@ class BokehGalleryDirective(BokehDirective):
                     self.env.note_dependency(thumbnail)
                     if not thumbnail.is_file():
                         raise SphinxError(f"Missing gallery thumbnail {thumbnail}")
+                title = _example_title(source, metadata)
                 cards.append({
                     "url": f"{image}.html",
                     "target": None,
                     "img": image,
                     "alt": alt,
-                    "title": _example_title(source, metadata),
+                    "title": title,
                     "desc": SUMMARY_SENTENCE_BREAK.split(summary, maxsplit=1)[0],
                     "parse_desc": True,
+                    # the summary follows as parsed reStructuredText
+                    "markdown": _markdown_link(title, f"{image}.md"),
                 })
 
             if cards:
@@ -304,6 +310,20 @@ def setup(app: Any) -> SphinxParallelSpec:
 # -----------------------------------------------------------------------------
 # Private API
 # -----------------------------------------------------------------------------
+
+_HTML_LINK = re.compile(r"""<a\b[^>]*?\bhref=["']([^"']+)["'][^>]*>(.*?)</a>""", re.DOTALL)
+_HTML_TAG = re.compile(r"<[^>]+>")
+
+
+def _markdown_link(title: str, url: str) -> str:
+    text = title.replace("[", r"\[").replace("]", r"\]")
+    return f"**[{text}]({url})**"
+
+
+def _html_to_markdown(html: str) -> str:
+    """Convert the links of an HTML snippet to Markdown and drop all other tags."""
+    return _HTML_TAG.sub("", _HTML_LINK.sub(r"[\2](\1)", html))
+
 
 def _discover_examples(root: Path) -> list[Path]:
     sources = []
