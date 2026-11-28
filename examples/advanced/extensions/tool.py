@@ -4,11 +4,11 @@ source.
 .. bokeh-example-metadata::
     :title: Tool
     :keywords: tool
-    :apis: bokeh.models.ColumnDataSource, bokeh.models.Tool, bokeh.plotting.figure.add_tools, bokeh.plotting.figure.line
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Drag, bokeh.plotting.figure.add_tools, bokeh.plotting.figure.line
 '''
 
 from bokeh.core.properties import Instance
-from bokeh.models import ColumnDataSource, Tool
+from bokeh.models import ColumnDataSource, Drag
 from bokeh.plotting import figure, show
 from bokeh.util.compiler import TypeScript
 
@@ -80,7 +80,7 @@ export class DrawTool extends GestureTool {
 }
 """
 
-class DrawTool(Tool):
+class DrawTool(Drag):
     __implementation__ = TypeScript(CODE)
     source = Instance(ColumnDataSource)
 
