@@ -10,6 +10,7 @@ Contribute
     dev_guide/setup
     dev_guide/creating_issues
     dev_guide/pull_requests
+    dev_guide/ai_tools
     dev_guide/documentation
     dev_guide/testing
     dev_guide/writing_tests
@@ -77,6 +78,10 @@ You can then contribute to Bokeh's codebase in many ways:
         * :ref:`contributor_guide_documentation`
         * :ref:`contributor_guide_issues`
         * :ref:`contributor_guide_pull_requests`
+
+If you use AI tools, such as a coding agent, read
+:ref:`contributor_guide_ai_tools` before you start. The repository contains
+``AGENTS.md`` files with instructions for coding agents.
 
 .. _contributor_guide_resources:
 

@@ -9,3 +9,4 @@ to ensure your contribution follows project expectations.
 - [ ] issues: fixes #xxxx
 - [ ] tests added / passed
 - [ ] release document entry (if new feature or API change)
+- [ ] `AGENTS.md` files updated (if a command, path, or convention they describe changed)

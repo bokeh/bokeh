@@ -11,6 +11,12 @@ The repository's Pixi workspace manages the Python and TypeScript toolchains
 together. This chapter walks you through the steps to set up that development
 environment.
 
+.. note::
+    If you work with a coding agent, the ``AGENTS.md`` files in the repository
+    give it the most important commands and conventions. See
+    :ref:`contributor_guide_ai_tools` for details. You still need to complete
+    the steps in this chapter yourself, or check that your agent has done so.
+
 .. _contributor_guide_setup_preliminaries:
 
 1. Check basic requirements

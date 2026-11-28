@@ -83,3 +83,6 @@ examples-report.html
 
 # OS junk
 .DS_Store
+
+# personal instructions for coding agents, see the contributor guide
+CLAUDE.local.md
