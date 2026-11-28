@@ -3,8 +3,7 @@
 Contributing with AI tools
 ==========================
 
-Many contributors use AI tools, such as coding agents and chat assistants, when
-they work on Bokeh. This page describes what the project expects from
+This page describes what the project expects from
 contributions that involve AI, and what the repository provides to help coding
 agents follow Bokeh's conventions.
 
@@ -14,14 +13,9 @@ AI Contribution Guidelines
 --------------------------
 
 Bokeh's `AI Contribution Guidelines`_ are the project's policy for all
-contributions that involve AI tools. They apply to issues, pull requests, and
-comments, whether or not you use a coding agent. Read them before you
-contribute.
-
-This guide doesn't repeat the guidelines, but two of their points are easy to
-miss when you work with an agent. First, a pull request needs an issue that a
-maintainer has triaged. Second, comments and reviews that an AI tool has
-generated are not acceptable, even if you disclose them.
+contributions that involve AI tools as coding agents and chat assistants.
+They apply to issues, pull requests, and comments, whether or not you use
+a coding agent. Read them before you contribute.
 
 You are responsible for everything you submit. This means that you need to
 understand your contribution, test it, and be able to explain it in your own
@@ -45,14 +39,7 @@ and Gemini CLI, the repository also contains the files ``CLAUDE.md`` and
 these files, configure it to read ``AGENTS.md``.
 
 Don't put your personal instructions into any of these files. Use a file that
-your tool reads in addition to them, for example ``CLAUDE.local.md`` for Claude
-Code or ``~/.gemini/GEMINI.md`` for Gemini CLI. Git ignores ``CLAUDE.local.md``
-in this repository.
-
-.. note::
-    An ``AGENTS.md`` file makes it more likely that your agent follows Bokeh's
-    conventions, but it doesn't guarantee it. Always review what your agent
-    produces before you submit it.
+your tool reads in addition to them, for example ``CLAUDE.local.md``.
 
 .. _contributor_guide_ai_tools_disclosure:
 
@@ -88,25 +75,12 @@ them like documentation:
 * Add a new ``AGENTS.md`` file to a directory only if that directory needs
   more than a few lines of its own. Link the new file from the top-level
   ``AGENTS.md``.
-* ``CLAUDE.md`` and ``GEMINI.md`` are only pointers. Never add instructions to
-  them, or to any other file for a specific tool.
 
 A :ref:`codebase test <contributor_guide_testing_local_codebase>`
-(:bokeh-tree:`tests/codebase/test_agents_md.py`) checks every ``AGENTS.md``
-file. It fails if a file mentions a pixi task, a BokehJS build task, or a file
-that doesn't exist, if a file quotes the title of a section that doesn't
-exist in the page it points to, if a file is not linked from the top-level
-file, if a file is longer than the size limit, or if a pointer file contains
-anything but its pointer. This means that you may need to update an
-``AGENTS.md`` file after you rename or move a section of this contributor
-guide. To run this test, use the following command:
-
-.. code-block:: sh
-
-    pixi run pytest tests/codebase/test_agents_md.py
-
-The test can't check whether a described convention is still correct. This is
-why the files are short and link to this guide instead of repeating it.
+(:bokeh-tree:`tests/codebase/test_agents_md.py`) checks that the commands,
+files, and guide sections that the ``AGENTS.md`` files mention exist. You may
+need to update an ``AGENTS.md`` file after you rename or move a section of
+this contributor guide.
 
 .. _AI Contribution Guidelines: https://github.com/bokeh/bokeh/wiki/BEP-1:-Issues-and-PRs-management#ai-contribution-guidelines
 .. _AGENTS.md: https://agents.md/
