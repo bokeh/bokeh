@@ -902,7 +902,7 @@ Bokeh uses multiple CI workflows to balance speed and coverage:
     - **Codebase checks**: All platforms with Python 3.13
     - **Other tests**: Linux only (examples, minimal-deps, core-deps, documentation)
     - **Core dependencies**: Python 3.13 and 3.15 on Linux
-    - **Documentation**: Python 3.15 on Linux
+    - **Documentation**: Python 3.15 on Linux, HTML only
     - **Features**: Cancel-in-progress enabled for faster iteration
 
 **Full CI (bokeh-ci-full.yml)**
@@ -913,7 +913,8 @@ Bokeh uses multiple CI workflows to balance speed and coverage:
     - **Platforms**: Ubuntu 24.04, macOS latest, Windows latest
     - **Python versions**: 3.13 and 3.14. Core-dependency tests also cover 3.15
     - **Core dependencies**: Python 3.13 through 3.15 on all platforms
-    - **Documentation**: Python 3.13 and 3.15 on Linux. Python 3.15 on macOS and Windows
+    - **Documentation**: Python 3.13 and 3.15 on Linux. Python 3.15 on macOS and Windows.
+      Includes the :ref:`Markdown pages and llms.txt <contributor_guide_documentation_markdown>`
 
     **To manually trigger the full workflow:**
 

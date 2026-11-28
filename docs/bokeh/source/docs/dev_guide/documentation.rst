@@ -442,15 +442,23 @@ these files. After the HTML build, it runs a second Sphinx build with a
 Markdown builder that reuses the results of the first build. This second build
 is not parallel and adds several minutes, even if no source file has changed.
 For this reason, ``make html`` does not include it. To also build the Markdown
-pages and ``llms.txt``, the way CI and release builds do, use ``make all``:
+pages and ``llms.txt``, use ``make all``:
 
 .. code-block:: sh
 
     make all SPHINXOPTS="-j auto"
 
-A build with ``make all`` fails if the Markdown build emits a warning. Run it
-before you open a pull request that changes a custom Sphinx directive, role, or
-node.
+The following builds include the Markdown pages and ``llms.txt``:
+
+* The documentation jobs of the daily full CI workflow
+  (``bokeh-ci-full.yml``).
+* All release builds, including development releases and release candidates.
+
+The standard CI workflow that runs on every pull request builds HTML only.
+
+A build with ``make all`` fails if the Markdown build emits a warning. Because
+the CI of a pull request does not run this build, run it yourself before you
+open a pull request that changes a custom Sphinx directive, role, or node.
 
 Run ``make clean`` before you switch between ``make html`` and ``make all`` in
 the same build directory. Otherwise, HTML pages that have not changed do not
