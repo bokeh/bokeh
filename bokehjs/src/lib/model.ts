@@ -9,11 +9,12 @@ import {dict} from "./core/util/object"
 import type {Comparator} from "core/util/eq"
 import {equals} from "core/util/eq"
 import {logger} from "./core/logging"
+import {Signal} from "./core/signaling"
 import type {CallbackLike0} from "./core/util/callbacks"
 import {execute} from "./core/util/callbacks"
 import {SyncPolicyQueue} from "./core/util/sync_policy"
 import type {SyncPolicy, SyncPolicyKind} from "./core/util/sync_policy"
-import {KeyVal, Mapping, Str, Float, List, Func, Enum, Null, Or, Tuple} from "core/kinds"
+import {KeyVal, Str, Float, List, Enum, Null, Or, Tuple} from "core/kinds"
 import type {Infer} from "core/kinds"
 
 export type ModelSelector<T extends HasProps> = HasPropsClass<T> | string | {type: string}
@@ -21,9 +22,6 @@ export type ModelSelector<T extends HasProps> = HasPropsClass<T> | string | {typ
 export type ChangeCallback = CallbackLike0<Model>
 
 export type EventCallback<T extends ModelEvent = ModelEvent> = CallbackLike0<T>
-
-const JSCallbacks = Mapping(Str, List(Func<[], void>()))
-type JSCallbacks = Infer<typeof JSCallbacks>
 
 export const CallbackPolicy = Or(
   Tuple(Enum("immediate"), Null),
@@ -61,7 +59,6 @@ export namespace Model {
     _js_event_callbacks: p.Property<Dict<EventCallback[]>>
     _subscribed_changes: p.Property<SubscribedChanges>
     _subscribed_events: p.Property<Set<string>>
-    _js_callbacks: p.Property<JSCallbacks>
   }
 }
 
@@ -69,6 +66,8 @@ export interface Model extends Model.Attrs {}
 
 export abstract class Model extends HasProps {
   declare properties: Model.Props
+
+  private readonly _js_callbacks: [Signal<unknown, object>, () => void][] = []
 
   protected readonly _js_callback_queue = new SyncPolicyQueue<ChangeCallback, JSCallbackQueueKey>((callback) => {
     void execute(callback, this)
@@ -104,10 +103,6 @@ export abstract class Model extends HasProps {
       _subscribed_events:             [ Set(Str), new globalThis.Set() ],
       syncable:                       [ Bool, true ],
     }))
-
-    this.internal<Model.Internal>({
-      _js_callbacks: [ JSCallbacks, new Map(), {readonly: true} ],
-    })
   }
 
   override connect_signals(): void {
@@ -151,25 +146,39 @@ export abstract class Model extends HasProps {
   protected _update_property_callbacks(): void {
     this._reconcile_js_callback_queue()
     const signal_for = (event: string) => {
-      const [evt, attr=null] = event.split(":")
-      return attr != null ? (this.properties as any)[attr][evt] : (this as any)[evt]
+      const invalid = (reason: string) => {
+        logger.warn(`cannot connect JS callbacks for '${event}' on ${this}: ${reason}`)
+        return null
+      }
+      const match = /^([^:]+)(?::([^:]+))?$/.exec(event)
+      if (match == null) {
+        return invalid("invalid event name")
+      }
+      const [, signal_name, attr = null] = match
+      if (attr != null && !Object.hasOwn(this.properties, attr)) {
+        return invalid(`property '${attr}' does not exist`)
+      }
+      const obj = attr != null ? this.property(attr) : this
+      const signal = (obj as any)[signal_name]
+      if (!(signal instanceof Signal)) {
+        return invalid(`signal '${signal_name}' does not exist`)
+      }
+      return signal
     }
 
-    for (const [event, callbacks] of this._js_callbacks) {
-      const signal = signal_for(event)
-      for (const cb of callbacks) {
-        this.disconnect(signal, cb)
-      }
+    for (const [signal, callback] of this._js_callbacks) {
+      this.disconnect(signal, callback)
     }
-    this._js_callbacks.clear()
+    this._js_callbacks.length = 0
 
     for (const [event, callbacks] of dict(this._js_property_callbacks)) {
-      const wrappers = callbacks.length == 0 ? [] : [() => this._schedule_property_callbacks(event)]
-      this._js_callbacks.set(event, wrappers)
       const signal = signal_for(event)
-      for (const cb of wrappers) {
-        this.connect(signal, cb)
+      if (signal == null || callbacks.length == 0) {
+        continue
       }
+      const callback = () => this._schedule_property_callbacks(event)
+      this.connect(signal, callback)
+      this._js_callbacks.push([signal, callback])
     }
   }
 
