@@ -73,6 +73,10 @@ New features
 Removals
 --------
 
+* Removed ``setter`` from public document, model, source, and protocol patch
+  methods. Property changes no longer invoke overrides of ``Model.trigger()``.
+  Use ``Model.on_change()`` to observe property changes.
+
 * Removed support for Python 3.12. Bokeh now requires Python 3.13 or newer.
 
 * Replaced ``serverdir()`` and ``bokehjsdir()`` with ``server_path()`` and

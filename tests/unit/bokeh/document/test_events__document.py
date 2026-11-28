@@ -172,11 +172,13 @@ class TestModelChangedEvent:
         e2 = bde.DocumentPatchedEvent(doc, "setter", "invoker")
         assert e.combine(e2) is False
 
-    def test_combine_ignores_different_setter(self) -> None:
+    def test_combine_different_setters_broadcasts_final_value(self) -> None:
         doc = Document()
         e = bde.ModelChangedEvent(doc, "model", "attr", "new", "setter")
         e2 = bde.ModelChangedEvent(doc, "model", "attr", "new2", "setter2")
-        assert e.combine(e2) is False
+        assert e.combine(e2) is True
+        assert e.new == "new2"
+        assert e.setter is None
 
     def test_combine_ignores_different_doc(self) -> None:
         doc = Document()
@@ -405,13 +407,14 @@ class TestTitleChangedEvent:
         assert e.title == "title"
         assert e.callback_invoker == "invoker"
 
-    def test_combine_ignores_different_setter(self) -> None:
+    def test_combine_different_setters_broadcasts_final_title(self) -> None:
         doc = Document()
         e = bde.TitleChangedEvent(doc, "title", "setter", "invoker")
         e2 = bde.TitleChangedEvent(doc, "title2", "setter2", "invoker2")
-        assert e.combine(e2) is False
-        assert e.title == "title"
-        assert e.callback_invoker == "invoker"
+        assert e.combine(e2) is True
+        assert e.title == "title2"
+        assert e.setter is None
+        assert e.callback_invoker == "invoker2"
 
     def test_combine_ignores_different_doc(self) -> None:
         doc = Document()

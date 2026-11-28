@@ -104,7 +104,7 @@ def test_binary_selection_patch(attr: str, hold: bool) -> None:
                        buffers=[Buffer(id="indices", data=indices.tobytes())])
     setter = object()
 
-    doc.apply_json_patch(patch, setter=setter)
+    doc._apply_json_patch(patch, setter=setter)
     if hold:
         assert changes == []
         doc.unhold()
@@ -148,7 +148,7 @@ def test_shared_multiline_patch_forwarding(hold: bool) -> None:
     patch = Serialized(dict(events=[dict(kind="ModelChanged", model=selection.ref, attr="multiline_indices", new=value)]),
                        buffers=[Buffer("values", packed.tobytes())])
     setter = object()
-    doc.apply_json_patch(patch, setter=setter)
+    doc._apply_json_patch(patch, setter=setter)
     if hold:
         assert changes == []
         doc.unhold()

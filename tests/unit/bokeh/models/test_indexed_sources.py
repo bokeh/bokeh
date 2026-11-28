@@ -1,11 +1,13 @@
 import gzip
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 
 import pytest
 
+from bokeh.client.session import ClientSession
 from bokeh.core.validation import check_integrity
 from bokeh.document import Document
 from bokeh.document.events import ModelChangedEvent
+from bokeh.document.origin import Setter
 from bokeh.models import (
     Bezier,
     BoxEditTool,
@@ -30,11 +32,11 @@ from bokeh.models import (
 )
 from bokeh.plotting import figure
 from bokeh.protocol import apply_patch, patch_doc
+from bokeh.protocol.messages import apply_patch_with_origin
 
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from bokeh.core.has_props import Setter
     from bokeh.models.glyph import Glyph
 
 
@@ -76,8 +78,8 @@ def test_record_source_held_protocol_updates_and_setter() -> None:
     assert events[0].attr == "records"
     received = []
     copy.on_change(received.append)
-    setter = cast("Setter", object())
-    apply_patch(patch_doc(events), copy, setter=setter)
+    setter = Setter(ClientSession())
+    apply_patch_with_origin(patch_doc(events), copy, setter=setter)
     assert other.records == source.records
     assert len(received) == 1
     assert received[0].setter is setter

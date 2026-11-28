@@ -42,6 +42,7 @@ from typing import (
 from urllib.parse import quote_plus
 
 from ..document import Document
+from ..document.origin import Setter
 from ..resources import DEFAULT_SERVER_HTTP_URL, SessionCoordinates
 from ..util.browser import NEW_PARAM
 from ..util.token import generate_jwt_token, generate_session_id
@@ -517,7 +518,7 @@ class ClientSession:
         self._callbacks.add_session_callbacks(self._document.session_callbacks)
 
     def _document_patched(self, event: DocumentPatchedEvent) -> None:
-        if event.setter is self:
+        if event.setter is not None and event.setter.session is self:
             log.debug("Not sending notification back to server for a change it requested")
             return
 
@@ -536,8 +537,8 @@ class ClientSession:
     def _handle_patch(self, message: Message[Any]) -> None:
         document = self.document
         assert document is not None
-        from ..protocol import apply_patch
-        apply_patch(message, document, self)
+        from ..protocol.messages import apply_patch_with_origin
+        apply_patch_with_origin(message, document, setter=Setter(self))
 
     def _loop_until_closed(self) -> None:
         ''' Execute a blocking loop that runs and executes event callbacks

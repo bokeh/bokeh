@@ -635,7 +635,7 @@ class ColumnDataSource(ColumnarDataSource):
         self._stream(new_data, rollover)
 
     def _stream(self, new_data: DataDictArg | pd.Series | pd.DataFrame,
-            rollover: int | None = None, setter: Setter | None = None) -> None:
+            rollover: int | None = None, *, setter: Setter | None = None) -> None:
         ''' Internal implementation to efficiently update data source columns
         with new append-only data. The internal implementation adds the setter
         attribute.  [https://github.com/bokeh/bokeh/issues/6577]
@@ -660,15 +660,12 @@ class ColumnDataSource(ColumnarDataSource):
             rollover (int, optional) : A maximum column size, above which data
                 from the start of the column begins to be discarded. If None,
                 then columns will continue to grow unbounded (default: None)
-            setter (ClientSession or ServerSession or None, optional) :
+            setter (Setter or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
                 (default: None)
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
+                Incoming updates carry the originating session and, on a server,
+                the connection through subsequent change notifications.
+                The recipient uses this value to suppress echoes to the origin.
         Returns:
             None
 
@@ -759,7 +756,7 @@ class ColumnDataSource(ColumnarDataSource):
 
         self.data._stream(self.document, self, new_data, rollover, setter)
 
-    def patch(self, patches: Patches, setter: Setter | None = None) -> None:
+    def patch(self, patches: Patches) -> None:
         ''' Efficiently update data source columns at specific locations
 
         If it is only necessary to update a small subset of data in a
@@ -824,9 +821,6 @@ class ColumnDataSource(ColumnarDataSource):
 
         Args:
             patches (dict[str, list[tuple]]) : lists of patches for each column
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
 
         Returns:
             None
@@ -858,6 +852,9 @@ class ColumnDataSource(ColumnarDataSource):
         For a more comprehensive example, see :bokeh-tree:`examples/server/app/patch_app.py`.
 
         '''
+        self._patch(patches)
+
+    def _patch(self, patches: Patches, *, setter: Setter | None = None) -> None:
         extra = set(patches.keys()) - set(self.data.keys())
 
         if extra:

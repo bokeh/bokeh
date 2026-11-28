@@ -19,8 +19,7 @@ from typing import (
     overload,
 )
 
-from ..client.session import ClientSession
-from ..server.session import ServerSession
+from ..document.origin import Setter as Setter
 from ..util.compiler import Implementation
 from .property.bases import Property
 from .property.dataspec import DataSpec
@@ -31,8 +30,6 @@ from .serialization import (
     Serializable,
     Serializer,
 )
-
-type Setter = ClientSession | ServerSession
 
 def abstract[HasPropsType: type[HasProps]](cls: HasPropsType) -> HasPropsType: ...
 
@@ -91,7 +88,8 @@ class HasProps(Serializable):
     def to_serializable(self, serializer: Serializer) -> ObjectRep: ...
     def _to_serializable(self, serializer: Serializer, overrides: dict[str, Any] | None = None) -> ObjectRep: ...
 
-    def set_from_json(self, name: str, value: Any, *, setter: Setter | None = None) -> None: ...
+    def set_from_json(self, name: str, value: Any) -> None: ...
+    def _set_from_json(self, name: str, value: Any, *, setter: Setter | None = None) -> None: ...
 
     def update(self, **kwargs: Any) -> None: ...
 

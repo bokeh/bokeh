@@ -36,10 +36,8 @@ be separated. Consider the alternative sequence of events:
         -> registered callbacks are executed
         -> Session callback suppresses outgoing event
 
-As a final note, message "ping-pong" is avoided by recording a "setter" when
-events objects are created. If the session callback notes the event setter is
-itself, then no further action (e.g. sending an outgoing change event identical
-to the incoming event it just processed) is taken.
+Message "ping-pong" is avoided by recording an origin on events. A session
+uses that origin to avoid sending an incoming change back to its source.
 
 '''
 
@@ -167,11 +165,11 @@ class SessionCallbackRemovedMixin(Protocol):
 @runtime_checkable
 class StreamableDataSource(Protocol):
     def _stream(self, new_data: DataDict | pd.Series[Any] | pd.DataFrame,  # pyright: ignore[reportInvalidTypeArguments]
-            rollover: int | None = None, setter: Setter | None = None) -> None: ...
+            rollover: int | None = None, *, setter: Setter | None = None) -> None: ...
 
 @runtime_checkable
 class PatchableDataSource(Protocol):
-    def patch(self, patches: Patches, setter: Setter | None = None) -> None: ...
+    def _patch(self, patches: Patches, *, setter: Setter | None = None) -> None: ...
 
 class DocumentChangedEvent:
     ''' Base class for all internal events representing a change to a
@@ -190,16 +188,13 @@ class DocumentChangedEvent:
             document (Document) :
                 A Bokeh document that is to be updated.
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter (Setter or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
                 (default: None)
 
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
+                Incoming updates carry the originating session and, on a server,
+                the connection through subsequent change notifications.
+                The recipient uses this value to suppress echoes to the origin.
 
             callback_invoker (callable, optional) :
                 A callable that will invoke any Model callbacks that should
@@ -348,7 +343,7 @@ class ModelChangedEvent(DocumentPatchedEvent, kind="ModelChanged"):
             new (object) :
                 The new value of the attribute
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter (Setter or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
                 (default: None)
 
@@ -376,14 +371,12 @@ class ModelChangedEvent(DocumentPatchedEvent, kind="ModelChanged"):
         if not isinstance(event, ModelChangedEvent):
             return False
 
-        # If these are not true something weird is going on, maybe updates from
-        # Python bokeh.client, don't try to combine
-        if self.setter != event.setter:
-            return False
         if self.document != event.document:
             return False
 
         if (self.model == event.model) and (self.attr == event.attr) and (self.callback_policy == event.callback_policy):
+            if self.setter != event.setter:
+                self.setter = None
             self.new = event.new
             self._representation = event._representation
             self.callback_invoker = event.callback_invoker
@@ -438,7 +431,7 @@ class ModelChangedEvent(DocumentPatchedEvent, kind="ModelChanged"):
         attr = event.attr
         value = event.new
         if event.callback_policy is None:
-            model.set_from_json(attr, value, setter=event.setter)
+            model._set_from_json(attr, value, setter=event.setter)
         else:
             model._set_from_json_with_callback_policy(attr, value, event.callback_policy, setter=event.setter)
 
@@ -469,7 +462,7 @@ class ColumnDataChangedEvent(DocumentPatchedEvent, kind="ColumnDataChanged"):
                 optional explicit list of column names to update. If None, all
                 columns will be updated (default: None)
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter (Setter or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
                 (default: None)
 
@@ -540,7 +533,7 @@ class ColumnDataChangedEvent(DocumentPatchedEvent, kind="ColumnDataChanged"):
         model = event.model
         attr = event.attr
         data = event.data
-        model.set_from_json(attr, data, setter=event.setter)
+        model._set_from_json(attr, data, setter=event.setter)
 
 class ColumnsStreamedEvent(DocumentPatchedEvent, kind="ColumnsStreamed"):
     ''' A concrete event representing efficiently streaming new data
@@ -576,7 +569,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent, kind="ColumnsStreamed"):
                 limit, earlier values will be discarded to maintain the
                 column length under the limit.
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter (Setter or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
                 (default: None)
 
@@ -654,7 +647,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent, kind="ColumnsStreamed"):
         rollover = event.rollover
         if not isinstance(model, StreamableDataSource):
             raise RuntimeError(f"expected streamable data source, got {model!r}")
-        model._stream(data, rollover, event.setter)
+        model._stream(data, rollover, setter=event.setter)
 
 class ColumnsPatchedEvent(DocumentPatchedEvent, kind="ColumnsPatched"):
     ''' A concrete event representing efficiently applying data patches
@@ -680,7 +673,7 @@ class ColumnsPatchedEvent(DocumentPatchedEvent, kind="ColumnsPatched"):
 
             patches (list) : patches
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter (Setter or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
                 (default: None)
 
@@ -744,7 +737,7 @@ class ColumnsPatchedEvent(DocumentPatchedEvent, kind="ColumnsPatched"):
         patches = event.patches
         if not isinstance(model, PatchableDataSource):
             raise RuntimeError(f"expected patchable data source, got {model!r}")
-        model.patch(patches, event.setter)
+        model._patch(patches, setter=event.setter)
 
 class TitleChangedEvent(DocumentPatchedEvent, kind="TitleChanged"):
     ''' A concrete event representing a change to the title of a Bokeh
@@ -768,7 +761,7 @@ class TitleChangedEvent(DocumentPatchedEvent, kind="TitleChanged"):
             title (str) :
                 The new title to set on the Document
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter (Setter or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
                 (default: None)
 
@@ -792,13 +785,11 @@ class TitleChangedEvent(DocumentPatchedEvent, kind="TitleChanged"):
         if not isinstance(event, TitleChangedEvent):
             return False
 
-        # If these are not true something weird is going on, maybe updates from
-        # Python bokeh.client, don't try to combine
-        if self.setter != event.setter:
-            return False
         if self.document != event.document:
             return False
 
+        if self.setter != event.setter:
+            self.setter = None
         self.title = event.title
         self.callback_invoker = event.callback_invoker
         return True
@@ -830,7 +821,7 @@ class TitleChangedEvent(DocumentPatchedEvent, kind="TitleChanged"):
 
     @staticmethod
     def _handle_event(doc: Document, event: TitleChangedEvent) -> None:
-        doc.set_title(event.title, event.setter)
+        doc._set_title(event.title, setter=event.setter)
 
 class RootAddedEvent(DocumentPatchedEvent, kind="RootAdded"):
     ''' A concrete event representing a change to add a new Model to a
@@ -850,7 +841,7 @@ class RootAddedEvent(DocumentPatchedEvent, kind="RootAdded"):
             model (Model) :
                 The Bokeh Model to add as a Document root.
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter (Setter or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
                 (default: None)
 
@@ -894,7 +885,7 @@ class RootAddedEvent(DocumentPatchedEvent, kind="RootAdded"):
     @staticmethod
     def _handle_event(doc: Document, event: RootAddedEvent) -> None:
         model = event.model
-        doc.add_root(model, event.setter)
+        doc._add_root(model, setter=event.setter)
 
 class RootRemovedEvent(DocumentPatchedEvent, kind="RootRemoved"):
     ''' A concrete event representing a change to remove an existing Model
@@ -914,7 +905,7 @@ class RootRemovedEvent(DocumentPatchedEvent, kind="RootRemoved"):
             model (Model) :
                 The Bokeh Model to remove as a Document root.
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter (Setter or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
                 (default: None)
 
@@ -959,7 +950,7 @@ class RootRemovedEvent(DocumentPatchedEvent, kind="RootRemoved"):
     @staticmethod
     def _handle_event(doc: Document, event: RootRemovedEvent) -> None:
         model = event.model
-        doc.remove_root(model, event.setter)
+        doc._remove_root(model, setter=event.setter)
 
 class SessionCallbackAdded(DocumentChangedEvent):
     ''' A concrete event representing a change to add a new callback (e.g.

@@ -358,7 +358,7 @@ class TestDocument:
         event = ModelChangedEvent(d, d.config, "color_scheme", "dark")
         patch = patch_doc([event]).content
 
-        d.apply_json_patch(patch, setter=setter)
+        d._apply_json_patch(patch, setter=setter)
 
         assert d.config.color_scheme == "dark"
         assert len(events) == 1

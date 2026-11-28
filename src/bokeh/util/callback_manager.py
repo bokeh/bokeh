@@ -169,9 +169,13 @@ class PropertyCallbackManager:
             _callbacks.remove(callback)
 
     def trigger(self, attr: str, old: Any, new: Any,
-            hint: DocumentPatchedEvent | None = None, setter: Setter | None = None) -> None:
+            hint: DocumentPatchedEvent | None = None) -> None:
         ''' Trigger callbacks for ``attr`` on this object.
         '''
+        self._trigger(attr, old, new, hint=hint)
+
+    def _trigger(self, attr: str, old: Any, new: Any,
+            hint: DocumentPatchedEvent | None = None, *, setter: Setter | None = None) -> None:
         selected = self._callbacks_for_change(attr, old)
         def invoke() -> None:
             callbacks, callback_old = selected if selected is not None else (self._callbacks.get(attr), old)

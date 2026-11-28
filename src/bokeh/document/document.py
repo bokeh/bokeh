@@ -467,7 +467,7 @@ class Document:
         cb = PeriodicCallback(callback=_no_op_callback, period=period_milliseconds, callback_id=make_id())
         return self.callbacks.add_session_callback(cb, callback, one_shot=False)
 
-    def add_root(self, model: Model, setter: Setter | None = None) -> None:
+    def add_root(self, model: Model) -> None:
         ''' Add a model as a root of this Document.
 
         Any changes to this model (including to other models referred to
@@ -478,18 +478,10 @@ class Document:
             model (Model) :
                 The model to add as a root of this document.
 
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
-
         '''
+        self._add_root(model)
+
+    def _add_root(self, model: Model, *, setter: Setter | None = None) -> None:
         if model in self._roots:
             return
 
@@ -521,28 +513,20 @@ class Document:
         cb = TimeoutCallback(callback=_no_op_callback, timeout=timeout_milliseconds, callback_id=make_id())
         return self.callbacks.add_session_callback(cb, callback, one_shot=True)
 
-    def apply_json_patch(self, patch_json: PatchJson | Serialized[PatchJson], *, setter: Setter | None = None) -> None:
+    def apply_json_patch(self, patch_json: PatchJson | Serialized[PatchJson]) -> None:
         ''' Apply a JSON patch object and process any resulting events.
 
         Args:
             patch_json (JSON-data) :
                 The JSON-object containing the patch to apply.
 
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
-
         Returns:
             None
 
         '''
+        self._apply_json_patch(patch_json)
+
+    def _apply_json_patch(self, patch_json: PatchJson | Serialized[PatchJson], *, setter: Setter | None = None) -> None:
         deserializer = Deserializer(list(self.models), setter=setter)
 
         try:
@@ -792,7 +776,7 @@ side of a communications channel while it was being removed on the other end.\
         '''
         self.callbacks.remove_session_callback(callback_obj)
 
-    def remove_root(self, model: Model, setter: Setter | None = None) -> None:
+    def remove_root(self, model: Model) -> None:
         ''' Remove a model as root model from this Document.
 
         Changes to this model may still trigger ``on_change`` callbacks
@@ -803,18 +787,10 @@ side of a communications channel while it was being removed on the other end.\
             model (Model) :
                 The model to add as a root of this document.
 
-            setter (ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-                (default: None)
-
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
-
         '''
+        self._remove_root(model)
+
+    def _remove_root(self, model: Model, *, setter: Setter | None = None) -> None:
         if model not in self._roots:
             return
 
@@ -910,7 +886,10 @@ side of a communications channel while it was being removed on the other end.\
             for key, val in updates.items():
                 setattr(obj, key, val)
 
-    def set_title(self, title: str, setter: Setter | None = None) -> None:
+    def set_title(self, title: str) -> None:
+        self._set_title(title)
+
+    def _set_title(self, title: str, *, setter: Setter | None = None) -> None:
         '''
 
         '''

@@ -876,7 +876,7 @@ class Deserializer:
         if attributes is not None:
             decoded_attributes = {key: self._decode(val) for key, val in attributes.items()}
             for key, val in decoded_attributes.items():
-                instance.set_from_json(key, val, setter=self._setter)
+                instance._set_from_json(key, val, setter=self._setter)
 
     def _resolve_type(self, type: str) -> type[Model]:
         from ..model import Model

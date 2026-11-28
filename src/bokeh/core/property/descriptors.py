@@ -119,8 +119,8 @@ class _HasOverriddenDefaults(Protocol):
     def _overridden_defaults(self) -> Mapping[str, Any]: ...
 
 class _HasTrigger(Protocol):
-    def trigger(self, attr: str, old: Any, new: Any,
-            hint: DocumentPatchedEvent | None = None, setter: Setter | None = None) -> None: ...
+    def _trigger(self, attr: str, old: Any, new: Any,
+            hint: DocumentPatchedEvent | None = None, *, setter: Setter | None = None) -> None: ...
 
 class _DataSpecProperty(Protocol):
     value_type: Property[Any]
@@ -387,16 +387,13 @@ class PropertyDescriptor[GetType, SetType = GetType]:
             value (obj) :
                 The new value to set the property to
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter (Setter or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
                 (default: None)
 
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
+                Incoming updates carry the originating session and, on a server,
+                the connection through subsequent change notifications.
+                The recipient uses this value to suppress echoes to the origin.
 
         Returns:
             None
@@ -502,16 +499,13 @@ class PropertyDescriptor[GetType, SetType = GetType]:
 
             value (JSON-value) : value to set to the attribute to
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter (Setter or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
                 (default: None)
 
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
+                Incoming updates carry the originating session and, on a server,
+                the connection through subsequent change notifications.
+                The recipient uses this value to suppress echoes to the origin.
 
         Returns:
             None
@@ -703,16 +697,13 @@ class PropertyDescriptor[GetType, SetType = GetType]:
                 update performance can be obtained by special-casing in
                 some way (e.g. streaming or patching column data sources)
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter (Setter or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
                 (default: None)
 
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
+                Incoming updates carry the originating session and, on a server,
+                the connection through subsequent change notifications.
+                The recipient uses this value to suppress echoes to the origin.
 
         Returns:
             None
@@ -802,25 +793,22 @@ class PropertyDescriptor[GetType, SetType = GetType]:
                 update performance can be obtained by special-casing in
                 some way (e.g. streaming or patching column data sources)
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter (Setter or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
                 (default: None)
 
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
+                Incoming updates carry the originating session and, on a server,
+                the connection through subsequent change notifications.
+                The recipient uses this value to suppress echoes to the origin.
 
 
         Returns:
             None
 
         """
-        if hasattr(obj, 'trigger'):
+        if hasattr(obj, '_trigger'):
             notification_old = OldValueUnavailable if old is Undefined else old
-            cast(_HasTrigger, obj).trigger(self.name, notification_old, value, hint, setter)
+            cast(_HasTrigger, obj)._trigger(self.name, notification_old, value, hint, setter=setter)
 
 
 _CDS_SET_FROM_CDS_ERROR = """
@@ -854,16 +842,13 @@ class ColumnDataPropertyDescriptor(PropertyDescriptor[Any]):
             value (obj) :
                 The new value to set the property to
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter (Setter or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
                 (default: None)
 
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
+                Incoming updates carry the originating session and, on a server,
+                the connection through subsequent change notifications.
+                The recipient uses this value to suppress echoes to the origin.
 
         Returns:
             None
@@ -916,16 +901,13 @@ class DataSpecPropertyDescriptor(PropertyDescriptor[Any]):
 
             value (JSON-dict) : value to set
 
-            setter (ClientSession or ServerSession or None, optional) :
+            setter (Setter or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
                 (default: None)
 
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
+                Incoming updates carry the originating session and, on a server,
+                the connection through subsequent change notifications.
+                The recipient uses this value to suppress echoes to the origin.
 
         Returns:
             None

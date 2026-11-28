@@ -22,6 +22,7 @@ import pytest
 
 from bokeh.core.properties import Int
 from bokeh.document import Document
+from bokeh.document.origin import Setter
 from bokeh.io import curdoc
 from bokeh.model import Model
 from bokeh.models import ColumnDataSource
@@ -348,8 +349,8 @@ async def test_selection_patch_callbacks_forwarding_and_setter_suppression(attr:
         actual = getattr(selection, attr)
         assert actual == expected
         assert isinstance(actual[7] if attr == "multiline_indices" else actual, list)
-        # A hold released after the originating request has finished forwards to both clients.
-        assert len(origin.messages) == int(hold)
+        # A hold released after the request retains the originating connection.
+        assert origin.messages == []
         assert len(peer.messages) == 1
         message = peer.messages[0]
         assert len(message.buffers) == 1
@@ -371,5 +372,107 @@ async def test_selection_patch_callbacks_forwarding_and_setter_suppression(attr:
         reply = pull_doc_reply("request", document)
         restored = Document.from_json(Serialized(reply.content["doc"], reply.buffers))
         assert getattr(restored.roots[0], attr) == value([1, 9])
+    finally:
+        executor.shutdown()
+
+
+@pytest.mark.parametrize("kind", ["stream", "patch"])
+async def test_source_change_origin_survives_hold(kind: str) -> None:
+    from bokeh.document.events import ColumnsPatchedEvent, ColumnsStreamedEvent
+    from bokeh.protocol import patch_doc
+
+    source = ColumnDataSource(data=dict(x=[1]))
+    document = Document()
+    document.add_root(source)
+    executor = _ServerExecutor(max_workers=1)
+    session, origin, connection = make_connection(document, executor)
+    peer = RecordingSocket()
+    ServerConnection(peer, session)
+    event = (ColumnsStreamedEvent(document, source, "data", dict(x=[2])) if kind == "stream" else
+             ColumnsPatchedEvent(document, source, "data", dict(x=[(0, 2)])))
+    try:
+        await session.with_document_locked(document.hold)
+        await connection.handle(patch_doc([event]))
+        await session.with_document_locked(document.unhold)
+        assert origin.messages == []
+        assert len(peer.messages) == 1
+        assert source.data["x"] == ([1, 2] if kind == "stream" else [2])
+    finally:
+        executor.shutdown()
+
+
+async def test_held_changes_from_different_connections_reach_both_clients() -> None:
+    from bokeh.document.events import ModelChangedEvent
+    from bokeh.protocol import patch_doc
+
+    model = SomeModelInTestServerSession()
+    document = Document()
+    document.add_root(model)
+    executor = _ServerExecutor(max_workers=1)
+    session, first, first_connection = make_connection(document, executor)
+    second = RecordingSocket()
+    second_connection = ServerConnection(second, session)
+    try:
+        await session.with_document_locked(document.hold)
+        await first_connection.handle(patch_doc([ModelChangedEvent(document, model, "value", 1)]))
+        await second_connection.handle(patch_doc([ModelChangedEvent(document, model, "value", 2)]))
+        await session.with_document_locked(document.unhold)
+        assert [message.content["events"][0]["new"] for message in first.messages] == [2]
+        assert [message.content["events"][0]["new"] for message in second.messages] == [2]
+    finally:
+        executor.shutdown()
+
+
+async def test_held_titles_from_different_connections_reach_both_clients() -> None:
+    from bokeh.document.events import TitleChangedEvent
+    from bokeh.protocol import patch_doc
+
+    document = Document()
+    executor = _ServerExecutor(max_workers=1)
+    session, first, first_connection = make_connection(document, executor)
+    second = RecordingSocket()
+    second_connection = ServerConnection(second, session)
+    try:
+        await session.with_document_locked(document.hold)
+        await first_connection.handle(patch_doc([TitleChangedEvent(document, "first")]))
+        await second_connection.handle(patch_doc([TitleChangedEvent(document, "second")]))
+        await session.with_document_locked(document.unhold)
+        assert document.title == "second"
+        assert [message.content["events"][0]["title"] for message in first.messages] == ["second"]
+        assert [message.content["events"][0]["title"] for message in second.messages] == ["second"]
+    finally:
+        executor.shutdown()
+
+
+async def test_held_changes_from_same_connection_combine() -> None:
+    from bokeh.document.events import ModelChangedEvent
+    from bokeh.protocol import patch_doc
+
+    model = SomeModelInTestServerSession()
+    document = Document()
+    document.add_root(model)
+    executor = _ServerExecutor(max_workers=1)
+    session, origin, connection = make_connection(document, executor)
+    peer = RecordingSocket()
+    ServerConnection(peer, session)
+    try:
+        await session.with_document_locked(document.hold)
+        await connection.handle(patch_doc([ModelChangedEvent(document, model, "value", 1)]))
+        await connection.handle(patch_doc([ModelChangedEvent(document, model, "value", 2)]))
+        await session.with_document_locked(document.unhold)
+        assert origin.messages == []
+        assert [message.content["events"][0]["new"] for message in peer.messages] == [2]
+    finally:
+        executor.shutdown()
+
+
+def test_patch_origin_equality() -> None:
+    document = Document()
+    executor = _ServerExecutor(max_workers=1)
+    session, _, connection = make_connection(document, executor)
+    other_connection = ServerConnection(RecordingSocket(), session)
+    try:
+        assert Setter(session, connection) == Setter(session, connection)
+        assert Setter(session, connection) != Setter(session, other_connection)
     finally:
         executor.shutdown()
