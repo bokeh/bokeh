@@ -4,7 +4,7 @@
     :title: Quiver vector field
     :keywords: arrows, quiver, vector field
     :categories: topics/vector_fields
-    :apis: bokeh.plotting.figure.arrow, bokeh.models.NormalHead, bokeh.transform.linear_cmap
+    :apis: bokeh.plotting.figure.quiver, bokeh.models.NormalHead, bokeh.transform.linear_cmap
     :refs: :ref:`ug_basic_annotations_arrows`
     :gallery: A vector field with interacting vortices and shear, shown as arrows colored by speed on a dark background.
 
@@ -39,7 +39,6 @@ speed = np.hypot(u, v)
 scale = 0.17/speed.max()
 source = ColumnDataSource(dict(
     x=x, y=y, u=u, v=v, speed=speed,
-    x_end=x + scale*u, y_end=y + scale*v,
     head_size=7*np.sqrt(speed/speed.max()),
 ))
 # Keep the full magnitude color range visible against a dark plot area.
@@ -53,9 +52,9 @@ p = figure(width=900, height=620, match_aspect=True,
 p.grid.grid_line_color = "white"
 p.grid.grid_line_alpha = 0.08
 
-arrows = p.arrow(x_start="x", y_start="y", x_end="x_end", y_end="y_end",
-                 source=source, line_color=color, line_width=1.5,
-                 end=NormalHead(size="head_size", fill_color=color, line_color=color))
+arrows = p.quiver("x", "y", "u", "v", scale=scale, source=source,
+                  line_color=color, line_width=1.5,
+                  end=NormalHead(size="head_size", fill_color=color, line_color=color))
 p.add_tools(HoverTool(renderers=[arrows], tooltips=[
     ("position", "(@x{0.0}, @y{0.0})"),
     ("vector", "(@u{0.0}, @v{0.0})"),

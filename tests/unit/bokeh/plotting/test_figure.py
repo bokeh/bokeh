@@ -51,6 +51,29 @@ from bokeh.plotting import _figure as bpf # isort:skip
 
 class Test_figure:
 
+    def test_quiver_arrays(self) -> None:
+        plot = bpf.figure()
+        renderer = plot.quiver([1, 2], [3, 4], [-2, 0], [0, 3], scale=0.5, line_width=2)
+
+        assert renderer in plot.renderers
+        assert renderer.glyph.line_width == 2
+        np.testing.assert_allclose(renderer.data_source.data["x1"], [0, 2])
+        np.testing.assert_allclose(renderer.data_source.data["y1"], [3, 5.5])
+
+    def test_quiver_column_source(self) -> None:
+        plot = bpf.figure()
+        source = ColumnDataSource(dict(x=[1], y=[2], u=[3], v=[4]))
+        renderer = plot.quiver("x", "y", "u", "v", source=source, scale=2)
+
+        assert renderer.data_source is source
+        assert renderer.glyph.x1.expr.args == dict(origin="x", component="u", scale=2)
+        assert renderer.glyph.y1.expr.args == dict(origin="y", component="v", scale=2)
+        assert list(source.column_names) == ["x", "y", "u", "v"]
+
+    def test_quiver_rejects_mismatched_vectors(self) -> None:
+        with pytest.raises(ValueError, match="equally sized one-dimensional arrays"):
+            bpf.figure().quiver([1], [2], [3, 4], [5])
+
     def test_init(self) -> None:
         f0 = bpf.figure(x_axis_type="linear")
         assert isinstance(f0, bpf.figure)

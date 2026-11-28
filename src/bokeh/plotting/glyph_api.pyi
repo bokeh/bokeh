@@ -536,6 +536,20 @@ class GlyphAPI:
         **kwargs: Unpack[SegmentArgs],
     ) -> GlyphRenderer[glyphs.Segment]: ...
 
+    def quiver(self,
+        x: NumberArg,
+        y: NumberArg,
+        u: NumberArg,
+        v: NumberArg,
+        *,
+        scale: float = ...,
+        start: Marking | None = ...,
+        end: Marking | Literal["auto"] | None = ...,
+        start_inset: NumberArg = ...,
+        end_inset: NumberArg = ...,
+        **kwargs: Unpack[SegmentArgs],
+    ) -> GlyphRenderer[glyphs.Segment]: ...
+
     def whisker(self,
         base: NumberArg = ...,
         lower: NumberArg = ...,
