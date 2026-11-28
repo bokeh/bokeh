@@ -10,4 +10,5 @@ export {Maximum} from "./maximum"
 export {XComponent, YComponent} from "./coordinate_transform"
 export {PolarTransform} from "./polar"
 
+export {QuiverEndpoint} from "./quiver_endpoint"
 export {IndexedLookup} from "./indexed_lookup"

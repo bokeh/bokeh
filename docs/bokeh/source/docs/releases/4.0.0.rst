@@ -70,6 +70,9 @@ New features
   NetworkX graphs. Supply custom node and edge renderers when constructing
   the graph renderer, and update their data through the paired sources.
 
+* Added ``figure.quiver()`` for plotting vector fields from positions and
+  vector components (:bokeh-issue:`15522`).
+
 Removals
 --------
 

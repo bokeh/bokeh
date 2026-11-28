@@ -302,6 +302,7 @@ describe("default model resolver", () => {
       "QUADKEYTileSource",
       "Quad",
       "Quadratic",
+      "QuiverEndpoint",
       "RadioButtonGroup",
       "RadioGroup",
       "Range",

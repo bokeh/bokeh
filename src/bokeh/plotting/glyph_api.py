@@ -126,6 +126,39 @@ Examples:
             renderer.add_path_marking(end, at="end", inset=end_inset)
         return renderer
 
+    def quiver(self, x: Any, y: Any, u: Any, v: Any, *,
+            scale: float = 1, **kwargs: Any) -> GlyphRenderer:
+        """Draw a vector field with arrows anchored at their tails.
+
+        For each point ``(x, y)``, the components ``(u, v)`` define
+        the endpoint ``(x + scale*u, y + scale*v)`` in data coordinates.
+        Set ``match_aspect=True`` on the figure for equal scale on linear axes.
+
+        Supply four equally sized one-dimensional arrays, or four column
+        names with a ``source``. Column-based endpoints are recomputed when
+        the source data changes. Arrow styling and markings are forwarded
+        to :meth:`arrow`.
+        """
+        if kwargs.get("source") is not None:
+            from ..core.property.vectorization import Expr
+            from ..models.expressions import QuiverEndpoint
+
+            if not all(isinstance(column, str) for column in (x, y, u, v)):
+                raise ValueError("x, y, u, and v must be column names when a source is supplied")
+
+            def endpoint(origin: str, component: str) -> Expr:
+                return Expr(QuiverEndpoint(origin=origin, component=component, scale=scale))
+
+            return self.arrow(x, y, endpoint(x, u), endpoint(y, v), **kwargs)
+
+        import numpy as np
+
+        x, y, u, v = (np.asarray(values, dtype=float) for values in (x, y, u, v))
+        if x.ndim != 1 or any(values.shape != x.shape for values in (y, u, v)):
+            raise ValueError("x, y, u, and v must be equally sized one-dimensional arrays")
+
+        return self.arrow(x, y, x + scale*u, y + scale*v, **kwargs)
+
     def whisker(self, base: Any = "base", lower: Any = "lower", upper: Any = "upper", *,
             dimension: DimensionType = "height", cap_size: Any = 10, **kwargs: Any) -> GlyphRenderer:
         """Draw data-coordinate intervals with perpendicular caps.

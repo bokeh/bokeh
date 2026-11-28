@@ -48,6 +48,18 @@ class Stack(Expression):
 
     fields: Sequence[str] = ...
 
+class _QuiverEndpointInit(_ExpressionInit, total=False):
+    origin: str
+    component: str
+    scale: float
+
+class QuiverEndpoint(Expression):
+    def __init__(self, **kwargs: Unpack[_QuiverEndpointInit]) -> None: ...
+
+    origin: str = ...
+    component: str = ...
+    scale: float = ...
+
 class _IndexedLookupInit(_ExpressionInit, total=False):
     source: IndexedDataSource
     field: str

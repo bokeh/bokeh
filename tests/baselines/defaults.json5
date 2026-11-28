@@ -2764,6 +2764,18 @@
     },
     direction: "anticlock",
   },
+  QuiverEndpoint: {
+    __extends__: "Expression",
+    origin: {
+      type: "symbol",
+      name: "unset",
+    },
+    component: {
+      type: "symbol",
+      name: "unset",
+    },
+    scale: 1,
+  },
   ScalarExpression: {
     __extends__: "Model",
   },
