@@ -886,7 +886,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         self._incoming_callback_policy = (descriptor.name, policy, callback_old)
         self._incoming_callback_dispatched = False
         try:
-            self.set_from_json(descriptor.name, value, setter=setter)
+            self._set_from_json(descriptor.name, value, setter=setter)
         finally:
             self._incoming_callback_policy = None
 
@@ -997,10 +997,14 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         return ModelChangedEvent(document, self, attr, new, setter, callback_invoker, self._callback_policy_for_change(attr))
 
     def trigger(self, attr: str, old: Any, new: Any,
-            hint: DocumentPatchedEvent | None = None, setter: Setter | None = None) -> None:
+            hint: DocumentPatchedEvent | None = None) -> None:
         '''
 
         '''
+        self._trigger(attr, old, new, hint=hint)
+
+    def _trigger(self, attr: str, old: Any, new: Any,
+            hint: DocumentPatchedEvent | None = None, *, setter: Setter | None = None) -> None:
 
         # The explicit assumption here is that hinted events do not need to
         # go through all the same invalidation steps. Currently this is the
@@ -1020,7 +1024,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
                 if dirty_count > 0:
                     self.document.models.invalidate()
         # chain up to invoke callbacks
-        super().trigger(descriptor.name, old, new, hint=hint, setter=setter)
+        super()._trigger(descriptor.name, old, new, hint=hint, setter=setter)
         if self._incoming_callback_policy is None:
             for _, policy in self._callback_policies.get(descriptor.name, []):
                 self._callback_policy_values[(descriptor.name, policy)] = new

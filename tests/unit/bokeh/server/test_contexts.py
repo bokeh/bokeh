@@ -691,14 +691,14 @@ curdoc().template_variables["thread_id"] = get_ident()
         slider.on_change("value", model_callback)
         session.document.on_change(document_callback)
 
-        def apply_patch(message, doc, setter):
+        def apply_patch(message, doc, *, setter):
             nonlocal apply_thread
             apply_thread = get_ident()
             assert doc is session.document
-            assert setter is session
+            assert setter.session is session
             slider.value = 1
 
-        monkeypatch.setattr("bokeh.server.session.apply_patch", apply_patch)
+        monkeypatch.setattr("bokeh.server.session.apply_patch_with_origin", apply_patch)
 
         class Message:
             pass

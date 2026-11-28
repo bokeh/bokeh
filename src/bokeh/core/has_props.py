@@ -66,8 +66,6 @@ from .serialization import (
 )
 
 if TYPE_CHECKING:
-    from ..client.session import ClientSession
-    from ..server.session import ServerSession
     from ..util.compiler import Implementation
     from .property.bases import Property
     from .property.dataspec import DataSpec
@@ -92,7 +90,9 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    type Setter = ClientSession | ServerSession
+    from ..document.origin import Setter as OriginSetter
+
+    type Setter = OriginSetter
 
 _abstract_classes: WeakSet[type[HasProps]] = WeakSet()
 
@@ -562,7 +562,7 @@ class HasProps(Serializable):
         return ObjectRep({"$type": self.__qualified_model__, **attributes})
 
     # FQ type name required to suppress Sphinx error "more than one target found for cross-reference 'JSON'"
-    def set_from_json(self, name: str, value: Any, *, setter: Setter | None = None) -> None:
+    def set_from_json(self, name: str, value: Any) -> None:
         ''' Set a property value on this object from JSON.
 
         Args:
@@ -570,20 +570,13 @@ class HasProps(Serializable):
 
             value (JSON-value) : value to set to the attribute to
 
-            setter(ClientSession or ServerSession or None, optional) :
-                This is used to prevent "boomerang" updates to Bokeh apps.
-
-                In the context of a Bokeh server application, incoming updates
-                to properties will be annotated with the session that is
-                doing the updating. This value is propagated through any
-                subsequent change notifications that the update triggers.
-                The session can compare the event setter to itself, and
-                suppress any updates that originate from itself.
-
         Returns:
             None
 
         '''
+        self._set_from_json(name, value)
+
+    def _set_from_json(self, name: str, value: Any, *, setter: Setter | None = None) -> None:
         if name in self.properties():
             log.trace("Patching attribute %r of %r with %r", name, self, value) # type: ignore[attr-defined]
             descriptor = self.lookup(name)

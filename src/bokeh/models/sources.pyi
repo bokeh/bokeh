@@ -25,7 +25,6 @@ if TYPE_CHECKING:
     from pandas.core.groupby import GroupBy
 
 from .._types import JSON
-from ..core.has_props import Setter
 from ..core.types import PathLike
 from ..model.model import Model, _ModelInit
 from .callbacks import CustomJS
@@ -137,7 +136,7 @@ class ColumnDataSource(ColumnarDataSource):
 
     def stream(self, new_data: DataDictArg, rollover: int | None = ...) -> None: ...
 
-    def patch(self, patches: Patches, setter: Setter | None = ...) -> None: ...
+    def patch(self, patches: Patches) -> None: ...
 
 Geometry = dict[str, Any]
 GeometryData = DataDict

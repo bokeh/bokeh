@@ -36,14 +36,15 @@ from typing import (
 )
 
 from ..document.callbacks import invoke_with_curdoc
+from ..document.origin import Setter
 from ..events import ConnectionLost
 from ..io.doc import patch_curdoc
 from ..protocol import (
-    apply_patch,
     patch_doc,
     pull_doc_reply,
     replace_document,
 )
+from ..protocol.messages import apply_patch_with_origin
 from ..util.asyncio import Loop, _asyncio_loop
 from ..util.token import generate_jwt_token
 from ..util.tornado import _run_in_executor
@@ -179,7 +180,6 @@ class ServerSession:
     '''
 
     _subscribed_connections: set[ServerConnection]
-    _current_patch_connection: ServerConnection | None
     _pending_writes: list[_PendingPatch] | None
 
     def __init__(self, session_id: ID, document: Document, io_loop: Loop | None = None,
@@ -197,7 +197,6 @@ class ServerSession:
         self._connections_lock = threading.Lock()
         self._last_unsubscribe_time = current_time()
         self._lock = asyncio.Lock()
-        self._current_patch_connection = None
         self._document.callbacks.on_change_dispatch_to(self)
         self._callbacks = DocumentCallbackGroup(cast(Any, io_loop))
         self._pending_writes = None
@@ -309,7 +308,8 @@ class ServerSession:
         return wrapped
 
     def _document_patched(self, event: DocumentPatchedEvent) -> None:
-        may_suppress = event.setter is self
+        origin = event.setter
+        origin_connection = origin.connection if origin is not None and origin.session is self else None
 
         if self._pending_writes is None:
             raise RuntimeError("_pending_writes should be non-None when we have a document lock, and we should have the lock when the document changes")
@@ -320,7 +320,7 @@ class ServerSession:
         with self._connections_lock:
             connections = tuple(
                 connection for connection in self._subscribed_connections
-                if not may_suppress or connection is not self._current_patch_connection
+                if connection is not origin_connection
             )
         if connections:
             self._pending_writes.append(_PendingPatch(event, connections))
@@ -366,11 +366,8 @@ class ServerSession:
 
     @_needs_document_lock_on_loop
     async def _handle_patch(self, message: Message[Any], connection: ServerConnection) -> Message[Any]:
-        self._current_patch_connection = connection
-        try:
-            await _run_in_executor(apply_patch, message, self.document, self)
-        finally:
-            self._current_patch_connection = None
+        origin = Setter(self, connection)
+        await self._run_in_executor(partial(apply_patch_with_origin, message, self.document, setter=origin))
 
         return connection.ok(message)
 

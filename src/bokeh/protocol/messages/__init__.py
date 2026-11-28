@@ -17,10 +17,10 @@ from ..exceptions import ProtocolError
 from ..message import Empty, Message
 
 if TYPE_CHECKING:
-    from ...core.has_props import Setter
     from ...core.types import ID
     from ...document.document import DocJson, Document
     from ...document.events import DocumentPatchedEvent
+    from ...document.origin import Setter
 
 __all__ = (
     'ack',
@@ -69,8 +69,11 @@ def patch_doc(events: list[DocumentPatchedEvent]) -> Message[PatchJson]:
     doc.models.flush_synced(lambda model: not serializer.has_ref(model))
     return Message(Message.create_header("PATCH-DOC"), content, serializer.buffers)
 
-def apply_patch(message: Message[Any], document: Document, setter: Setter | None = None) -> None:
-    invoke_with_curdoc(document, lambda: document.apply_json_patch(message.payload, setter=setter))
+def apply_patch(message: Message[Any], document: Document) -> None:
+    apply_patch_with_origin(message, document)
+
+def apply_patch_with_origin(message: Message[Any], document: Document, *, setter: Setter | None = None) -> None:
+    invoke_with_curdoc(document, lambda: document._apply_json_patch(message.payload, setter=setter))
 
 def pull_doc_reply(request_id: ID, document: Document) -> Message[_PullDoc]:
     serialized = document.to_json()

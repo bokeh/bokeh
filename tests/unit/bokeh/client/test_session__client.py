@@ -15,6 +15,11 @@ from __future__ import annotations
 #-----------------------------------------------------------------------------
 from unittest.mock import MagicMock, patch
 
+from bokeh.document import Document
+from bokeh.document.events import ModelChangedEvent, TitleChangedEvent
+from bokeh.models import ColumnDataSource
+from bokeh.protocol import patch_doc
+
 # Module under test
 import bokeh.client.session as bcs # isort:skip
 
@@ -113,6 +118,42 @@ class Test_ClientSession:
         assert mock_force_roundtrip.call_count == 1
         assert mock_force_roundtrip.call_args[0] == ()
         assert mock_force_roundtrip.call_args[1] == {}
+
+    def test_incoming_patch_does_not_echo(self) -> None:
+        session = bcs.ClientSession()
+        document = Document()
+        source = ColumnDataSource(data=dict(x=[1]))
+        document.add_root(source)
+        session._attach_document(document)
+
+        with patch.object(session._connection, "_send_patch_document") as send_patch:
+            session._handle_patch(patch_doc([ModelChangedEvent(document, source, "name", "remote")]))
+            assert source.name == "remote"
+            send_patch.assert_not_called()
+
+            source.name = "local"
+            send_patch.assert_called_once()
+
+    def test_held_remote_title_and_local_override(self) -> None:
+        session = bcs.ClientSession()
+        document = Document()
+        session._attach_document(document)
+
+        with patch.object(session._connection, "_send_patch_document") as send_patch:
+            document.hold()
+            session._handle_patch(patch_doc([TitleChangedEvent(document, "remote")]))
+            document.unhold()
+            send_patch.assert_not_called()
+
+            document.hold()
+            session._handle_patch(patch_doc([TitleChangedEvent(document, "remote again")]))
+            document.title = "local"
+            document.unhold()
+            send_patch.assert_called_once()
+            event = send_patch.call_args.args[1]
+            assert isinstance(event, TitleChangedEvent)
+            assert event.title == "local"
+            assert event.setter is None
 
 #-----------------------------------------------------------------------------
 # Dev API
