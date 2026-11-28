@@ -5,10 +5,14 @@ import {tap, mouse_enter, mouse_leave, show_context_menu} from "#framework/inter
 import {Toolbar} from "@bokehjs/models/tools/toolbar"
 import type {ToolbarView} from "@bokehjs/models/tools/toolbar"
 import {ToolGroup} from "@bokehjs/models/tools/tool_group"
+import {ToolProxy} from "@bokehjs/models/tools/tool_proxy"
 import {HoverTool} from "@bokehjs/models/tools/inspectors/hover_tool"
 import {SelectTool} from "@bokehjs/models/tools/gestures/select_tool"
 import {PanTool} from "@bokehjs/models/tools/gestures/pan_tool"
+import {BoxZoomTool} from "@bokehjs/models/tools/gestures/box_zoom_tool"
+import {WheelZoomTool} from "@bokehjs/models/tools/gestures/wheel_zoom_tool"
 import {TapTool} from "@bokehjs/models/tools/gestures/tap_tool"
+import {ModelChangedEvent} from "@bokehjs/document"
 import {build_view} from "@bokehjs/core/build_views"
 import {gridplot} from "@bokehjs/api/gridplot"
 import {ExamineTool, UndoTool, Plot, CustomAction, Legend, LegendItem, CustomJS, Range1d} from "@bokehjs/models"
@@ -154,6 +158,88 @@ describe("Toolbar", () => {
       expect(hover_1.active).to.be.false
       expect(hover_2.active).to.be.false
       expect(hover_3.active).to.be.false
+    })
+  })
+
+  describe("should reflect the state of gesture tools in active_* properties (issue #15036)", () => {
+    it("when a tool is toggled with its button", async () => {
+      const p = fig([200, 200], {tools: "pan,wheel_zoom", active_scroll: null, toolbar_location: "right"})
+      p.scatter([1, 2, 3], [1, 2, 3])
+      const {view, doc} = await display(p)
+
+      const changes: [string, unknown][] = []
+      doc.on_change((event) => {
+        if (event instanceof ModelChangedEvent && event.model == p.toolbar) {
+          changes.push([event.attr, event.value])
+        }
+      })
+
+      const wheel_zoom = p.toolbar.tools.find((tool) => tool instanceof WheelZoomTool)
+      expect_not_null(wheel_zoom)
+      const toolbar_view = view.owner.get_one(p.toolbar)
+      const button_view = toolbar_view.tool_button_views.find((view) => view.model.tool == wheel_zoom)
+      expect_not_null(button_view)
+
+      button_view.tap()
+      expect(wheel_zoom.active).to.be.true
+      expect(p.toolbar.active_scroll).to.be.equal(wheel_zoom)
+
+      button_view.tap()
+      expect(wheel_zoom.active).to.be.false
+      expect(p.toolbar.active_scroll).to.be.null
+
+      expect(changes).to.be.equal([["active_scroll", wheel_zoom], ["active_scroll", null]])
+    })
+
+    it("when a tool is activated in place of another tool", () => {
+      const pan = PanTool.create()
+      const box_zoom = BoxZoomTool.create()
+      const toolbar = Toolbar.create({tools: [pan, box_zoom]})
+      expect(pan.active).to.be.true
+      expect(toolbar.active_drag).to.be.equal("auto")
+
+      box_zoom.active = true
+      expect(pan.active).to.be.false
+      expect(toolbar.active_drag).to.be.equal(box_zoom)
+    })
+
+    it("in merged toolbars", () => {
+      const p0 = fig([200, 200], {tools: "pan,box_zoom"})
+      const p1 = fig([200, 200], {tools: "pan,box_zoom"})
+      const {toolbar} = gridplot([[p0, p1]])
+      const [, box_zoom] = toolbar.gestures.pan.tools
+      expect_instanceof(box_zoom, ToolProxy)
+
+      box_zoom.active = true
+      expect(toolbar.active_drag).to.be.equal(box_zoom)
+      expect(p0.toolbar.active_drag).to.be.equal(box_zoom.tools[0])
+      expect(p1.toolbar.active_drag).to.be.equal(box_zoom.tools[1])
+    })
+
+    it("so that setting one of them doesn't change other gestures", () => {
+      const pan = PanTool.create()
+      const wheel_zoom = WheelZoomTool.create()
+      const toolbar = Toolbar.create({tools: [pan, wheel_zoom], active_scroll: null})
+
+      wheel_zoom.active = true
+      toolbar.active_drag = null
+      expect(pan.active).to.be.false
+      expect(wheel_zoom.active).to.be.true
+
+      pan.active = true
+      toolbar.active_scroll = null
+      expect(pan.active).to.be.true
+      expect(wheel_zoom.active).to.be.false
+    })
+
+    it("so that setting one of them activates the tool again", () => {
+      const wheel_zoom = WheelZoomTool.create()
+      const toolbar = Toolbar.create({tools: [wheel_zoom], active_scroll: wheel_zoom})
+      expect(wheel_zoom.active).to.be.true
+
+      wheel_zoom.active = false
+      toolbar.active_scroll = wheel_zoom
+      expect(wheel_zoom.active).to.be.true
     })
   })
 })

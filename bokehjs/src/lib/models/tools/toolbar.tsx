@@ -536,7 +536,13 @@ export class ToolbarView extends UIElementView {
 
     for (const tool of this.model.tools) {
       if (tool.event_types.includes("scroll")) {
-        tool.active = force ?? !tool.active
+        // This implements active_scroll="auto", so "auto" isn't replaced with the tool.
+        this.model._activating = true
+        try {
+          tool.active = force ?? !tool.active
+        } finally {
+          this.model._activating = false
+        }
         break
       }
     }
@@ -586,6 +592,17 @@ type ActiveGestureToolsProps = {
   active_scroll: p.Property<GestureToolLike | "auto" | null>
   active_tap: p.Property<GestureToolLike | "auto" | null>
   active_multi: p.Property<GestureToolLike | "auto" | null>
+}
+
+function get_active_attr(et: GestureType): keyof ActiveGestureToolsProps | null {
+  switch (et) {
+    case "tap":    return "active_tap"
+    case "pan":    return "active_drag"
+    case "pinch":
+    case "scroll": return "active_scroll"
+    case "multi":  return "active_multi"
+    default:       return null
+  }
 }
 
 export namespace Toolbar {
@@ -669,6 +686,18 @@ export class Toolbar extends UIElement {
 
   readonly active_changed: Signal0<this> = new Signal0(this, "active_changed")
 
+  /**
+   * Whether the toolbar (de)activates tools itself, e.g. when applying `active_*`
+   * properties. Such changes aren't reflected back in these properties.
+   */
+  _activating: boolean = false
+
+  /**
+   * Whether `active_*` properties are being updated to reflect tools' state, so
+   * there is no need to apply them to tools.
+   */
+  protected _reflecting: boolean = false
+
   get horizontal(): boolean {
     return this.location == "above" || this.location == "below"
   }
@@ -682,8 +711,10 @@ export class Toolbar extends UIElement {
 
     const {tools, active_drag, active_inspect, active_scroll, active_tap, active_multi} = this.properties
     this.on_change([tools, active_drag, active_inspect, active_scroll, active_tap, active_multi], () => {
-      this._init_tools()
-      this._activate_tools(true)
+      if (!this._reflecting) {
+        this._init_tools()
+        this._activate_tools(true)
+      }
     })
   }
 
@@ -735,6 +766,9 @@ export class Toolbar extends UIElement {
   }
 
   protected _activate_tools(emit: boolean): void {
+    const {_activating} = this
+    this._activating = true
+
     if (this.active_inspect == "auto") {
       // do nothing as all tools are active be default
     } else if (this.active_inspect == null) {
@@ -780,21 +814,13 @@ export class Toolbar extends UIElement {
         // XXX: connect once
         this.connect(tool.properties.active.change, () => {
           this._active_change(tool)
+          if (!this._activating) {
+            this._reflect_active(tool.event_role)
+          }
           if (emit) {
             this.active_changed.emit()
           }
         })
-      }
-    }
-
-    function _get_active_attr(et: GestureType): keyof ActiveGestureToolsProps | null {
-      switch (et) {
-        case "tap":    return "active_tap"
-        case "pan":    return "active_drag"
-        case "pinch":
-        case "scroll": return "active_scroll"
-        case "multi":  return "active_multi"
-        default:       return null
       }
     }
 
@@ -837,7 +863,7 @@ export class Toolbar extends UIElement {
 
     for (const et of typed_keys(this.gestures)) {
       const gesture = this.gestures[et]
-      const active_attr = _get_active_attr(et)
+      const active_attr = get_active_attr(et)
       _resolve_gesture_activation(gesture, active_attr)
       if (active_attr != null) {
         const active_tool = this[active_attr]
@@ -863,8 +889,27 @@ export class Toolbar extends UIElement {
       }
     }
 
+    this._activating = _activating
+
     if (emit) {
       this.active_changed.emit()
+    }
+  }
+
+  /**
+   * Updates the `active_*` property of a gesture after its tools were (de)activated
+   * other than by the toolbar, e.g. with their buttons.
+   */
+  protected _reflect_active(et: GestureType): void {
+    const active_attr = get_active_attr(et)
+    if (active_attr != null) {
+      const active_tool = this.gestures[et].tools.find((tool) => tool.active) ?? null
+      this._reflecting = true
+      try {
+        this[active_attr] = active_tool
+      } finally {
+        this._reflecting = false
+      }
     }
   }
 
