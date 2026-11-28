@@ -2,9 +2,10 @@ import type {HasProps, HasPropsFactory} from "../core/has_props"
 import type {Color, Arrayable} from "../core/types"
 import type {Vector} from "../core/vectorization"
 import {isVectorized} from "../core/vectorization"
-import {isPlainObject} from "../core/util/types"
+import {isArrayableOf, isNumber, isPlainObject} from "../core/util/types"
 import type {VectorSpec, ScalarSpec, ColorSpec, UnitsSpec, Property} from "../core/properties"
 import type {Dimension, RenderLevel} from "../core/enums"
+import {is_NDArray} from "core/util/ndarray"
 import type * as nd from "core/util/ndarray"
 
 import type {Glyph, GlyphRenderer, IndexedDataSource, ColumnarDataSource, ColumnDataSource, IndexedSubset, CoordinateMapping} from "./models"
@@ -54,6 +55,7 @@ import {
   Wedge,
 } from "../models/glyphs"
 
+import {QuiverEndpoint} from "../models/expressions/quiver_endpoint"
 import type {Marker} from "../models/glyphs/marker"
 import type {Marking} from "../models/graphics/marking"
 import type {PathPlacement} from "../models/graphics/path_placement"
@@ -162,6 +164,10 @@ type ArrowProps = Omit<Segment.Props, "x0" | "y0" | "x1" | "y1"> & {
   start_inset: Property<PathPlacement["inset"]>
   end_inset: Property<PathPlacement["inset"]>
 }
+
+type QuiverOptions<S extends GlyphSource> = GlyphOptions<Omit<ArrowArgs, "x_start" | "y_start" | "x_end" | "y_end">, S> & {scale?: number}
+type QuiverInput = Arrayable<number> | string
+type QuiverInputs = {x: QuiverInput, y: QuiverInput, u: QuiverInput, v: QuiverInput}
 
 export type WhiskerArgs = Omit<SegmentArgs, "x0" | "y0" | "x1" | "y1"> & {
   base: SegmentArgs["x0"]
@@ -309,6 +315,32 @@ export abstract class GlyphAPI {
       renderer.add_path_marking(end_marking, {at: "end", inset: end_inset})
     }
     return renderer
+  }
+
+  quiver<S extends GlyphSource = ColumnDataSource>(args: QuiverInputs & QuiverOptions<S>): GlyphRendererWithSource<Segment, SourceOf<S>>
+  quiver<S extends GlyphSource = ColumnDataSource>(
+    x: QuiverInput, y: QuiverInput, u: QuiverInput, v: QuiverInput, options?: QuiverOptions<S>,
+  ): GlyphRendererWithSource<Segment, SourceOf<S>>
+  quiver<S extends GlyphSource>(...args: [QuiverInputs & QuiverOptions<S>] |
+      [QuiverInput, QuiverInput, QuiverInput, QuiverInput, QuiverOptions<S>?]): GlyphRenderer<Segment> {
+    const {x, y, u, v, scale = 1, ...options} = args.length == 1 ? args[0] :
+      {x: args[0], y: args[1], u: args[2], v: args[3], ...args[4]}
+    if (options.source != null) {
+      if (typeof x != "string" || typeof y != "string" || typeof u != "string" || typeof v != "string") {
+        throw new Error("x, y, u, and v must be column names when a source is supplied")
+      }
+      const endpoint = (origin: string, component: string) => ({expr: QuiverEndpoint.create({origin, component, scale})})
+      return this.arrow({field: x}, {field: y}, endpoint(x, u), endpoint(y, v), options)
+    }
+    const is_vector = (input: QuiverInput): input is Arrayable<number> =>
+      (!is_NDArray(input) || input.dimension == 1) && isArrayableOf(input, isNumber)
+    if (!is_vector(x) || !is_vector(y) || !is_vector(u) || !is_vector(v) ||
+        x.length != y.length || x.length != u.length || x.length != v.length) {
+      throw new Error("x, y, u, and v must be equally sized one-dimensional arrays")
+    }
+    const endpoint = (origin: Arrayable<number>, component: Arrayable<number>) =>
+      Array.from(origin, (value, i) => value + scale*component[i])
+    return this.arrow(Array.from(x), Array.from(y), endpoint(x, u), endpoint(y, v), options)
   }
 
   whisker<Source extends GlyphSource = ColumnDataSource>(args?: GlyphOptions<WhiskerArgs, Source>): GlyphRendererWithSource<Segment, SourceOf<Source>>

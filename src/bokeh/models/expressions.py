@@ -72,6 +72,7 @@ __all__ = (
     'Expression',
     'IndexedLookup',
     'PolarTransform',
+    'QuiverEndpoint',
     'Stack',
 )
 
@@ -178,6 +179,14 @@ class Stack(Expression):
     Will compute an array of values (in the browser) by adding the elements
     of the ``'sales'`` and ``'marketing'`` columns of a data source.
     """)
+
+
+class QuiverEndpoint(Expression):
+    """Compute one coordinate of a vector endpoint as origin + scale * component."""
+
+    origin = Required(String, help="The column containing the vector origins.")
+    component = Required(String, help="The column containing the vector components.")
+    scale = Float(default=1, help="The multiplier applied to the vector components.")
 
 
 class IndexedLookup(Expression):

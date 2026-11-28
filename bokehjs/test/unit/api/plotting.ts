@@ -1,4 +1,6 @@
 import {assert} from "@bokehjs/core/util/assert"
+import {QuiverEndpoint} from "@bokehjs/models/expressions/quiver_endpoint"
+import {isExpr, isField} from "@bokehjs/core/vectorization"
 import {PathPlacement} from "@bokehjs/models/graphics/path_placement"
 import {expect} from "#framework/assertions"
 
@@ -209,6 +211,37 @@ describe("in api/plotting module", () => {
 
         expect(() => p.annular_wedge({...attrs, start_angle_units: "deg"})).to.throw(Error)
         expect(() => p.annular_wedge({...attrs, end_angle_units: "deg"})).to.throw(Error)
+      })
+
+      describe("quiver()", () => {
+        it("computes scaled endpoints from arrays and forwards arrow options", () => {
+          const r = figure().quiver(new Float64Array([1, 2]), [3, 4], new Float32Array([-2, 0]), [0, 3], {scale: 0.5, end: null})
+          const {x1, y1} = r.glyph
+          assert(isField(x1) && isField(y1))
+          expect(r.data_source.get_field(x1.field)).to.be.equal([0, 2])
+          expect(r.data_source.get_field(y1.field)).to.be.equal([3, 5.5])
+          expect(r.glyph.path_markings.length).to.be.equal(0)
+        })
+
+        it("updates named endpoints when source data or scale changes", () => {
+          const source = ColumnDataSource.create({data: {x: [1], y: [2], u: [3], v: [-4]}})
+          const r = figure().quiver({x: "x", y: "y", u: "u", v: "v", source})
+          const {x1, y1} = r.glyph
+          assert(isExpr(x1) && x1.expr instanceof QuiverEndpoint)
+          assert(isExpr(y1) && y1.expr instanceof QuiverEndpoint)
+          expect(x1.expr.v_compute(source)).to.be.equal(new Float64Array([4]))
+          expect(y1.expr.v_compute(source)).to.be.equal(new Float64Array([-2]))
+          source.patch({u: [[0, 7]]})
+          expect(x1.expr.v_compute(source)).to.be.equal(new Float64Array([8]))
+          x1.expr.scale = 2
+          expect(x1.expr.v_compute(source)).to.be.equal(new Float64Array([15]))
+        })
+
+        it("rejects mismatched lengths and literal coordinates with a source", () => {
+          const p = figure()
+          expect(() => p.quiver([1], [2], [], [4])).to.throw(Error)
+          expect(() => p.quiver([1], "y", "u", "v", {source: {y: [2], u: [3], v: [4]}})).to.throw(Error)
+        })
       })
 
       describe("arrow()", () => {

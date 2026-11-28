@@ -66,8 +66,9 @@ class Test_figure:
         renderer = plot.quiver("x", "y", "u", "v", source=source, scale=2)
 
         assert renderer.data_source is source
-        assert renderer.glyph.x1.expr.args == dict(origin="x", component="u", scale=2)
-        assert renderer.glyph.y1.expr.args == dict(origin="y", component="v", scale=2)
+        x_end, y_end = renderer.glyph.x1.expr, renderer.glyph.y1.expr
+        assert (x_end.origin, x_end.component, x_end.scale) == ("x", "u", 2)
+        assert (y_end.origin, y_end.component, y_end.scale) == ("y", "v", 2)
         assert list(source.column_names) == ["x", "y", "u", "v"]
 
     def test_quiver_rejects_literal_coordinates_with_source(self) -> None:

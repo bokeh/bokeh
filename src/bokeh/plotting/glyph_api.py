@@ -141,23 +141,13 @@ Examples:
         """
         if kwargs.get("source") is not None:
             from ..core.property.vectorization import Expr
-            from ..models.expressions import CustomJSExpr
+            from ..models.expressions import QuiverEndpoint
 
             if not all(isinstance(column, str) for column in (x, y, u, v)):
                 raise ValueError("x, y, u, and v must be column names when a source is supplied")
 
             def endpoint(origin: str, component: str) -> Expr:
-                return Expr(CustomJSExpr(
-                    args=dict(origin=origin, component=component, scale=scale),
-                    code="""
-                        const positions = this.get_field(origin)
-                        const components = this.get_field(component)
-                        if (positions == null || components == null) {
-                            return NaN
-                        }
-                        return Float64Array.from(positions, (position, i) => position + scale*components[i])
-                    """,
-                ))
+                return Expr(QuiverEndpoint(origin=origin, component=component, scale=scale))
 
             return self.arrow(x, y, endpoint(x, u), endpoint(y, v), **kwargs)
 

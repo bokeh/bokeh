@@ -455,10 +455,11 @@ non-default ranges as described in :ref:`ug_basic_axes_twin`.
 .. bokeh-plot:: __REPO__/examples/basic/annotations/arrow.py
     :source-position: above
 
-For a quiver plot, pass arrays of vector origins and endpoints to
-``figure.arrow()``. Compute the endpoints as ``x + scale*u`` and
-``y + scale*v``, where ``u`` and ``v`` are the vector components and
-``scale`` controls their displayed lengths. The following example colors
+To draw a vector field, use ``p.quiver(x, y, u, v, scale=scale)``. Each
+arrow starts at ``(x, y)`` and ends at ``(x + scale*u, y + scale*v)`` in
+data coordinates. Pass four equally sized arrays, or pass four column
+names and a data source. With a source, the endpoints update when the
+underlying data changes. The following example colors
 both the shafts and arrowheads by vector magnitude:
 
 .. bokeh-plot:: __REPO__/examples/basic/annotations/quiver.py
