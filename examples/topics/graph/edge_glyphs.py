@@ -1,4 +1,4 @@
-''' Segment and Bezier glyphs as decorated directed graph edges.
+''' Compare straight Segment and curved Bezier graph edges.
 
 .. bokeh-example-metadata::
     :title: Edge glyphs
@@ -7,12 +7,12 @@
     :refs: :ref:`ug_topics_graph`, :ref:`ug_basic_annotations_arrows`
 
 '''
-from bokeh.layouts import row
+from bokeh.layouts import column, row
 from bokeh.models import (
     Bezier,
+    Div,
     EdgesAndLinkedNodes,
     GraphRenderer,
-    MultiLine,
     NormalHead,
     Scatter,
     Segment,
@@ -22,7 +22,7 @@ from bokeh.plotting import figure, show
 
 positions = {0: (0, 0), 1: (2, 0), 2: (1, 1.5)}
 plots = []
-for glyph_type in (MultiLine, Segment, Bezier):
+for glyph_type in (Segment, Bezier):
     graph = GraphRenderer(name=f"graph-{glyph_type.__name__}", layout_provider=StaticLayoutProvider(graph_layout=positions))
     graph.node_renderer.data_source.data = dict(index=[0, 1, 2])
     graph.node_renderer.glyph = Scatter(size=32, fill_color="#0072B2", line_color="white")
@@ -39,12 +39,18 @@ for glyph_type in (MultiLine, Segment, Bezier):
         at="end", inset=18,
     )
     graph.selection_policy = EdgesAndLinkedNodes()
-    p = figure(width=300, height=330, x_range=(-0.5, 2.5), y_range=(-1, 2),
-               title=glyph_type.__name__, tools="tap,box_select,reset")
+    p = figure(width=340, height=300, x_range=(-0.5, 2.5), y_range=(-1, 2),
+               title=glyph_type.__name__, tools="tap,reset", toolbar_location="above",
+               background_fill_color="#f8fafc", outline_line_color=None)
     p.axis.visible = False
     p.grid.visible = False
+    p.toolbar.logo = None
     p.renderers.append(graph)
     plots.append(p)
 
-layout = row(*plots)
-show(layout)
+intro = Div(width=680, text="""
+<h2>Straight and curved graph edges</h2>
+<p>Both graphs use the same nodes. The Bézier edges use control points to change the route.
+Tap an edge to highlight it and its endpoints.</p>
+""")
+show(column(intro, row(*plots)))

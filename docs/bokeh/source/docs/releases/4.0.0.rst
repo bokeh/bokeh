@@ -70,6 +70,11 @@ New features
   ``.md`` suffix instead of ``.html``, and an ``llms.txt`` index lists these
   pages (:bokeh-issue:`15845`).
 
+* Added ``GraphDataSource`` to pair the indexed node and edge sources used
+  by ``GraphRenderer``. It accepts column mappings, graph records, and
+  NetworkX graphs. Supply custom node and edge renderers when constructing
+  the graph renderer, and update their data through the paired sources.
+
 Removals
 --------
 

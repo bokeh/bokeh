@@ -83,6 +83,7 @@ if TYPE_CHECKING:
     )
     from ..models.renderers.contour_renderer import ContourRenderer
     from ..models.renderers.glyph_renderer import GlyphRenderer
+    from ..models.sources import GraphEdges, GraphNodes
     from ..util.datatypes import SequenceLike
 
 #-----------------------------------------------------------------------------
@@ -671,19 +672,15 @@ class figure(Plot, GlyphAPI):
         '''
         return self._line_stack(stackers, "y", **kw)
 
-    def graph(self, node_source: ColumnDataSource, edge_source: ColumnDataSource, layout_provider: LayoutProvider, **kwargs):
+    def graph(self, node_source: GraphNodes, edge_source: GraphEdges, layout_provider: LayoutProvider, **kwargs):
         ''' Creates a network graph using the given node, edge and layout provider.
 
         Args:
-            node_source (:class:`~bokeh.models.sources.ColumnDataSource`) : a user-supplied data source
-                for the graph nodes. An attempt will be made to convert the object to
-                :class:`~bokeh.models.sources.ColumnDataSource` if needed. If none is supplied, one is created
-                for the user automatically.
+            node_source : An indexed source, mapping, dataframe, or sequence of
+                node identifiers or records.
 
-            edge_source (:class:`~bokeh.models.sources.ColumnDataSource`) : a user-supplied data source
-                for the graph edges. An attempt will be made to convert the object to
-                :class:`~bokeh.models.sources.ColumnDataSource` if needed. If none is supplied, one is created
-                for the user automatically.
+            edge_source : An indexed source, mapping, dataframe, or sequence of
+                edge tuples or records.
 
             layout_provider (:class:`~bokeh.models.graphs.LayoutProvider`) : a ``LayoutProvider`` instance to
                 provide the graph coordinates in Cartesian space.

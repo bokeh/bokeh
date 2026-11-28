@@ -263,6 +263,7 @@ export abstract class AxisView extends GuideRendererView {
       for (const label_view of this._major_label_views.values()) {
         label_view.remove()
       }
+      this._major_label_views.clear()
       await this._init_major_labels()
     })
 

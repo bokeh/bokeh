@@ -9,3 +9,5 @@ export {WebDataSource}      from "./web_data_source"
 export {IndexedDataSource}  from "./indexed_data_source"
 export {RecordDataSource}   from "./record_data_source"
 export {GeometryDataSource} from "./geometry_data_source"
+
+export {GraphDataSource}    from "./graph_data_source"

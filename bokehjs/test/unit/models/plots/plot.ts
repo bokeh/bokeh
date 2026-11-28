@@ -1,7 +1,7 @@
 import * as sinon from "sinon"
 
 import {expect, expect_not_null} from "#framework/assertions"
-import {display} from "#framework/layouts"
+import {display, fig, row} from "#framework/layouts"
 
 import {Plot} from "@bokehjs/models/plots/plot"
 import type {PlotView} from "@bokehjs/models/plots/plot"
@@ -43,6 +43,41 @@ function new_plot_with_tools(): PlotWithTools {
 }
 
 describe("Plot module", () => {
+  it("updates a shared DataRange1d when a plot is removed and re-added", async () => {
+    const x_range = DataRange1d.create({range_padding: 0})
+    const left = fig([200, 200], {x_range})
+    const right = fig([200, 200], {x_range})
+    left.scatter([1, 2], [1, 2])
+    right.scatter([10, 20], [1, 2])
+
+    const layout = row([left, right])
+    const {view} = await display(layout)
+    expect(x_range.start).to.be.equal(1)
+    expect(x_range.end).to.be.equal(20)
+
+    layout.children = [left]
+    await view.ready
+    expect(x_range.start).to.be.equal(1)
+    expect(x_range.end).to.be.equal(2)
+
+    x_range.start = -5
+    await view.ready
+    expect(x_range.start).to.be.equal(-5)
+    layout.children = [left, right]
+    await view.ready
+    await view.owner.get_one(right).ready
+    expect(x_range.start).to.be.equal(-5)
+
+    view.owner.get_one(left).reset()
+    await view.ready
+    expect(x_range.start).to.be.equal(1)
+    expect(x_range.end).to.be.equal(20)
+
+    layout.children = [left]
+    await view.ready
+    expect(x_range.start).to.be.equal(1)
+    expect(x_range.end).to.be.equal(2)
+  })
 
   describe("Plot", () => {
     it("should add single tool using add_tools method", () => {

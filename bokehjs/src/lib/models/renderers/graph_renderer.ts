@@ -1,6 +1,7 @@
 import {DataRenderer, DataRendererView} from "./data_renderer"
 import type {GlyphRendererView} from "./glyph_renderer"
-import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import {GraphDataSource} from "../sources/graph_data_source"
+import type {IndexedDataSource} from "../sources/indexed_data_source"
 import type {GlyphRendererWithSource} from "./glyph_renderer"
 import {GlyphRenderer} from "./glyph_renderer"
 import {GlyphView} from "../glyphs/glyph"
@@ -16,11 +17,14 @@ import type {Context2d} from "core/util/canvas"
 import type {SelectionManager} from "core/selection_manager"
 import {XYGlyph} from "../glyphs/xy_glyph"
 import {MultiLine} from "../glyphs/multi_line"
+import {Scatter} from "../glyphs/scatter"
 import {Segment} from "../glyphs/segment"
 import {Bezier} from "../glyphs/bezier"
 import {Patches} from "../glyphs/patches"
 
 type EdgeGlyph = MultiLine | Patches | Segment | Bezier
+type NodeRenderer = GlyphRendererWithSource<XYGlyph, IndexedDataSource>
+type EdgeRenderer = GlyphRendererWithSource<EdgeGlyph, IndexedDataSource>
 
 export class GraphRendererView extends DataRendererView {
   declare model: GraphRenderer
@@ -156,9 +160,10 @@ export namespace GraphRenderer {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = DataRenderer.Props & {
+    data_source: p.Property<GraphDataSource>
     layout_provider: p.Property<LayoutProvider>
-    node_renderer: p.Property<GlyphRendererWithSource<XYGlyph, ColumnarDataSource>>
-    edge_renderer: p.Property<GlyphRendererWithSource<EdgeGlyph, ColumnarDataSource>>
+    node_renderer: p.Property<NodeRenderer>
+    edge_renderer: p.Property<EdgeRenderer>
     selection_policy: p.Property<GraphHitTestPolicy>
     inspection_policy: p.Property<GraphHitTestPolicy>
   }
@@ -170,13 +175,50 @@ export class GraphRenderer extends DataRenderer {
   declare properties: GraphRenderer.Props
   declare __view_type__: GraphRendererView
 
+  protected constructor(attrs: Partial<GraphRenderer.Attrs> = {}) {
+    const normalized = {...attrs}
+    super(normalized)
+
+    // Serialized graphs carry the source and both renderers, even with defaults omitted.
+    if (this.is_deferred) {
+      return
+    }
+
+    const {node_renderer, edge_renderer} = attrs
+    const data_source = attrs.data_source ?? GraphDataSource.create({
+      nodes: node_renderer?.data_source,
+      edges: edge_renderer?.data_source,
+    })
+
+    // HasProps applies the normalized attributes after construction.
+    Object.assign(normalized, {
+      data_source,
+      node_renderer: node_renderer ?? GlyphRenderer.create({glyph: Scatter.create(), data_source: data_source.nodes}),
+      edge_renderer: edge_renderer ?? GlyphRenderer.create({glyph: MultiLine.create(), data_source: data_source.edges}),
+    })
+  }
+
+  override initialize(): void {
+    super.initialize()
+
+    // Referenced renderers have their properties by this point, including when decoding a cycle.
+    const {data_source, node_renderer, edge_renderer} = this
+    if (node_renderer.data_source != data_source.nodes) {
+      throw new Error("GraphRenderer node_renderer and data_source must use the same node source")
+    }
+    if (edge_renderer.data_source != data_source.edges) {
+      throw new Error("GraphRenderer edge_renderer and data_source must use the same edge source")
+    }
+  }
+
   static {
     this.prototype.default_view = GraphRendererView
 
     this.define<GraphRenderer.Props>(({Ref}) => ({
+      data_source:       [ Ref(GraphDataSource), undefined, {readonly: true} ],
       layout_provider:   [ Ref(LayoutProvider) ],
-      node_renderer:     [ Ref(GlyphRenderer<XYGlyph>) ],
-      edge_renderer:     [ Ref(GlyphRenderer<EdgeGlyph>) ],
+      node_renderer:     [ Ref(GlyphRenderer<XYGlyph>), undefined, {readonly: true} ],
+      edge_renderer:     [ Ref(GlyphRenderer<EdgeGlyph>), undefined, {readonly: true} ],
       selection_policy:  [ Ref(GraphHitTestPolicy), () => NodesOnly.create() ],
       inspection_policy: [ Ref(GraphHitTestPolicy), () => NodesOnly.create() ],
     }))
