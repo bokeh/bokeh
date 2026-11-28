@@ -70,6 +70,15 @@ class Test_figure:
         assert renderer.glyph.y1.expr.args == dict(origin="y", component="v", scale=2)
         assert list(source.column_names) == ["x", "y", "u", "v"]
 
+    def test_quiver_rejects_literal_coordinates_with_source(self) -> None:
+        plot = bpf.figure()
+        source = ColumnDataSource(dict(x=[1], y=[2], u=[3], v=[4]))
+
+        with pytest.raises(ValueError, match="must be column names when a source is supplied"):
+            plot.quiver([1], "y", "u", "v", source=source)
+
+        assert not plot.renderers
+
     def test_quiver_rejects_mismatched_vectors(self) -> None:
         with pytest.raises(ValueError, match="equally sized one-dimensional arrays"):
             bpf.figure().quiver([1], [2], [3, 4], [5])
